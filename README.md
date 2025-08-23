@@ -7,7 +7,7 @@ A modern React application for analyzing and comparing BDSM role compatibility t
 - **Multiple Test Comparison**: Compare results from multiple BDSM compatibility tests
 - **Role Compatibility Matrix**: Interactive matrix showing compatibility between 25 different BDSM roles
 - **Visual Analytics**: Radar charts, percentage breakdowns, and detailed comparisons
-- **Smart Recommendations**: AI-powered suggestions based on compatibility results
+- **Smart Recommendations**: Smart suggestions based on compatibility results
 - **Modern UI**: Glass morphism design with smooth animations
 - **Custom Test Names**: Add custom names and emojis to your test results
 
@@ -99,7 +99,7 @@ npm run build
 1. **Add Test Results**: Enter your BDSM compatibility test results by providing the test ID
 2. **Compare Results**: Add multiple test results to compare compatibility
 3. **Analyze Compatibility**: Use the various analysis tools to understand your compatibility
-4. **Get Recommendations**: View AI-powered suggestions for activities and scenarios
+4. **Get Recommendations**: View smart suggestions for activities and scenarios
 
 ## Analysis Tools
 
@@ -108,7 +108,7 @@ npm run build
 - **Shared Interests**: Analysis of shared interests across test results
 - **Compatibility Score**: Overall compatibility score between two results
 - **Role Compatibility Matrix**: Interactive matrix showing role compatibility
-- **Smart Recommendations**: AI-powered activity and scenario suggestions
+- **Smart Recommendations**: Smart activity and scenario suggestions
 - **Radar Chart**: Visual comparison of top role interests
 - **Scenario Builder**: Build custom BDSM scenarios based on compatibility
 

@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
-
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
 import SharedInterests from './components/SharedInterests'
@@ -11,7 +10,10 @@ import RoleCompatibilityMatrix from './components/RoleCompatibilityMatrix'
 import SmartRecommendations from './components/SmartRecommendations'
 import RadarChart from './components/RadarChart'
 import ScenarioBuilder from './components/ScenarioBuilder'
-import { fetchBDSMResults } from './utils/bdsmApi'
+import AdvancedAnalysis from './components/AdvancedAnalysis'
+import ExportResults from './components/ExportResults'
+import UserProfiles from './components/UserProfiles'
+import apiService from './utils/api'
 
 function App() {
   const [testIds, setTestIds] = useState([''])
@@ -20,7 +22,8 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', or 'shared'
+  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles'
+  const [loadingProfiles, setLoadingProfiles] = useState(false)
 
   const addTestId = () => {
     setTestIds([...testIds, ''])
@@ -58,6 +61,67 @@ function App() {
     setTestNames(newTestNames)
   }
 
+  const loadFavorites = async () => {
+    setLoadingProfiles(true)
+    setError('')
+    
+    try {
+      const response = await apiService.getFavorites()
+      const favorites = response.favorites || []
+      
+      if (favorites.length === 0) {
+        setError('No favorites found. Add some profiles to favorites first!')
+        setLoadingProfiles(false)
+        return
+      }
+
+      // Clear current inputs and results
+      setTestIds([''])
+      setTestEmojis(['♞'])
+      setTestNames([''])
+      setResults([])
+
+      // Load favorites into the form
+      const newTestIds = []
+      const newTestEmojis = []
+      const newTestNames = []
+      
+      for (const favorite of favorites) {
+        newTestIds.push(favorite.test_id)
+        newTestEmojis.push(favorite.emoji)
+        newTestNames.push(favorite.name)
+      }
+      
+      setTestIds(newTestIds)
+      setTestEmojis(newTestEmojis)
+      setTestNames(newTestNames)
+
+      // Now fetch the stored results for all favorites
+      const resultsData = await Promise.all(
+        newTestIds.map(async (id, index) => {
+          try {
+            const result = await apiService.fetchTestResults(id.trim())
+            // Add the selected emoji and name to the result
+            result.selectedEmoji = newTestEmojis[index]
+            result.testName = newTestNames[index] || `Test ${index + 1}`
+            return result
+          } catch (err) {
+            console.error(`Error fetching results for ${id}:`, err)
+            return { id, error: `Failed to fetch results for ${id}`, selectedEmoji: newTestEmojis[index] }
+          }
+        })
+      )
+
+      setResults(resultsData)
+      
+    } catch (err) {
+      setError('Failed to load favorites. Please try again.')
+      console.error('Error loading favorites:', err)
+    } finally {
+      setLoadingProfiles(false)
+    }
+  }
+
   const fetchResults = async () => {
     setLoading(true)
     setError('')
@@ -73,10 +137,20 @@ function App() {
       const resultsData = await Promise.all(
         validIds.map(async (id, index) => {
           try {
-            const result = await fetchBDSMResults(id.trim())
+            const result = await apiService.fetchTestResults(id.trim())
             // Add the selected emoji and name to the result
             result.selectedEmoji = testEmojis[index]
             result.testName = testNames[index] || `Test ${index + 1}` // Use name or default
+            
+            // Save profile if name is provided
+            if (testNames[index] && testNames[index].trim()) {
+              try {
+                await apiService.createProfile(testNames[index].trim(), id.trim(), testEmojis[index])
+              } catch (profileError) {
+                console.log('Could not save profile:', profileError.message)
+              }
+            }
+            
             return result
           } catch (err) {
             console.error(`Error fetching results for ${id}:`, err)
@@ -210,13 +284,35 @@ function App() {
               </div>
             ))}
             
-            <button
-              onClick={addTestId}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Another Test ID
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={addTestId}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Another Test ID
+              </button>
+              
+                             <motion.button
+                 whileHover={{ scale: 1.02 }}
+                 whileTap={{ scale: 0.98 }}
+                 onClick={loadFavorites}
+                 disabled={loadingProfiles}
+                 className="flex items-center gap-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-200 rounded-lg transition-colors disabled:opacity-50"
+               >
+                 {loadingProfiles ? (
+                   <>
+                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-200"></div>
+                     Loading...
+                   </>
+                 ) : (
+                   <>
+                     <Activity className="w-4 h-4" />
+                     Load Favorites
+                   </>
+                 )}
+               </motion.button>
+            </div>
           </div>
 
           <motion.button
@@ -259,10 +355,10 @@ function App() {
           >
             {/* Tab Navigation */}
             <div className="glass-effect rounded-2xl p-2 mb-6">
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('detailed')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'detailed'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
@@ -273,7 +369,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('comparison')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'comparison'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
@@ -284,7 +380,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('breakdown')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'breakdown'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
@@ -295,7 +391,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('shared')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'shared'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
@@ -304,28 +400,65 @@ function App() {
                   <Heart className="w-5 h-5" />
                   Shared Interests
                 </button>
+                <button
+                  onClick={() => setActiveTab('advanced')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'advanced'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Brain className="w-5 h-5" />
+                  Advanced Analysis
+                </button>
+                <button
+                  onClick={() => setActiveTab('export')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'export'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Download className="w-5 h-5" />
+                  Export Results
+                </button>
+                <button
+                  onClick={() => setActiveTab('profiles')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'profiles'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  User Profiles
+                </button>
               </div>
             </div>
 
             {/* Tab Content */}
             {activeTab === 'detailed' ? (
-              <>
-                <BDSMResults results={results} />
-              </>
+              <BDSMResults results={results} />
             ) : activeTab === 'comparison' ? (
               <ComparisonGraph results={results} />
             ) : activeTab === 'breakdown' ? (
               <PercentageBreakdown results={results} />
-                                  ) : (
-                        <>
-                          <CompatibilityScore results={results} />
-                          <RoleCompatibilityMatrix results={results} />
-                          <SmartRecommendations results={results} />
-                          <RadarChart results={results} />
-                          <ScenarioBuilder results={results} />
-                          <SharedInterests results={results} />
-                        </>
-                      )}
+            ) : activeTab === 'shared' ? (
+              <>
+                <CompatibilityScore results={results} />
+                <RoleCompatibilityMatrix results={results} />
+                <SmartRecommendations results={results} />
+                <RadarChart results={results} />
+                <ScenarioBuilder results={results} />
+                <SharedInterests results={results} />
+              </>
+            ) : activeTab === 'advanced' ? (
+              <AdvancedAnalysis results={results} />
+            ) : activeTab === 'export' ? (
+              <ExportResults results={results} />
+            ) : activeTab === 'profiles' ? (
+              <UserProfiles results={results} />
+            ) : null}
           </motion.div>
         )}
       </main>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BarChart3, TrendingUp, Heart, Zap, Info, X } from 'lucide-react'
+import { getRoleDescription } from '../utils/roleDescriptions'
 
 const BDSMResults = ({ results }) => {
   const [expandedRoles, setExpandedRoles] = useState({})
@@ -68,31 +69,61 @@ const BDSMResults = ({ results }) => {
     
     // Fallback to hardcoded descriptions
     const descriptions = {
-      'Submissive': 'Enjoys being controlled, following orders, and serving their partner. Often finds pleasure in giving up control and being guided.',
-      'Dominant': 'Takes control in scenes, enjoys giving orders, and leading their partner. Finds pleasure in being in charge and directing activities.',
-      'Switch': 'Enjoys both dominant and submissive roles, can adapt to different situations and partner preferences.',
-      'Voyeur': 'Gets aroused by watching others engage in sexual activities. Enjoys observing without necessarily participating.',
-      'Exhibitionist': 'Enjoys being watched during sexual activities. Gets pleasure from performing for others or being seen.',
-      'Rope bunny': 'Enjoys being tied up, restrained, or bound. Finds pleasure in the sensation and helplessness of bondage.',
-      'Rigger': 'Enjoys tying up their partner, creating intricate bondage patterns, and controlling through restraint.',
-      'Masochist': 'Enjoys receiving pain or discomfort for sexual pleasure. Finds arousal in physical sensations like spanking, biting, etc.',
-      'Sadist': 'Enjoys giving pain or discomfort to their partner for sexual pleasure. Finds arousal in causing controlled physical sensations.',
-      'Brat': 'A submissive who enjoys being playful, disobedient, or challenging. Often provokes their dominant for fun.',
-      'Brat tamer': 'Enjoys dealing with bratty behavior, using discipline and control to manage playful disobedience.',
-      'Daddy/Mommy': 'Takes on a nurturing, caring dominant role. Often involves age play or caregiver dynamics.',
-      'Little': 'Enjoys age regression, being cared for, and taking on a younger persona in scenes.',
-      'Ageplayer': 'Enjoys role-playing different ages, often involving age regression or age progression scenarios.',
-      'Pet': 'Enjoys taking on animal characteristics, often involves pet play, collars, and animal-like behavior.',
-      'Owner': 'Takes responsibility for their pet partner, provides care, training, and guidance.',
-      'Master/Mistress': 'A more formal dominant role, often involves strict protocols, training, and long-term power exchange.',
-      'Slave': 'A more intense submissive role, often involves complete submission, protocols, and serving their master/mistress.',
-      'Degrader': 'Enjoys verbally or emotionally degrading their partner, using humiliation and verbal control.',
-      'Degradee': 'Enjoys being verbally or emotionally degraded, finds pleasure in humiliation and verbal submission.',
-      'Primal (Hunter)': 'Enjoys predatory behavior, chasing, and taking what they want. Often involves animalistic instincts.',
-      'Primal (Prey)': 'Enjoys being chased, caught, and "hunted" by their partner. Finds pleasure in the chase and capture.',
-      'Experimentalist': 'Enjoys trying new things, exploring different kinks, and being open to new experiences.',
-      'Vanilla': 'Prefers traditional, non-kinky sexual activities. Enjoys conventional romantic and sexual experiences.',
-      'Non-monogamist': 'Enjoys having multiple partners or open relationships. Finds fulfillment in polyamory or ethical non-monogamy.'
+      'Submissive': '**Submissive individuals** find deep fulfillment in surrendering control to their partner, embracing a role of service and obedience. This dynamic involves following orders, accepting guidance, and finding pleasure in being directed rather than directing. Submissives often experience intense satisfaction from giving up power, being cared for, and serving their dominant partner\'s needs. The role encompasses various levels of submission, from light service-oriented activities to complete surrender, and can include protocols, rituals, and structured dynamics that provide comfort and security through clear expectations and boundaries.',
+      
+      'Dominant': '**Dominant individuals** thrive on taking control and leading their partner through scenes and dynamics. This role involves making decisions, giving orders, and directing activities while ensuring the safety and well-being of their submissive partner. Dominants find satisfaction in being in charge, providing structure, and guiding their partner\'s experiences. The role requires responsibility, clear communication, and the ability to read their partner\'s responses and adjust accordingly. Dominance can manifest in various ways, from gentle guidance to strict control, and often includes elements of protection, teaching, and nurturing within the power dynamic.',
+      
+      'Switch': '**Switch individuals** possess the unique ability to enjoy both dominant and submissive roles, adapting their energy and approach based on the situation, partner, or their own needs. This flexibility allows them to experience the full spectrum of BDSM dynamics and provides opportunities for deeper understanding of both sides of power exchange. Switches can alternate between roles within the same relationship, with different partners, or based on their current emotional state. This adaptability often leads to more balanced relationships and enhanced communication skills, as they can empathize with both dominant and submissive perspectives.',
+      
+      'Voyeur': '**Voyeuristic individuals** derive intense arousal and satisfaction from watching others engage in sexual activities or intimate moments. This can involve observing partners, other couples, or performances in safe, consensual environments. Voyeurs often have highly developed visual imaginations and find pleasure in the anticipation and observation aspects of sexuality. The role can include watching live performances, viewing recorded content, or observing through windows or other means in appropriate settings. Voyeurism is about the thrill of watching and the mental stimulation that comes from observing intimate moments.',
+      
+      'Exhibitionist': '**Exhibitionist individuals** find deep pleasure in being watched during sexual activities or intimate moments. This can involve performing for partners, other couples, or audiences in safe, consensual environments. Exhibitionists often enjoy the attention, validation, and thrill that comes from being observed. The role can include performing live, creating content for viewing, or engaging in activities in semi-public spaces where they might be seen. Exhibitionism is about the excitement of being the center of attention and the validation that comes from being desired and observed.',
+      
+      'Rope bunny': '**Rope bunnies** find intense pleasure and satisfaction in being tied up, restrained, or bound by their partner. This role involves enjoying the physical sensations of rope, the helplessness of being restrained, and the trust required to surrender control to their rigger. Rope bunnies often experience deep relaxation, meditation-like states, or intense arousal from the combination of physical restraint and mental surrender. The role can include various types of bondage, from simple wrist ties to complex full-body harnesses, and often involves elements of sensory deprivation and vulnerability.',
+      
+      'Rigger': '**Riggers** are skilled practitioners who enjoy creating intricate bondage patterns and controlling their partner through restraint. This role involves learning various tying techniques, understanding safety protocols, and developing the ability to read their partner\'s responses to different types of bondage. Riggers find satisfaction in the artistic and technical aspects of rope work, as well as the power dynamic created through physical restraint. The role requires ongoing education, practice, and a deep understanding of anatomy and safety to ensure their partner\'s well-being while creating beautiful and functional bondage.',
+      
+      'Masochist': '**Masochistic individuals** find pleasure and arousal in receiving pain or discomfort in a sexual context. This can involve various types of impact play, sensation play, or other forms of controlled discomfort. Masochists often experience endorphin rushes, altered states of consciousness, or intense emotional release through pain. The role requires clear communication about limits, pain tolerance, and the types of sensations that are pleasurable. Masochism is about finding pleasure in controlled, consensual pain rather than actual harm, and often involves elements of trust, surrender, and emotional catharsis.',
+      
+      'Sadist': '**Sadistic individuals** find pleasure and arousal in giving pain or discomfort to their partner in a sexual context. This role involves understanding various implements, techniques, and safety protocols to ensure their partner\'s well-being while providing the desired sensations. Sadists often enjoy the power dynamic, the technical skill involved, and the satisfaction of meeting their partner\'s needs. The role requires ongoing education, clear communication, and the ability to read their partner\'s responses to adjust intensity and technique accordingly. Sadism is about providing controlled, consensual pain rather than causing harm.',
+      
+      'Brat': '**Bratty individuals** are submissives who enjoy being playful, disobedient, or challenging to their dominant partner. This role involves pushing boundaries, testing limits, and provoking their partner in a consensual and playful manner. Brats often enjoy the attention, discipline, and dynamic tension that comes from their behavior. The role can include sass, backtalk, playful disobedience, or other behaviors designed to elicit a response from their dominant. Bratting is about maintaining the submissive role while adding elements of challenge and playfulness to the dynamic.',
+      
+      'Brat tamer': '**Brat tamers** are dominants who enjoy dealing with bratty behavior and using discipline, control, and creativity to manage playful disobedience. This role involves understanding brat psychology, developing effective responses to various types of bratting, and maintaining the power dynamic while appreciating the playful challenge. Brat tamers often enjoy the creativity required, the dynamic tension, and the satisfaction of successfully managing their brat\'s behavior. The role requires patience, creativity, and the ability to distinguish between playful bratting and actual problems.',
+      
+      'Daddy/Mommy': '**Daddy/Mommy dynamics** involve taking on a nurturing, caring dominant role that combines elements of authority with emotional support and guidance. This role often includes elements of age play, caregiver dynamics, or simply a nurturing approach to dominance. Daddy/Mommy figures provide structure, care, discipline, and emotional support while maintaining the power dynamic. The role can involve setting rules, providing guidance, offering comfort, and creating a safe, structured environment for their partner to thrive within.',
+      
+      'Little': '**Little individuals** enjoy age regression, being cared for, and taking on a younger persona in scenes or dynamics. This role involves embracing childlike qualities, seeking care and guidance, and finding comfort in being nurtured by their caregiver. Littles often enjoy activities, toys, and experiences associated with younger ages, and find deep emotional satisfaction in the care and attention they receive. The role can include various levels of regression, from light playfulness to deeper age play, and often involves elements of innocence, vulnerability, and trust.',
+      
+      'Ageplayer': '**Age players** enjoy role-playing different ages, often involving age regression, age progression, or exploring different life stages. This role can involve taking on younger or older personas, exploring different developmental stages, or experiencing different types of relationships and dynamics. Age play can be purely role-play or involve deeper psychological elements, and often includes costumes, props, and activities appropriate to the chosen age. The role allows for exploration of different perspectives, experiences, and relationship dynamics.',
+      
+      'Pet': '**Pet play** involves taking on animal characteristics, behaviors, and mindsets in a BDSM context. This role can include various types of animals, from puppies and kittens to more exotic creatures, and often involves elements of training, care, and animal-like behavior. Pets often enjoy the simplicity, care, and structure that comes with their role, as well as the attention and affection from their owner. The role can include collars, leashes, training, and various animal-like activities and behaviors.',
+      
+      'Owner': '**Pet owners** take responsibility for their pet partner, providing care, training, guidance, and structure within the pet play dynamic. This role involves understanding their pet\'s needs, providing appropriate care and discipline, and creating a structured environment where their pet can thrive. Owners often enjoy the responsibility, the bond with their pet, and the satisfaction of providing care and guidance. The role requires patience, understanding, and the ability to balance care with appropriate discipline and training.',
+      
+      'Master/Mistress': '**Master/Mistress dynamics** involve a more formal, structured approach to dominance that often includes strict protocols, training programs, and long-term power exchange relationships. This role emphasizes discipline, education, and the development of the submissive partner through structured training and clear expectations. Masters/Mistresses often enjoy the formal nature of the relationship, the opportunity to guide their partner\'s development, and the satisfaction of creating a well-trained, obedient submissive. The role requires dedication, clear communication, and a commitment to ongoing education and development.',
+      
+      'Slave': '**Slave dynamics** involve a more intense, complete form of submission that often includes strict protocols, complete surrender, and serving their master/mistress in various ways. This role can involve domestic service, sexual service, or other forms of complete submission and obedience. Slaves often find deep satisfaction in their role, the structure it provides, and the opportunity to serve and please their master/mistress. The role requires complete trust, dedication, and a commitment to the dynamic and protocols established by their master/mistress.',
+      
+      'Degrader': '**Degraders** enjoy verbally or emotionally degrading their partner, using humiliation, verbal control, and psychological elements to create intense power dynamics. This role involves understanding their partner\'s limits, using appropriate language and techniques, and creating consensual humiliation that enhances rather than harms the relationship. Degraders often enjoy the psychological control, the intensity of the dynamic, and the satisfaction of pushing their partner\'s boundaries in a safe, consensual way. The role requires clear communication, understanding of limits, and the ability to distinguish between consensual degradation and actual harm.',
+      
+      'Degradee': '**Degradees** find pleasure in being verbally or emotionally degraded, experiencing humiliation and verbal submission in a consensual context. This role involves embracing vulnerability, accepting verbal control, and finding arousal or satisfaction in being humiliated by their partner. Degradees often experience intense emotional responses, altered states of consciousness, or deep psychological release through consensual degradation. The role requires clear communication about limits, trust in their partner, and the ability to distinguish between consensual play and actual harm.',
+      
+      'Primal (Hunter)': '**Primal hunters** embrace their predatory instincts, enjoying the chase, capture, and claiming of their prey. This role involves animalistic behavior, physical intensity, and the satisfaction of pursuing and taking what they want. Hunters often enjoy the physicality, the intensity, and the raw, unfiltered nature of primal play. The role can include chasing, wrestling, biting, scratching, and other animalistic behaviors, often with a focus on physical dominance and claiming their partner.',
+      
+      'Primal (Prey)': '**Primal prey** enjoy being chased, caught, and "hunted" by their partner, embracing their vulnerability and the thrill of the chase. This role involves running, hiding, fighting back, and ultimately being captured and claimed by their hunter. Prey often enjoy the physical intensity, the adrenaline rush, and the satisfaction of being pursued and claimed. The role can include various forms of resistance, escape attempts, and ultimately surrender to their hunter\'s dominance.',
+      
+      'Experimentalist': '**Experimentalists** thrive on trying new things, exploring different kinks, and being open to new experiences and sensations. This role involves curiosity, adaptability, and a willingness to step outside comfort zones to discover new sources of pleasure and satisfaction. Experimentalists often enjoy the discovery process, the variety of experiences, and the opportunity to learn and grow through exploration. The role requires open communication, clear boundaries, and a commitment to ongoing learning and discovery.',
+      
+      'Vanilla': '**Vanilla individuals** prefer traditional, non-kinky sexual activities and conventional romantic experiences. This role involves enjoying standard sexual practices, romantic relationships, and traditional forms of intimacy without the elements of BDSM or kink. Vanilla individuals often find satisfaction in the simplicity, familiarity, and emotional connection of traditional relationships. The role emphasizes emotional intimacy, romantic connection, and conventional forms of sexual expression.',
+      
+      'Non-monogamist': '**Non-monogamous individuals** enjoy having multiple partners or open relationships, finding fulfillment in polyamory, ethical non-monogamy, or other forms of consensual multiple partnerships. This role involves managing multiple relationships, clear communication about boundaries and expectations, and finding satisfaction in the variety and complexity of multiple connections. Non-monogamists often enjoy the freedom, variety, and depth of multiple relationships, as well as the personal growth that comes from managing complex relationship dynamics.',
+      
+      'Monogamist': '**Monogamous individuals** prefer exclusive, committed relationships with one partner, valuing deep emotional and physical connection within a dedicated partnership. This role involves building deep intimacy, maintaining long-term commitment, and finding satisfaction in the exclusivity and depth of a single relationship. Monogamists often enjoy the security, depth, and focus that comes from dedicating themselves to one partner and building a life together.',
+      
+      'Boy/Girl': '**Boy/Girl dynamics** involve age play where individuals take on younger personas, often involving being cared for, guided, and nurtured by their partner. This role can include various levels of regression, from light playfulness to deeper age play, and often involves elements of innocence, vulnerability, and trust. Boy/Girl play allows for exploration of different developmental stages, relationship dynamics, and forms of care and guidance.',
+      
+      'Caregiver': '**Caregivers** take on a nurturing, protective role, often involving caring for and guiding their partner in various ways. This role can include emotional support, practical care, guidance, and creating a safe, structured environment for their partner to thrive. Caregivers often enjoy the responsibility, the bond with their partner, and the satisfaction of providing care and support. The role requires patience, understanding, and a commitment to their partner\'s well-being and growth.'
     }
     return descriptions[role] || 'A BDSM role or kink preference that involves specific dynamics and activities.'
   }
@@ -125,9 +156,9 @@ const BDSMResults = ({ results }) => {
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     result.dataSource === 'real' 
                       ? 'bg-green-500/20 text-green-300 border border-green-400/30' 
-                      : 'bg-orange-500/20 text-orange-300 border border-orange-400/30'
+                      : 'bg-blue-500/20 text-blue-300 border border-blue-400/30'
                   }`}>
-                    {result.dataSource === 'real' ? '🔗 REAL DATA (Puppeteer)' : '🎭 Demo Data'}
+                    {result.dataSource === 'real' ? '🔗 REAL DATA (Puppeteer)' : '💾 DATABASE DATA'}
                   </span>
                   {result.message && (
                     <span className="text-xs text-orange-300 opacity-80">

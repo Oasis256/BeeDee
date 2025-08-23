@@ -1,12 +1,30 @@
 import express from 'express';
 import puppeteer from 'puppeteer';
 import cors from 'cors';
+import Database from './server/database.js';
 
 const app = express();
-const PORT = 3001;
+let PORT = 3001;
+const db = new Database();
 
 // Enable CORS for the React app
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000', 
+    'https://localhost:3000',
+    'http://bee.shu-le.tech:3000', 
+    'https://bee.shu-le.tech:3000', 
+    'http://bee.shu-le.tech', 
+    'https://bee.shu-le.tech',
+    'http://bee.shu-le.tech:80',
+    'https://bee.shu-le.tech:443',
+    'http://dee.shu-le.tech',
+    'https://dee.shu-le.tech'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Function to scrape BDSMTest.org results using Puppeteer
@@ -231,6 +249,9 @@ const demoResults = {
   }
 };
 
+// Initialize database
+db.init().catch(console.error);
+
 // API endpoint to fetch BDSM test results
 app.get('/api/bdsm-results/:testId', async (req, res) => {
   const { testId } = req.params;
@@ -240,31 +261,48 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
   }
 
   try {
-    console.log(`🔍 Attempting to scrape real data for ${testId} using Puppeteer...`);
+    console.log(`🔍 Attempting to fetch results for ${testId}...`);
     
-    // Try to scrape real data first
+    // First, check if we have cached results in the database
+    const cachedResults = await db.getCachedResults(testId);
+    if (cachedResults) {
+      console.log(`📋 Found cached results for ${testId}`);
+      res.json(cachedResults);
+      return;
+    }
+    
+    // If no cached results, try to scrape real data
+    console.log(`🔍 Attempting to scrape real data for ${testId} using Puppeteer...`);
     const results = await scrapeBDSMResults(testId);
     
     if (results && results.length > 0) {
+      // Save results to database
+      await db.saveTestResults(testId, results, 'real');
+      
+      // Get profile if exists
+      const profile = await db.getProfile(testId);
+      
       const response = {
         id: testId,
         results: results,
         success: true,
         timestamp: new Date().toISOString(),
-        dataSource: 'real'
+        dataSource: 'real',
+        profile
       };
       
-      console.log(`✅ Successfully scraped ${results.length} results for ${testId}`);
+      console.log(`✅ Successfully scraped and saved ${results.length} results for ${testId}`);
       res.json(response);
     } else {
       // Fallback to demo data if scraping failed
       console.log(`⚠️ Scraping failed for ${testId}, using demo data`);
       
+      let demoData;
       if (demoResults[testId]) {
-        res.json(demoResults[testId]);
+        demoData = demoResults[testId];
       } else {
         // Generate random demo data for unknown test IDs
-        const genericDemo = {
+        demoData = {
           id: testId,
           results: demoResults['T8n7yENK'].results.map(result => ({
             ...result,
@@ -274,8 +312,11 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
           timestamp: new Date().toISOString(),
           dataSource: 'demo'
         };
-        res.json(genericDemo);
       }
+      
+      // Save demo data to database
+      await db.saveTestResults(testId, demoData.results, 'demo');
+      res.json(demoData);
     }
   } catch (error) {
     console.error(`❌ Error in API endpoint for ${testId}:`, error.message);
@@ -283,25 +324,361 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
     // Fallback to demo data on error
     console.log(`🔄 Backend error, using demo data for ${testId}`);
     
+    let demoData;
     if (demoResults[testId]) {
-      res.json(demoResults[testId]);
+      demoData = demoResults[testId];
     } else {
-      res.status(500).json({ 
-        error: 'Failed to fetch results',
-        success: false,
-        message: 'Backend error. This is demo data.'
-      });
+      demoData = {
+        id: testId,
+        results: demoResults['T8n7yENK'].results.map(result => ({
+          ...result,
+          percentage: Math.floor(Math.random() * 100)
+        })),
+        success: true,
+        timestamp: new Date().toISOString(),
+        dataSource: 'demo'
+      };
     }
+    
+    // Save demo data to database
+    try {
+      await db.saveTestResults(testId, demoData.results, 'demo');
+    } catch (dbError) {
+      console.error('Error saving demo data to database:', dbError);
+    }
+    
+    res.json(demoData);
   }
 });
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'BDSM Results API is running with Puppeteer' });
+  console.log(`🏥 Health check request from ${req.ip} (${req.headers.host})`)
+  res.json({ status: 'OK', message: 'BDSM Results API is running with Puppeteer and SQLite' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 BDSM Results API server running on http://localhost:${PORT}`);
-  console.log(`📊 API endpoint: http://localhost:${PORT}/api/bdsm-results/:testId`);
-  console.log(`🌐 Using Puppeteer to scrape real data from bdsmtest.org`);
+// Profile management endpoints
+app.post('/api/profiles', async (req, res) => {
+  try {
+    const { name, testId, emoji } = req.body;
+    const profile = await db.createProfile(name, testId, emoji);
+    res.json({ success: true, profile });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
+
+app.get('/api/profiles', async (req, res) => {
+  try {
+    const profiles = await db.getAllProfiles();
+    res.json({ success: true, profiles });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/profiles/:testId', async (req, res) => {
+  try {
+    const profile = await db.getProfile(req.params.testId);
+    if (profile) {
+      res.json({ success: true, profile });
+    } else {
+      res.status(404).json({ error: 'Profile not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/profiles/:testId', async (req, res) => {
+  try {
+    const { name, emoji } = req.body;
+    const profile = await db.updateProfile(req.params.testId, name, emoji);
+    res.json({ success: true, profile });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/profiles/:testId', async (req, res) => {
+  try {
+    await db.deleteProfile(req.params.testId);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Favorites endpoints
+app.post('/api/favorites', async (req, res) => {
+  try {
+    const { testId, name, emoji } = req.body;
+    await db.addFavorite(testId, name, emoji);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/favorites', async (req, res) => {
+  try {
+    console.log(`⭐ Favorites request from ${req.ip} (${req.headers.host})`)
+    const favorites = await db.getFavorites();
+    console.log(`✅ Returning ${favorites.length} favorites`)
+    res.json({ success: true, favorites });
+  } catch (error) {
+    console.error(`❌ Error in favorites endpoint:`, error)
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/favorites/:testId', async (req, res) => {
+  try {
+    await db.removeFavorite(req.params.testId);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Analysis history endpoints
+app.post('/api/analysis', async (req, res) => {
+  try {
+    const { testIds, analysisType, resultData } = req.body;
+    await db.saveAnalysis(testIds, analysisType, resultData);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analysis/history', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const history = await db.getAnalysisHistory(limit);
+    res.json({ success: true, history });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Export history endpoints
+app.post('/api/export', async (req, res) => {
+  try {
+    const { testIds, format, filePath } = req.body;
+    await db.saveExport(testIds, format, filePath);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/export/history', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const history = await db.getExportHistory(limit);
+    res.json({ success: true, history });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Share history endpoints
+app.post('/api/share', async (req, res) => {
+  try {
+    const { testIds, method, shareData } = req.body;
+    await db.saveShare(testIds, method, shareData);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/share/history', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const history = await db.getShareHistory(limit);
+    res.json({ success: true, history });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Scenario endpoints
+app.post('/api/scenarios', async (req, res) => {
+  try {
+    const scenarioData = req.body;
+    const scenarioId = await db.saveScenario(scenarioData);
+    res.json({ success: true, scenarioId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/scenarios', async (req, res) => {
+  try {
+    const { testIds } = req.query;
+    const scenarios = await db.getScenarios(testIds ? JSON.parse(testIds) : null);
+    res.json({ success: true, scenarios });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/scenarios/:id', async (req, res) => {
+  try {
+    const scenario = await db.getScenario(parseInt(req.params.id));
+    if (scenario) {
+      res.json({ success: true, scenario });
+    } else {
+      res.status(404).json({ error: 'Scenario not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/scenarios/:id', async (req, res) => {
+  try {
+    const scenarioData = req.body;
+    await db.updateScenario(parseInt(req.params.id), scenarioData);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/scenarios/:id', async (req, res) => {
+  try {
+    await db.deleteScenario(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/scenarios/stats', async (req, res) => {
+  try {
+    const stats = await db.getScenarioStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Statistics endpoints
+app.get('/api/stats/profiles', async (req, res) => {
+  try {
+    const stats = await db.getProfileStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stats/global', async (req, res) => {
+  try {
+    const stats = await db.getGlobalStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stats/shares', async (req, res) => {
+  try {
+    const stats = await db.getShareStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stats/analysis', async (req, res) => {
+  try {
+    const stats = await db.getAnalysisStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Search and analytics endpoints
+app.get('/api/search/profiles', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).json({ error: 'Query parameter "q" is required' });
+    }
+    const profiles = await db.searchProfiles(q);
+    res.json({ success: true, profiles });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/top-roles', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const roles = await db.getTopRoles(limit);
+    res.json({ success: true, roles });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/role-distribution', async (req, res) => {
+  try {
+    const distribution = await db.getRoleDistribution();
+    res.json({ success: true, distribution });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Function to start server with port fallback
+async function startServer(initialPort) {
+  try {
+    // Initialize database first
+    await db.init();
+    console.log('✅ Database initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize database:', error);
+    process.exit(1);
+  }
+
+  for (let port = initialPort; port <= initialPort + 10; port++) {
+    try {
+      await new Promise((resolve, reject) => {
+        const server = app.listen(port, '0.0.0.0', () => {
+          PORT = port;
+          console.log(`🚀 BDSM Results API server running on http://0.0.0.0:${PORT}`);
+          console.log(`📊 API endpoint: http://0.0.0.0:${PORT}/api/bdsm-results/:testId`);
+          console.log(`🗄️ SQLite database: ${db.dbPath}`);
+          console.log(`🌐 Using Puppeteer to scrape real data from bdsmtest.org`);
+          resolve();
+        });
+        
+        server.on('error', (error) => {
+          if (error.code === 'EADDRINUSE') {
+            console.log(`⚠️ Port ${port} is in use, trying next port...`);
+            reject(error);
+          } else {
+            console.error(`❌ Server error on port ${port}:`, error);
+            reject(error);
+          }
+        });
+      });
+      return; // Successfully started
+    } catch (error) {
+      if (port === initialPort + 10) {
+        console.error(`❌ Failed to start server on any port from ${initialPort} to ${initialPort + 10}`);
+        process.exit(1);
+      }
+      // Continue to next port
+    }
+  }
+}
+
+// Start the server
+startServer(3001);
