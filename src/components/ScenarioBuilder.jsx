@@ -13,7 +13,12 @@ const ScenarioBuilder = ({ results }) => {
   const [activeTimer, setActiveTimer] = useState(null)
   const [timerTime, setTimerTime] = useState(0)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [sessionNotes, setSessionNotes] = useState('')
+  const [sessionRating, setSessionRating] = useState(0)
+  const [showSessionLog, setShowSessionLog] = useState(false)
   const [editingScenario, setEditingScenario] = useState(null)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [showSafetyGuide, setShowSafetyGuide] = useState(false)
   const [customScenario, setCustomScenario] = useState({
     name: '',
     description: '',
@@ -244,6 +249,181 @@ const ScenarioBuilder = ({ results }) => {
     })
   }
 
+  // Scenario Templates
+  const scenarioTemplates = [
+    {
+      id: 'first-time-bondage',
+      name: 'First Time Bondage',
+      description: 'A gentle introduction to bondage for beginners',
+      category: 'bondage',
+      intensity: 'low',
+      duration: 'short',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Soft rope or scarves', 'Safety scissors'],
+      steps: [
+        'Start with simple wrist binding',
+        'Use soft materials only',
+        'Keep sessions short (15-20 minutes)',
+        'Check circulation frequently',
+        'Have safety scissors nearby'
+      ],
+      safety: ['Safe words', 'Regular check-ins', 'Easy release', 'No suspension']
+    },
+    {
+      id: 'romantic-evening',
+      name: 'Romantic Evening',
+      description: 'A sensual and intimate evening focused on connection',
+      category: 'power-exchange',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Candles', 'Massage oil', 'Soft music'],
+      steps: [
+        'Set the mood with candles and music',
+        'Start with gentle massage',
+        'Build intimacy gradually',
+        'Focus on emotional connection',
+        'End with cuddling and aftercare'
+      ],
+      safety: ['Emotional safety', 'Clear boundaries', 'Gentle care', 'Aftercare']
+    },
+    {
+      id: 'impact-introduction',
+      name: 'Impact Introduction',
+      description: 'Safe introduction to impact play for beginners',
+      category: 'impact-play',
+      intensity: 'medium',
+      duration: 'short',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Masochist', 'Sadist'],
+      equipment: ['Hands only', 'Safe words established'],
+      steps: [
+        'Start with hands only',
+        'Begin with gentle spanking',
+        'Gradually increase intensity',
+        'Check in frequently',
+        'Provide thorough aftercare'
+      ],
+      safety: ['Safe words', 'Gradual intensity', 'Aftercare', 'No implements yet']
+    },
+    {
+      id: 'caregiver-date',
+      name: 'Caregiver Date',
+      description: 'A nurturing and caring dynamic for emotional connection',
+      category: 'caregiver',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Little', 'Daddy/Mommy'],
+      equipment: ['Comfortable clothes', 'Snacks', 'Activities'],
+      steps: [
+        'Create a safe, comfortable space',
+        'Engage in gentle activities',
+        'Provide emotional support',
+        'Maintain clear boundaries',
+        'End with gentle aftercare'
+      ],
+      safety: ['Emotional safety', 'Clear roles', 'Gentle care', 'No pressure']
+    }
+  ]
+
+  const applyTemplate = (template) => {
+    setCustomScenario({
+      name: template.name,
+      description: template.description,
+      roles: template.roles,
+      intensity: template.intensity,
+      duration: template.duration,
+      category: template.category,
+      roleAssignments: {},
+      difficulty: template.difficulty,
+      equipment: template.equipment,
+      steps: template.steps,
+      safety: template.safety,
+      safetyLevel: template.safetyLevel
+    })
+    setShowTemplates(false)
+    showMessage('success', `Template "${template.name}" applied successfully!`)
+  }
+
+  // Safety Guide
+  const saveSessionLog = () => {
+    const sessionData = {
+      scenario: activeTimer?.scenario?.name || 'Custom Scenario',
+      duration: formatTime(timerTime),
+      rating: sessionRating,
+      notes: sessionNotes,
+      timestamp: new Date().toISOString()
+    }
+    
+    // Save to localStorage for now (could be expanded to database)
+    const existingLogs = JSON.parse(localStorage.getItem('scenarioLogs') || '[]')
+    existingLogs.push(sessionData)
+    localStorage.setItem('scenarioLogs', JSON.stringify(existingLogs))
+    
+    setShowSessionLog(false)
+    setSessionNotes('')
+    setSessionRating(0)
+    showMessage('success', 'Session log saved successfully!')
+  }
+
+  const safetyGuide = {
+    'bondage': {
+      title: 'Bondage Safety',
+      points: [
+        'Always have safety scissors nearby',
+        'Check circulation every 10-15 minutes',
+        'Never leave a bound person alone',
+        'Start with simple ties and work up',
+        'Learn proper techniques before advanced bondage',
+        'Use appropriate materials (avoid thin cords)',
+        'Have a safe word and check-in system'
+      ]
+    },
+    'impact-play': {
+      title: 'Impact Play Safety',
+      points: [
+        'Start gentle and build intensity slowly',
+        'Avoid sensitive areas (kidneys, spine, face)',
+        'Use appropriate implements for your skill level',
+        'Check skin condition regularly',
+        'Provide thorough aftercare',
+        'Learn proper technique before using tools',
+        'Establish clear safe words'
+      ]
+    },
+    'power-exchange': {
+      title: 'Power Exchange Safety',
+      points: [
+        'Establish clear boundaries before starting',
+        'Use safe words and check-in regularly',
+        'Respect limits and consent at all times',
+        'Provide emotional aftercare',
+        'Communicate openly about expectations',
+        'Start with simple protocols',
+        'Build trust gradually over time'
+      ]
+    },
+    'general': {
+      title: 'General Safety Guidelines',
+      points: [
+        'Always obtain enthusiastic consent',
+        'Establish safe words before any scene',
+        'Start slow and build intensity gradually',
+        'Provide appropriate aftercare',
+        'Communicate openly about boundaries',
+        'Never pressure someone into activities',
+        'Educate yourself on techniques before trying them'
+      ]
+    }
+  }
+
   const addRoleToScenario = (role) => {
     if (!customScenario.roles.includes(role)) {
       setCustomScenario({
@@ -334,6 +514,7 @@ const ScenarioBuilder = ({ results }) => {
     setIsTimerRunning(false)
     setActiveTimer(null)
     setTimerTime(0)
+    setShowSessionLog(true)
   }
 
   const pauseTimer = () => {
@@ -869,21 +1050,106 @@ const ScenarioBuilder = ({ results }) => {
 
          {/* Custom Scenario Builder */}
          <div className="space-y-4">
-           <h4 className="text-xl font-bold text-white flex items-center gap-2">
-             {editingScenario ? (
-               <>
-                 <Edit className="w-5 h-5 text-blue-400" />
-                 Edit Scenario: {editingScenario.name}
-               </>
-             ) : (
-               <>
-                 <Plus className="w-5 h-5 text-green-400" />
-                 Custom Scenario Builder
-               </>
+           <div className="flex items-center justify-between">
+             <h4 className="text-xl font-bold text-white flex items-center gap-2">
+               {editingScenario ? (
+                 <>
+                   <Edit className="w-5 h-5 text-blue-400" />
+                   Edit Scenario: {editingScenario.name}
+                 </>
+               ) : (
+                 <>
+                   <Plus className="w-5 h-5 text-green-400" />
+                   Custom Scenario Builder
+                 </>
+               )}
+             </h4>
+             
+             {!editingScenario && (
+               <div className="flex gap-2">
+                 <button
+                   onClick={() => setShowTemplates(!showTemplates)}
+                   className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded-lg border border-blue-400/30 hover:bg-blue-500/30 transition-colors"
+                 >
+                   📋 Templates
+                 </button>
+                 <button
+                   onClick={() => setShowSafetyGuide(!showSafetyGuide)}
+                   className="px-3 py-1 bg-green-500/20 text-green-300 text-sm rounded-lg border border-green-400/30 hover:bg-green-500/30 transition-colors"
+                 >
+                   🛡️ Safety Guide
+                 </button>
+               </div>
              )}
-           </h4>
+           </div>
            
-           <div className="space-y-4">
+                        {/* Templates Panel */}
+             {showTemplates && !editingScenario && (
+               <motion.div
+                 initial={{ opacity: 0, y: -20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="p-4 rounded-lg bg-blue-500/10 border border-blue-400/30"
+               >
+                 <h5 className="text-white font-semibold mb-3 flex items-center gap-2">
+                   📋 Scenario Templates
+                 </h5>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                   {scenarioTemplates.map((template) => (
+                     <motion.div
+                       key={template.id}
+                       whileHover={{ scale: 1.02 }}
+                       className="p-3 rounded-lg bg-white/5 border border-blue-400/20 cursor-pointer hover:bg-white/10 transition-all"
+                       onClick={() => applyTemplate(template)}
+                     >
+                       <div className="flex items-start justify-between mb-2">
+                         <h6 className="text-white font-medium">{template.name}</h6>
+                         <span className={`text-xs px-2 py-1 rounded ${difficultyLevels.find(level => level.value === template.difficulty).bg} ${difficultyLevels.find(level => level.value === template.difficulty).color}`}>
+                           {template.difficulty}
+                         </span>
+                       </div>
+                       <p className="text-purple-200 text-sm mb-2">{template.description}</p>
+                       <div className="flex gap-1">
+                         {template.roles.map((role, index) => (
+                           <span key={index} className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                             {role}
+                           </span>
+                         ))}
+                       </div>
+                     </motion.div>
+                   ))}
+                 </div>
+               </motion.div>
+             )}
+
+             {/* Safety Guide Panel */}
+             {showSafetyGuide && !editingScenario && (
+               <motion.div
+                 initial={{ opacity: 0, y: -20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="p-4 rounded-lg bg-green-500/10 border border-green-400/30"
+               >
+                 <h5 className="text-white font-semibold mb-3 flex items-center gap-2">
+                   🛡️ Safety Guidelines
+                 </h5>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {Object.entries(safetyGuide).map(([key, guide]) => (
+                     <div key={key} className="space-y-2">
+                       <h6 className="text-green-300 font-medium">{guide.title}</h6>
+                       <ul className="space-y-1">
+                         {guide.points.map((point, index) => (
+                           <li key={index} className="text-purple-200 text-sm flex items-start gap-2">
+                             <span className="text-green-400 mt-1">•</span>
+                             {point}
+                           </li>
+                         ))}
+                       </ul>
+                     </div>
+                   ))}
+                 </div>
+               </motion.div>
+             )}
+
+             <div className="space-y-4">
             {/* Basic Info */}
             <div>
               <label className="block text-white font-medium mb-2">Scenario Name</label>
@@ -1338,6 +1604,78 @@ const ScenarioBuilder = ({ results }) => {
                </div>
              </div>
            )}
+         </motion.div>
+       )}
+
+       {/* Session Logging Modal */}
+       {showSessionLog && (
+         <motion.div
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+           onClick={() => setShowSessionLog(false)}
+         >
+           <motion.div
+             initial={{ scale: 0.9, opacity: 0 }}
+             animate={{ scale: 1, opacity: 1 }}
+             className="bg-gray-800 rounded-lg p-6 w-full max-w-md"
+             onClick={(e) => e.stopPropagation()}
+           >
+             <h3 className="text-white font-bold text-lg mb-4">Session Log</h3>
+             
+             <div className="space-y-4">
+               <div>
+                 <label className="block text-purple-200 text-sm mb-2">Scenario</label>
+                 <div className="text-white font-medium">{activeTimer?.scenario?.name || 'Custom Scenario'}</div>
+               </div>
+               
+               <div>
+                 <label className="block text-purple-200 text-sm mb-2">Duration</label>
+                 <div className="text-white font-medium">{formatTime(timerTime)}</div>
+               </div>
+               
+               <div>
+                 <label className="block text-purple-200 text-sm mb-2">Rating (1-5)</label>
+                 <div className="flex gap-1">
+                   {[1, 2, 3, 4, 5].map((star) => (
+                     <button
+                       key={star}
+                       onClick={() => setSessionRating(star)}
+                       className={`text-2xl ${sessionRating >= star ? 'text-yellow-400' : 'text-gray-400'}`}
+                     >
+                       ★
+                     </button>
+                   ))}
+                 </div>
+               </div>
+               
+               <div>
+                 <label className="block text-purple-200 text-sm mb-2">Notes</label>
+                 <textarea
+                   value={sessionNotes}
+                   onChange={(e) => setSessionNotes(e.target.value)}
+                   className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 resize-none"
+                   rows="3"
+                   placeholder="How was the session? Any notes or feedback..."
+                 />
+               </div>
+               
+               <div className="flex gap-3">
+                 <button
+                   onClick={() => setShowSessionLog(false)}
+                   className="flex-1 px-4 py-2 bg-white/10 text-purple-200 rounded-lg border border-purple-400/30 hover:bg-white/20 transition-colors"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   onClick={saveSessionLog}
+                   className="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                 >
+                   Save Log
+                 </button>
+               </div>
+             </div>
+           </motion.div>
          </motion.div>
        )}
 

@@ -293,25 +293,25 @@ function App() {
                 Add Another Test ID
               </button>
               
-                             <motion.button
-                 whileHover={{ scale: 1.02 }}
-                 whileTap={{ scale: 0.98 }}
-                 onClick={loadFavorites}
-                 disabled={loadingProfiles}
-                 className="flex items-center gap-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-200 rounded-lg transition-colors disabled:opacity-50"
-               >
-                 {loadingProfiles ? (
-                   <>
-                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-200"></div>
-                     Loading...
-                   </>
-                 ) : (
-                   <>
-                     <Activity className="w-4 h-4" />
-                     Load Favorites
-                   </>
-                 )}
-               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={loadFavorites}
+                disabled={loadingProfiles}
+                className="flex items-center gap-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-200 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loadingProfiles ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-200"></div>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <Activity className="w-4 h-4" />
+                    Load Favorites
+                  </>
+                )}
+              </motion.button>
             </div>
           </div>
 
