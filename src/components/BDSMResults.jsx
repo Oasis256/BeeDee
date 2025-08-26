@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BarChart3, TrendingUp, Heart, Zap, Info, X } from 'lucide-react'
 import { getRoleDescription } from '../utils/roleDescriptions'
+import { MarkdownText } from '../utils/markdownRenderer'
 
 const BDSMResults = ({ results }) => {
   const [expandedRoles, setExpandedRoles] = useState({})
@@ -282,7 +283,7 @@ const BDSMResults = ({ results }) => {
                      className="absolute z-10 top-full left-0 mt-2 p-4 bg-purple-900/95 backdrop-blur-sm border border-purple-400/30 rounded-lg shadow-xl max-w-sm"
                    >
                      <p className="text-purple-100 text-sm leading-relaxed break-words">
-                       {getRoleDescription(item.role, item)}
+                       <MarkdownText>{getRoleDescription(item.role, item)}</MarkdownText>
                      </p>
                      <div className="text-xs text-purple-300 mt-2 opacity-80">
                        Click to expand
@@ -302,7 +303,7 @@ const BDSMResults = ({ results }) => {
                           className="p-4 bg-purple-500/10 border border-purple-400/20 rounded-lg"
                         >
                           <p className="text-purple-200 text-sm leading-relaxed">
-                            {getRoleDescription(item.role, item)}
+                            <MarkdownText>{getRoleDescription(item.role, item)}</MarkdownText>
                           </p>
                         </motion.div>
                       )}
