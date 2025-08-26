@@ -12,7 +12,12 @@ class ApiService {
     }
 
     // Check for environment variable first (production)
-    const envApiUrl = import.meta.env.VITE_API_URL
+    const envApiUrl = import.meta.env.VITE_API_URL || process.env.VITE_API_URL
+    console.log(`🔍 Environment variables:`, {
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+      process_env: process.env.VITE_API_URL,
+      final: envApiUrl
+    })
     if (envApiUrl) {
       console.log(`🔍 Using environment API URL: ${envApiUrl}`)
       try {
@@ -27,8 +32,13 @@ class ApiService {
         }
       } catch (error) {
         console.log(`❌ Failed to connect to environment API URL: ${error.message}`)
+        // Don't fall back to port discovery if environment variable is set
+        throw new Error(`Backend server not found at ${envApiUrl}`)
       }
     }
+
+    // Only do port discovery if no environment variable is set
+    console.log(`🔍 No environment API URL found, starting port discovery...`)
 
     // Get the current host and protocol from the browser
     const currentHost = window.location.hostname
