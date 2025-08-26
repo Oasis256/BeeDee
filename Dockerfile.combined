@@ -1,5 +1,5 @@
-# Combined Frontend + Backend Dockerfile
-FROM node:20-alpine
+# Combined Frontend + Backend Dockerfile with Nginx
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -16,28 +16,43 @@ COPY . .
 # Build the frontend
 RUN npm run build
 
-# Create data directory
-RUN mkdir -p /app/data
+# Production stage
+FROM nginx:alpine AS production
 
-# Install only production dependencies for runtime
+# Install Node.js for the backend
+RUN apk add --no-cache nodejs npm
+
+# Set working directory for backend
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies for backend
 RUN npm ci --omit=dev --prefer-offline --no-audit --loglevel=error --no-fund
 
-# Copy built frontend to serve directory
-RUN mkdir -p /app/serve && cp -r dist/* /app/serve/
+# Copy source code
+COPY . .
 
-# Install serve for static file serving
-RUN npm install -g serve
+# Copy built frontend from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose ports
-EXPOSE 3001 3000
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Create data directory
+RUN mkdir -p /app/data
 
 # Create startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'echo "Starting backend server..."' >> /app/start.sh && \
     echo 'node server.js &' >> /app/start.sh && \
-    echo 'echo "Starting frontend server..."' >> /app/start.sh && \
-    echo 'serve -s /app/serve -l 3000' >> /app/start.sh && \
+    echo 'echo "Starting nginx..."' >> /app/start.sh && \
+    echo 'nginx -g "daemon off;"' >> /app/start.sh && \
     chmod +x /app/start.sh
+
+# Expose port 80
+EXPOSE 80
 
 # Start both services
 CMD ["/app/start.sh"]

@@ -1,27 +1,7 @@
 version: '3.8'
 
 services:
-  # Backend API service
-  backend:
-    build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: Dockerfile.backend
-    container_name: BeeDee-Backend
-    hostname: beedee-backend
-    ports:
-      - "3001:3001"
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-    restart: unless-stopped
-    volumes:
-      - ./data:/app/data
-    networks:
-      default:
-      macNet:
-        ipv4_address: 10.0.0.32
-
-  # Frontend service
+  # Combined Frontend + Backend service with Nginx
   beedee:
     env_file:
       - ~/sVault/Prog/swag/Env/.env
@@ -29,15 +9,15 @@ services:
     hostname: beedee
     build:
       context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.combined
     ports:
-      - "1919:80"  # Frontend
+      - "1919:80"  # Combined frontend + backend via nginx
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=http://beedee-backend:3001
+      - VITE_API_URL=http://localhost/api
     restart: unless-stopped
-    depends_on:
-      - backend
+    volumes:
+      - ./data:/app/data
     profiles:
       - prod-custom
     networks:
