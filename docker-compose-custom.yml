@@ -4,8 +4,10 @@ services:
   # Backend API service
   backend:
     build:
-      context: .
+      context: https://github.com/Oasis256/BeeDee.git
       dockerfile: Dockerfile.backend
+    container_name: BeeDee-Backend
+    hostname: beedee-backend
     ports:
       - "3001:3001"
     environment:
@@ -15,12 +17,18 @@ services:
     volumes:
       - ./data:/app/data
     networks:
-      - app-network
+      - default
+      - macNet:
+          ipv4_address: 10.0.0.32
 
-  # Development service (frontend + backend)
-  app-dev:
+  # Development service
+  dee-dev:
+    env_file:
+      - ~/sVault/Prog/swag/Env/.env
+    container_name: BeeDee-Dev
+    hostname: beedee-dev
     build:
-      context: .
+      context: https://github.com/Oasis256/BeeDee.git
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
@@ -32,13 +40,19 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=http://localhost:3001
     command: npm run dev:full
+    depends_on:
+      - backend
     profiles:
       - dev
 
-  # Production service (frontend only)
-  app-prod:
+  # Production service
+  dee-prod:
+    env_file:
+      - ~/sVault/Prog/swag/Env/.env
+    container_name: BeeDee-Prod
+    hostname: beedee-prod
     build:
-      context: .
+      context: https://github.com/Oasis256/BeeDee.git
       dockerfile: Dockerfile
     ports:
       - "80:80"
@@ -52,12 +66,16 @@ services:
       - prod
 
   # Production service with custom port
-  app-prod-custom:
+  beedee:
+    env_file:
+      - ~/sVault/Prog/swag/Env/.env
+    container_name: BeeDee
+    hostname: beedee
     build:
-      context: .
+      context: https://github.com/Oasis256/BeeDee.git
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - 1919:80
     environment:
       - NODE_ENV=production
       - VITE_API_URL=http://localhost:3001
@@ -66,9 +84,15 @@ services:
       - backend
     profiles:
       - prod-custom
+    networks:
+      default:
+      macNet:
+        ipv4_address: 10.0.0.31
+      # shuleNet:
+      #   ipv4_address: 172.16.17.50
 
 networks:
-  app-network:
-    driver: bridge
   default:
     name: bdsm-compatibility-network
+  macNet:
+    external: true

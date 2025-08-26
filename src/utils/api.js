@@ -11,6 +11,25 @@ class ApiService {
       return this.discoveredPort
     }
 
+    // Check for environment variable first (production)
+    const envApiUrl = import.meta.env.VITE_API_URL
+    if (envApiUrl) {
+      console.log(`🔍 Using environment API URL: ${envApiUrl}`)
+      try {
+        const healthUrl = envApiUrl.replace('/api', '/health')
+        console.log(`🔍 Testing health endpoint: ${healthUrl}`)
+        const response = await axios.get(healthUrl, { timeout: 5000 })
+        if (response.status === 200) {
+          this.baseURL = envApiUrl
+          console.log(`✅ Successfully connected to backend via environment URL`)
+          console.log(`🔗 Base URL set to: ${this.baseURL}`)
+          return null
+        }
+      } catch (error) {
+        console.log(`❌ Failed to connect to environment API URL: ${error.message}`)
+      }
+    }
+
     // Get the current host and protocol from the browser
     const currentHost = window.location.hostname
     const currentProtocol = window.location.protocol
