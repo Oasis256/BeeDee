@@ -251,6 +251,7 @@ const ScenarioBuilder = ({ results }) => {
 
   // Scenario Templates
   const scenarioTemplates = [
+    // BEGINNER SCENARIOS
     {
       id: 'first-time-bondage',
       name: 'First Time Bondage',
@@ -292,6 +293,68 @@ const ScenarioBuilder = ({ results }) => {
       safety: ['Emotional safety', 'Clear boundaries', 'Gentle care', 'Aftercare']
     },
     {
+      id: 'caregiver-date',
+      name: 'Caregiver Date',
+      description: 'A nurturing and caring dynamic for emotional connection',
+      category: 'caregiver',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Little', 'Daddy/Mommy'],
+      equipment: ['Comfortable clothes', 'Snacks', 'Activities'],
+      steps: [
+        'Create a safe, comfortable space',
+        'Engage in gentle activities',
+        'Provide emotional support',
+        'Maintain clear boundaries',
+        'End with gentle aftercare'
+      ],
+      safety: ['Emotional safety', 'Clear roles', 'Gentle care', 'No pressure']
+    },
+    {
+      id: 'sensory-exploration',
+      name: 'Sensory Exploration',
+      description: 'Discover new sensations through touch, taste, and sound',
+      category: 'sensory',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Blindfold', 'Feathers', 'Ice cubes', 'Warm oil'],
+      steps: [
+        'Blindfold the submissive',
+        'Use different textures and temperatures',
+        'Vary pressure and speed',
+        'Ask for feedback on sensations',
+        'End with gentle aftercare'
+      ],
+      safety: ['Safe words', 'Temperature awareness', 'Gentle pressure', 'Communication']
+    },
+    {
+      id: 'role-play-basics',
+      name: 'Role Play Basics',
+      description: 'Simple role-playing scenarios for beginners',
+      category: 'role-play',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Costumes (optional)', 'Props (optional)'],
+      steps: [
+        'Choose simple roles (teacher/student, boss/employee)',
+        'Set clear boundaries and limits',
+        'Start with verbal role-play',
+        'Gradually add physical elements',
+        'Maintain character throughout'
+      ],
+      safety: ['Clear boundaries', 'Safe words', 'Consent check-ins', 'Easy exit']
+    },
+
+    // INTERMEDIATE SCENARIOS
+    {
       id: 'impact-introduction',
       name: 'Impact Introduction',
       description: 'Safe introduction to impact play for beginners',
@@ -312,24 +375,788 @@ const ScenarioBuilder = ({ results }) => {
       safety: ['Safe words', 'Gradual intensity', 'Aftercare', 'No implements yet']
     },
     {
-      id: 'caregiver-date',
-      name: 'Caregiver Date',
-      description: 'A nurturing and caring dynamic for emotional connection',
-      category: 'caregiver',
+      id: 'rope-bondage-basic',
+      name: 'Basic Rope Bondage',
+      description: 'Introduction to rope work with simple ties',
+      category: 'bondage',
+      intensity: 'medium',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Cotton rope', 'Safety scissors', 'Rope cutter'],
+      steps: [
+        'Learn basic single column tie',
+        'Practice on yourself first',
+        'Start with wrist binding',
+        'Check circulation every 10 minutes',
+        'Have multiple safety tools nearby'
+      ],
+      safety: ['Rope safety', 'Circulation checks', 'Safety tools', 'Proper technique']
+    },
+    {
+      id: 'power-exchange-dynamic',
+      name: 'Power Exchange Dynamic',
+      description: 'Exploring dominance and submission in daily activities',
+      category: 'power-exchange',
+      intensity: 'medium',
+      duration: 'long',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Collar (optional)', 'Rules list', 'Journal'],
+      steps: [
+        'Establish clear rules and expectations',
+        'Set up daily protocols',
+        'Create accountability system',
+        'Regular check-ins and communication',
+        'Maintain balance and consent'
+      ],
+      safety: ['Clear communication', 'Regular check-ins', 'Flexible boundaries', 'Consent']
+    },
+    {
+      id: 'sensory-deprivation',
+      name: 'Sensory Deprivation',
+      description: 'Exploring sensation through deprivation and enhancement',
+      category: 'sensory',
+      intensity: 'medium',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Blindfold', 'Earplugs', 'Restraints', 'Various textures'],
+      steps: [
+        'Start with single sense deprivation',
+        'Gradually add more deprivation',
+        'Enhance remaining senses',
+        'Maintain communication',
+        'Provide gentle reintroduction to senses'
+      ],
+      safety: ['Gradual deprivation', 'Communication', 'Safe words', 'Gentle reintroduction']
+    },
+    {
+      id: 'pet-play-basics',
+      name: 'Pet Play Basics',
+      description: 'Introduction to animal role-play dynamics',
+      category: 'pet-play',
+      intensity: 'medium',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Pet', 'Owner'],
+      equipment: ['Collar', 'Leash', 'Pet toys', 'Treats'],
+      steps: [
+        'Establish pet persona and behaviors',
+        'Set up training commands',
+        'Create safe play environment',
+        'Practice basic commands',
+        'End with positive reinforcement'
+      ],
+      safety: ['Clear roles', 'Safe environment', 'Positive reinforcement', 'Consent']
+    },
+    {
+      id: 'degradation-light',
+      name: 'Light Degradation',
+      description: 'Mild verbal and psychological play',
+      category: 'psychological',
+      intensity: 'medium',
+      duration: 'short',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Degradee', 'Degrader'],
+      equipment: ['Safe words', 'Aftercare items'],
+      steps: [
+        'Establish clear boundaries',
+        'Start with mild language',
+        'Check in frequently',
+        'Provide positive reinforcement',
+        'End with thorough aftercare'
+      ],
+      safety: ['Clear boundaries', 'Frequent check-ins', 'Aftercare', 'Consent']
+    },
+    {
+      id: 'age-play-basics',
+      name: 'Age Play Basics',
+      description: 'Gentle age regression and caregiving dynamics',
+      category: 'age-play',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Little', 'Caregiver'],
+      equipment: ['Comfort items', 'Activities', 'Snacks'],
+      steps: [
+        'Establish age range and persona',
+        'Create safe, nurturing environment',
+        'Engage in age-appropriate activities',
+        'Maintain clear boundaries',
+        'Provide gentle aftercare'
+      ],
+      safety: ['Clear boundaries', 'Safe environment', 'Gentle care', 'Consent']
+    },
+
+    // ADVANCED SCENARIOS
+    {
+      id: 'advanced-bondage',
+      name: 'Advanced Bondage',
+      description: 'Complex rope work and suspension preparation',
+      category: 'bondage',
+      intensity: 'high',
+      duration: 'long',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Multiple rope types', 'Suspension rig', 'Safety equipment'],
+      steps: [
+        'Master basic ties thoroughly',
+        'Learn suspension safety',
+        'Practice with spotter present',
+        'Check all connections',
+        'Have emergency plan ready'
+      ],
+      safety: ['Advanced training', 'Spotter required', 'Emergency plan', 'Proper equipment']
+    },
+    {
+      id: 'intense-impact',
+      name: 'Intense Impact Play',
+      description: 'Advanced impact play with multiple implements',
+      category: 'impact-play',
+      intensity: 'high',
+      duration: 'medium',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Masochist', 'Sadist'],
+      equipment: ['Multiple implements', 'First aid kit', 'Aftercare items'],
+      steps: [
+        'Warm up thoroughly',
+        'Use multiple implements',
+        'Monitor skin condition',
+        'Provide intense aftercare',
+        'Check for bruising and damage'
+      ],
+      safety: ['Proper warm-up', 'Skin monitoring', 'Intense aftercare', 'Medical awareness']
+    },
+    {
+      id: 'total-power-exchange',
+      name: 'Total Power Exchange',
+      description: 'Complete dominance and submission dynamic',
+      category: 'power-exchange',
+      intensity: 'high',
+      duration: 'very-long',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Slave', 'Master/Mistress'],
+      equipment: ['Collar', 'Rules', 'Protocols', 'Communication tools'],
+      steps: [
+        'Establish complete protocols',
+        'Set up 24/7 dynamic',
+        'Create accountability systems',
+        'Regular deep check-ins',
+        'Maintain safety and consent'
+      ],
+      safety: ['Complete communication', 'Regular check-ins', 'Safety protocols', 'Consent']
+    },
+    {
+      id: 'primal-play',
+      name: 'Primal Play',
+      description: 'Raw, animalistic play with hunting and capture',
+      category: 'primal',
+      intensity: 'high',
+      duration: 'medium',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Prey', 'Hunter'],
+      equipment: ['Safe space', 'Protective gear', 'First aid kit'],
+      steps: [
+        'Establish safe boundaries',
+        'Create hunting environment',
+        'Practice safe capture',
+        'Monitor intensity levels',
+        'Provide thorough aftercare'
+      ],
+      safety: ['Safe environment', 'Protective gear', 'Intensity monitoring', 'Aftercare']
+    },
+    {
+      id: 'sensory-overload',
+      name: 'Sensory Overload',
+      description: 'Intense sensory stimulation and deprivation',
+      category: 'sensory',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Multiple sensory tools', 'Restraints', 'Safety equipment'],
+      steps: [
+        'Gradual sensory build-up',
+        'Monitor submissive response',
+        'Provide safe words',
+        'Control intensity carefully',
+        'Gentle sensory reintroduction'
+      ],
+      safety: ['Gradual build-up', 'Response monitoring', 'Safe words', 'Gentle reintroduction']
+    },
+
+    // SPECIALTY SCENARIOS
+    {
+      id: 'medical-play',
+      name: 'Medical Play',
+      description: 'Role-play involving medical scenarios',
+      category: 'role-play',
+      intensity: 'medium',
+      duration: 'medium',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Patient', 'Doctor/Nurse'],
+      equipment: ['Medical props', 'Safe implements', 'Aftercare items'],
+      steps: [
+        'Establish medical scenario',
+        'Use safe, clean implements',
+        'Maintain medical role',
+        'Provide thorough aftercare',
+        'Check for any real medical issues'
+      ],
+      safety: ['Clean implements', 'Medical awareness', 'Aftercare', 'Safety']
+    },
+    {
+      id: 'exhibitionism-private',
+      name: 'Private Exhibitionism',
+      description: 'Exhibitionism in controlled, private settings',
+      category: 'exhibitionism',
+      intensity: 'medium',
+      duration: 'short',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Exhibitionist', 'Observer'],
+      equipment: ['Private space', 'Consent from all parties'],
+      steps: [
+        'Ensure complete privacy',
+        'Get consent from all involved',
+        'Set clear boundaries',
+        'Maintain safety protocols',
+        'Provide aftercare'
+      ],
+      safety: ['Complete privacy', 'Full consent', 'Clear boundaries', 'Safety']
+    },
+    {
+      id: 'voyeurism-controlled',
+      name: 'Controlled Voyeurism',
+      description: 'Watching others in consensual, controlled settings',
+      category: 'voyeurism',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Voyeur', 'Performer'],
+      equipment: ['Private space', 'Consent from all parties'],
+      steps: [
+        'Ensure complete privacy',
+        'Get consent from all involved',
+        'Set clear boundaries',
+        'Maintain safety protocols',
+        'Provide aftercare'
+      ],
+      safety: ['Complete privacy', 'Full consent', 'Clear boundaries', 'Safety']
+    },
+    {
+      id: 'breath-play-light',
+      name: 'Light Breath Play',
+      description: 'Very mild breath restriction play',
+      category: 'breath-play',
+      intensity: 'high',
+      duration: 'very-short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Hands only', 'Safety monitoring'],
+      steps: [
+        'Use hands only, no implements',
+        'Very short duration (seconds)',
+        'Constant monitoring',
+        'Immediate release on signal',
+        'Thorough aftercare'
+      ],
+      safety: ['Hands only', 'Very short duration', 'Constant monitoring', 'Immediate release']
+    },
+    {
+      id: 'temperature-play',
+      name: 'Temperature Play',
+      description: 'Exploring sensations with hot and cold',
+      category: 'sensory',
+      intensity: 'medium',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Ice cubes', 'Warm oil', 'Temperature-safe items'],
+      steps: [
+        'Test temperature on yourself first',
+        'Use safe temperature ranges',
+        'Monitor skin response',
+        'Avoid extreme temperatures',
+        'Provide aftercare'
+      ],
+      safety: ['Temperature testing', 'Safe ranges', 'Skin monitoring', 'Aftercare']
+    },
+    {
+      id: 'electro-stimulation',
+      name: 'Electro-Stimulation',
+      description: 'Using electrical stimulation devices safely',
+      category: 'sensory',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Safe electro-stim devices', 'Safety instructions'],
+      steps: [
+        'Read all safety instructions',
+        'Start with lowest settings',
+        'Test on yourself first',
+        'Monitor response carefully',
+        'Provide aftercare'
+      ],
+      safety: ['Safety instructions', 'Lowest settings', 'Self-testing', 'Monitoring']
+    },
+    {
+      id: 'wax-play',
+      name: 'Wax Play',
+      description: 'Using candle wax for sensory stimulation',
+      category: 'sensory',
+      intensity: 'medium',
+      duration: 'short',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Body-safe candles', 'Safety equipment'],
+      steps: [
+        'Use body-safe candles only',
+        'Test temperature on yourself',
+        'Start with higher drops',
+        'Monitor skin response',
+        'Provide aftercare'
+      ],
+      safety: ['Body-safe candles', 'Temperature testing', 'Skin monitoring', 'Aftercare']
+    },
+    {
+      id: 'knife-play',
+      name: 'Knife Play',
+      description: 'Sensation play with dull blades',
+      category: 'sensory',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Dull blades only', 'Safety equipment'],
+      steps: [
+        'Use dull blades only',
+        'Test on yourself first',
+        'Avoid sensitive areas',
+        'Monitor skin response',
+        'Provide aftercare'
+      ],
+      safety: ['Dull blades only', 'Self-testing', 'Safe areas', 'Monitoring']
+    },
+    {
+      id: 'fire-play',
+      name: 'Fire Play',
+      description: 'Controlled fire play with safety equipment',
+      category: 'sensory',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Fire safety equipment', 'Fire extinguisher'],
+      steps: [
+        'Use proper safety equipment',
+        'Have fire extinguisher nearby',
+        'Test techniques thoroughly',
+        'Monitor constantly',
+        'Provide aftercare'
+      ],
+      safety: ['Safety equipment', 'Fire extinguisher', 'Thorough testing', 'Constant monitoring']
+    },
+    {
+      id: 'needle-play',
+      name: 'Needle Play',
+      description: 'Body piercing and needle play',
+      category: 'body-modification',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Sterile needles', 'Safety equipment'],
+      steps: [
+        'Use sterile equipment only',
+        'Proper sterilization procedures',
+        'Avoid dangerous areas',
+        'Monitor for infection',
+        'Provide aftercare'
+      ],
+      safety: ['Sterile equipment', 'Proper sterilization', 'Safe areas', 'Infection monitoring']
+    },
+    {
+      id: 'branding-play',
+      name: 'Branding Play',
+      description: 'Temporary marking and branding',
+      category: 'body-modification',
+      intensity: 'high',
+      duration: 'short',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Safe branding tools', 'Safety equipment'],
+      steps: [
+        'Use safe branding tools',
+        'Test on yourself first',
+        'Avoid dangerous areas',
+        'Monitor healing process',
+        'Provide aftercare'
+      ],
+      safety: ['Safe tools', 'Self-testing', 'Safe areas', 'Healing monitoring']
+    },
+    {
+      id: 'suspension-bondage',
+      name: 'Suspension Bondage',
+      description: 'Advanced rope suspension work',
+      category: 'bondage',
+      intensity: 'high',
+      duration: 'medium',
+      difficulty: 'advanced',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Suspension rig', 'Safety equipment', 'Spotter'],
+      steps: [
+        'Master ground bondage first',
+        'Use proper suspension rig',
+        'Have spotter present',
+        'Check all connections',
+        'Provide aftercare'
+      ],
+      safety: ['Ground bondage mastery', 'Proper rig', 'Spotter required', 'Connection checks']
+    },
+    {
+      id: 'water-play',
+      name: 'Water Play',
+      description: 'Sensation play with water and liquids',
+      category: 'sensory',
+      intensity: 'medium',
+      duration: 'short',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Safe liquids', 'Protection', 'Clean-up supplies'],
+      steps: [
+        'Use body-safe liquids only',
+        'Protect sensitive areas',
+        'Have clean-up supplies ready',
+        'Monitor skin response',
+        'Provide aftercare'
+      ],
+      safety: ['Body-safe liquids', 'Protection', 'Clean-up ready', 'Skin monitoring']
+    },
+    {
+      id: 'food-play',
+      name: 'Food Play',
+      description: 'Sensual play with food items',
+      category: 'sensory',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Body-safe foods', 'Clean-up supplies'],
+      steps: [
+        'Use body-safe foods only',
+        'Avoid sensitive areas',
+        'Have clean-up supplies ready',
+        'Monitor for allergies',
+        'Provide aftercare'
+      ],
+      safety: ['Body-safe foods', 'Safe areas', 'Clean-up ready', 'Allergy awareness']
+    },
+    {
+      id: 'massage-sensual',
+      name: 'Sensual Massage',
+      description: 'Intimate massage with sensual elements',
+      category: 'sensory',
       intensity: 'low',
       duration: 'long',
       difficulty: 'beginner',
       safetyLevel: 'low',
-      roles: ['Little', 'Daddy/Mommy'],
-      equipment: ['Comfortable clothes', 'Snacks', 'Activities'],
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Massage oil', 'Towels', 'Comfortable surface'],
       steps: [
-        'Create a safe, comfortable space',
-        'Engage in gentle activities',
-        'Provide emotional support',
-        'Maintain clear boundaries',
-        'End with gentle aftercare'
+        'Create comfortable environment',
+        'Use appropriate massage oil',
+        'Focus on sensual areas',
+        'Maintain communication',
+        'Provide aftercare'
       ],
-      safety: ['Emotional safety', 'Clear roles', 'Gentle care', 'No pressure']
+      safety: ['Comfortable environment', 'Appropriate oil', 'Communication', 'Aftercare']
+    },
+    {
+      id: 'dance-sensual',
+      name: 'Sensual Dance',
+      description: 'Intimate dancing and movement',
+      category: 'sensory',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Music', 'Comfortable space', 'Optional costumes'],
+      steps: [
+        'Choose appropriate music',
+        'Create comfortable space',
+        'Start with simple movements',
+        'Build intimacy gradually',
+        'End with connection'
+      ],
+      safety: ['Appropriate music', 'Comfortable space', 'Gradual build-up', 'Connection']
+    },
+    {
+      id: 'photography-artistic',
+      name: 'Artistic Photography',
+      description: 'Tasteful, artistic nude photography',
+      category: 'exhibitionism',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Model', 'Photographer'],
+      equipment: ['Camera', 'Private space', 'Consent agreement'],
+      steps: [
+        'Ensure complete privacy',
+        'Get written consent',
+        'Set clear boundaries',
+        'Focus on artistic quality',
+        'Respect privacy and consent'
+      ],
+      safety: ['Complete privacy', 'Written consent', 'Clear boundaries', 'Privacy respect']
+    },
+    {
+      id: 'writing-erotic',
+      name: 'Erotic Writing',
+      description: 'Collaborative erotic story writing',
+      category: 'psychological',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Writer', 'Collaborator'],
+      equipment: ['Writing materials', 'Privacy'],
+      steps: [
+        'Establish writing boundaries',
+        'Collaborate on story elements',
+        'Respect each other\'s limits',
+        'Share and discuss content',
+        'Maintain creative connection'
+      ],
+      safety: ['Writing boundaries', 'Collaboration', 'Respect limits', 'Creative connection']
+    },
+    {
+      id: 'fantasy-exploration',
+      name: 'Fantasy Exploration',
+      description: 'Exploring sexual fantasies together',
+      category: 'psychological',
+      intensity: 'medium',
+      duration: 'long',
+      difficulty: 'intermediate',
+      safetyLevel: 'moderate',
+      roles: ['Explorer', 'Partner'],
+      equipment: ['Privacy', 'Communication tools'],
+      steps: [
+        'Create safe space for sharing',
+        'Share fantasies gradually',
+        'Discuss boundaries and limits',
+        'Explore feasible elements',
+        'Maintain open communication'
+      ],
+      safety: ['Safe space', 'Gradual sharing', 'Boundary discussion', 'Open communication']
+    },
+    {
+      id: 'ritual-creation',
+      name: 'Ritual Creation',
+      description: 'Creating meaningful BDSM rituals',
+      category: 'psychological',
+      intensity: 'medium',
+      duration: 'long',
+      difficulty: 'advanced',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Ritual items', 'Symbolic objects'],
+      steps: [
+        'Design meaningful rituals',
+        'Incorporate symbolic elements',
+        'Practice regularly',
+        'Maintain significance',
+        'Adapt as needed'
+      ],
+      safety: ['Meaningful design', 'Symbolic elements', 'Regular practice', 'Adaptation']
+    },
+    {
+      id: 'protocol-establishment',
+      name: 'Protocol Establishment',
+      description: 'Setting up formal protocols and rules',
+      category: 'power-exchange',
+      intensity: 'medium',
+      duration: 'very-long',
+      difficulty: 'advanced',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Written protocols', 'Communication tools'],
+      steps: [
+        'Design formal protocols',
+        'Write clear rules',
+        'Establish accountability',
+        'Regular protocol review',
+        'Maintain flexibility'
+      ],
+      safety: ['Formal design', 'Clear rules', 'Accountability', 'Regular review']
+    },
+    {
+      id: 'training-program',
+      name: 'Training Program',
+      description: 'Structured training and development program',
+      category: 'power-exchange',
+      intensity: 'high',
+      duration: 'very-long',
+      difficulty: 'advanced',
+      safetyLevel: 'high',
+      roles: ['Trainee', 'Trainer'],
+      equipment: ['Training materials', 'Progress tracking'],
+      steps: [
+        'Design training curriculum',
+        'Set clear objectives',
+        'Track progress regularly',
+        'Provide feedback',
+        'Maintain motivation'
+      ],
+      safety: ['Curriculum design', 'Clear objectives', 'Progress tracking', 'Feedback']
+    },
+    {
+      id: 'discipline-system',
+      name: 'Discipline System',
+      description: 'Establishing rules and consequences',
+      category: 'power-exchange',
+      intensity: 'medium',
+      duration: 'very-long',
+      difficulty: 'advanced',
+      safetyLevel: 'moderate',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Rule book', 'Tracking system'],
+      steps: [
+        'Establish clear rules',
+        'Define consequences',
+        'Create tracking system',
+        'Maintain consistency',
+        'Regular review and adjustment'
+      ],
+      safety: ['Clear rules', 'Defined consequences', 'Tracking system', 'Consistency']
+    },
+    {
+      id: 'reward-system',
+      name: 'Reward System',
+      description: 'Positive reinforcement and reward structure',
+      category: 'power-exchange',
+      intensity: 'low',
+      duration: 'very-long',
+      difficulty: 'intermediate',
+      safetyLevel: 'low',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Reward tracking', 'Positive reinforcement items'],
+      steps: [
+        'Design reward structure',
+        'Set achievable goals',
+        'Track accomplishments',
+        'Provide positive reinforcement',
+        'Maintain motivation'
+      ],
+      safety: ['Reward structure', 'Achievable goals', 'Accomplishment tracking', 'Motivation']
+    },
+    {
+      id: 'communication-workshop',
+      name: 'Communication Workshop',
+      description: 'Improving BDSM communication skills',
+      category: 'psychological',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Partner 1', 'Partner 2'],
+      equipment: ['Communication tools', 'Privacy'],
+      steps: [
+        'Practice active listening',
+        'Use "I" statements',
+        'Share feelings openly',
+        'Practice negotiation skills',
+        'Build trust through communication'
+      ],
+      safety: ['Active listening', 'I statements', 'Open sharing', 'Negotiation practice']
+    },
+    {
+      id: 'negotiation-practice',
+      name: 'Negotiation Practice',
+      description: 'Practicing BDSM negotiation skills',
+      category: 'psychological',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'intermediate',
+      safetyLevel: 'low',
+      roles: ['Negotiator 1', 'Negotiator 2'],
+      equipment: ['Negotiation tools', 'Privacy'],
+      steps: [
+        'Set up negotiation scenario',
+        'Practice clear communication',
+        'Discuss boundaries and limits',
+        'Reach mutual agreement',
+        'Document agreements'
+      ],
+      safety: ['Negotiation scenario', 'Clear communication', 'Boundary discussion', 'Agreement documentation']
+    },
+    {
+      id: 'aftercare-focus',
+      name: 'Aftercare Focus',
+      description: 'Dedicated aftercare and recovery session',
+      category: 'care',
+      intensity: 'low',
+      duration: 'long',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Care Receiver', 'Care Giver'],
+      equipment: ['Comfort items', 'Hydration', 'Snacks'],
+      steps: [
+        'Create comfortable environment',
+        'Provide physical comfort',
+        'Offer emotional support',
+        'Monitor well-being',
+        'Allow adequate recovery time'
+      ],
+      safety: ['Comfortable environment', 'Physical comfort', 'Emotional support', 'Recovery time']
+    },
+    {
+      id: 'check-in-ritual',
+      name: 'Check-in Ritual',
+      description: 'Regular relationship and dynamic check-ins',
+      category: 'care',
+      intensity: 'low',
+      duration: 'medium',
+      difficulty: 'beginner',
+      safetyLevel: 'low',
+      roles: ['Partner 1', 'Partner 2'],
+      equipment: ['Communication tools', 'Privacy'],
+      steps: [
+        'Schedule regular check-ins',
+        'Create safe space for sharing',
+        'Discuss relationship status',
+        'Address concerns openly',
+        'Plan for future growth'
+      ],
+      safety: ['Regular scheduling', 'Safe space', 'Open discussion', 'Future planning']
     }
   ]
 
