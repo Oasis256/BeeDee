@@ -1,3 +1,5 @@
+import React from 'react'
+
 // Simple Markdown renderer for basic formatting
 export const renderMarkdown = (text) => {
   if (!text) return ''

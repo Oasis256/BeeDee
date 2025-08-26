@@ -1157,6 +1157,449 @@ const ScenarioBuilder = ({ results }) => {
         'Plan for future growth'
       ],
       safety: ['Regular scheduling', 'Safe space', 'Open discussion', 'Future planning']
+    },
+
+    // EXTREME INTENSITY SCENARIOS
+    {
+      id: 'extreme-bondage-suspension',
+      name: 'Extreme Bondage Suspension',
+      description: 'Advanced suspension with complex rope work and extreme positions',
+      category: 'bondage',
+      intensity: 'extreme',
+      duration: 'long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant', 'Spotter'],
+      equipment: ['Professional suspension rig', 'Multiple rope types', 'Safety equipment', 'Medical kit'],
+      steps: [
+        'Complete advanced rope training',
+        'Set up professional suspension rig',
+        'Have multiple spotters present',
+        'Use complex suspension techniques',
+        'Monitor vital signs throughout',
+        'Have emergency plan ready'
+      ],
+      safety: ['Expert training required', 'Multiple spotters', 'Vital sign monitoring', 'Emergency plan']
+    },
+    {
+      id: 'extreme-impact-marathon',
+      name: 'Extreme Impact Marathon',
+      description: 'Prolonged, intense impact play with multiple implements and techniques',
+      category: 'impact-play',
+      intensity: 'extreme',
+      duration: 'very-long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Masochist', 'Sadist'],
+      equipment: ['Multiple impact implements', 'Medical kit', 'Aftercare supplies', 'Monitoring equipment'],
+      steps: [
+        'Extensive warm-up period',
+        'Use multiple implements in rotation',
+        'Monitor skin condition constantly',
+        'Provide breaks and hydration',
+        'Intense aftercare and medical monitoring',
+        'Check for serious injury'
+      ],
+      safety: ['Extensive warm-up', 'Constant monitoring', 'Regular breaks', 'Medical monitoring']
+    },
+    {
+      id: 'extreme-sensory-overload',
+      name: 'Extreme Sensory Overload',
+      description: 'Maximum sensory stimulation with deprivation and intense sensations',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'medium',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Multiple sensory tools', 'Restraints', 'Medical monitoring', 'Safety equipment'],
+      steps: [
+        'Gradual sensory build-up',
+        'Combine multiple sensations',
+        'Monitor psychological state',
+        'Provide safe words and signals',
+        'Gentle sensory reintroduction',
+        'Intense psychological aftercare'
+      ],
+      safety: ['Gradual build-up', 'Psychological monitoring', 'Multiple safe words', 'Intense aftercare']
+    },
+    {
+      id: 'extreme-power-exchange',
+      name: 'Extreme Power Exchange',
+      description: 'Complete surrender and total dominance with extreme protocols',
+      category: 'power-exchange',
+      intensity: 'extreme',
+      duration: 'very-long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Slave', 'Master/Mistress'],
+      equipment: ['Protocols', 'Communication tools', 'Monitoring systems', 'Safety equipment'],
+      steps: [
+        'Establish extreme protocols',
+        'Complete surrender of control',
+        '24/7 monitoring and control',
+        'Regular psychological check-ins',
+        'Maintain safety and consent',
+        'Provide intensive aftercare'
+      ],
+      safety: ['Extreme protocols', '24/7 monitoring', 'Psychological check-ins', 'Intensive aftercare']
+    },
+    {
+      id: 'extreme-primal-hunt',
+      name: 'Extreme Primal Hunt',
+      description: 'Intense primal play with full hunting and capture scenarios',
+      category: 'primal',
+      intensity: 'extreme',
+      duration: 'long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Prey', 'Hunter'],
+      equipment: ['Safe hunting environment', 'Protective gear', 'Medical kit', 'Safety equipment'],
+      steps: [
+        'Create extensive hunting environment',
+        'Full primal mindset engagement',
+        'Intense chase and capture',
+        'Monitor physical exertion',
+        'Provide intensive aftercare',
+        'Check for injuries'
+      ],
+      safety: ['Extensive environment', 'Physical monitoring', 'Intensive aftercare', 'Injury checking']
+    },
+    {
+      id: 'extreme-degradation',
+      name: 'Extreme Degradation',
+      description: 'Intense psychological and verbal degradation play',
+      category: 'psychological',
+      intensity: 'extreme',
+      duration: 'medium',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Degradee', 'Degrader'],
+      equipment: ['Safe words', 'Aftercare supplies', 'Psychological support'],
+      steps: [
+        'Establish extreme boundaries',
+        'Intense verbal degradation',
+        'Psychological manipulation',
+        'Constant monitoring of mental state',
+        'Provide intensive psychological aftercare',
+        'Check for psychological impact'
+      ],
+      safety: ['Extreme boundaries', 'Mental state monitoring', 'Psychological aftercare', 'Impact assessment']
+    },
+    {
+      id: 'extreme-age-play',
+      name: 'Extreme Age Play',
+      description: 'Deep age regression with complete caregiver dependency',
+      category: 'age-play',
+      intensity: 'extreme',
+      duration: 'very-long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Little', 'Caregiver'],
+      equipment: ['Age-appropriate items', 'Safety equipment', 'Psychological support'],
+      steps: [
+        'Deep age regression',
+        'Complete dependency on caregiver',
+        'Intensive nurturing and care',
+        'Monitor psychological state',
+        'Gradual return to adult mindset',
+        'Intensive aftercare'
+      ],
+      safety: ['Deep regression', 'Psychological monitoring', 'Gradual return', 'Intensive aftercare']
+    },
+    {
+      id: 'extreme-pet-play',
+      name: 'Extreme Pet Play',
+      description: 'Complete animal transformation with intensive training',
+      category: 'pet-play',
+      intensity: 'extreme',
+      duration: 'very-long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Pet', 'Owner'],
+      equipment: ['Pet equipment', 'Training tools', 'Safety equipment', 'Monitoring systems'],
+      steps: [
+        'Complete animal transformation',
+        'Intensive training protocols',
+        'Full pet lifestyle adoption',
+        'Monitor psychological state',
+        'Gradual return to human mindset',
+        'Intensive aftercare'
+      ],
+      safety: ['Complete transformation', 'Psychological monitoring', 'Gradual return', 'Intensive aftercare']
+    },
+    {
+      id: 'extreme-medical-play',
+      name: 'Extreme Medical Play',
+      description: 'Intensive medical role-play with advanced procedures',
+      category: 'role-play',
+      intensity: 'extreme',
+      duration: 'long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Patient', 'Doctor/Nurse'],
+      equipment: ['Medical equipment', 'Sterile supplies', 'Safety equipment', 'Medical monitoring'],
+      steps: [
+        'Advanced medical procedures',
+        'Intensive role-play scenarios',
+        'Monitor psychological impact',
+        'Maintain medical safety',
+        'Provide intensive aftercare',
+        'Check for psychological effects'
+      ],
+      safety: ['Advanced procedures', 'Psychological monitoring', 'Medical safety', 'Intensive aftercare']
+    },
+    {
+      id: 'extreme-exhibitionism',
+      name: 'Extreme Exhibitionism',
+      description: 'High-risk exhibitionism in controlled but public settings',
+      category: 'exhibitionism',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Exhibitionist', 'Observer'],
+      equipment: ['Risk management tools', 'Safety equipment', 'Legal protection'],
+      steps: [
+        'Extensive risk assessment',
+        'Legal protection measures',
+        'Controlled public exposure',
+        'Constant safety monitoring',
+        'Immediate exit strategies',
+        'Intensive aftercare'
+      ],
+      safety: ['Risk assessment', 'Legal protection', 'Safety monitoring', 'Exit strategies']
+    },
+    {
+      id: 'extreme-voyeurism',
+      name: 'Extreme Voyeurism',
+      description: 'Intensive voyeuristic experiences in controlled settings',
+      category: 'voyeurism',
+      intensity: 'extreme',
+      duration: 'medium',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Voyeur', 'Performer'],
+      equipment: ['Private venues', 'Safety equipment', 'Legal protection', 'Monitoring systems'],
+      steps: [
+        'Secure private venues',
+        'Legal protection measures',
+        'Intensive voyeuristic scenarios',
+        'Constant safety monitoring',
+        'Immediate exit strategies',
+        'Intensive aftercare'
+      ],
+      safety: ['Secure venues', 'Legal protection', 'Safety monitoring', 'Exit strategies']
+    },
+    {
+      id: 'extreme-breath-play',
+      name: 'Extreme Breath Play',
+      description: 'Advanced breath restriction with multiple techniques',
+      category: 'breath-play',
+      intensity: 'extreme',
+      duration: 'very-short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Breath play tools', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Advanced breath techniques',
+        'Constant medical monitoring',
+        'Immediate release systems',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for medical complications'
+      ],
+      safety: ['Advanced techniques', 'Medical monitoring', 'Immediate release', 'Emergency plan']
+    },
+    {
+      id: 'extreme-temperature-play',
+      name: 'Extreme Temperature Play',
+      description: 'Intense temperature variations with extreme hot and cold',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Temperature tools', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Extreme temperature variations',
+        'Constant skin monitoring',
+        'Immediate temperature control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for tissue damage'
+      ],
+      safety: ['Temperature control', 'Skin monitoring', 'Emergency plan', 'Damage assessment']
+    },
+    {
+      id: 'extreme-electro-stimulation',
+      name: 'Extreme Electro-Stimulation',
+      description: 'Intensive electrical stimulation with advanced devices',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Advanced electro devices', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Advanced electro techniques',
+        'Constant medical monitoring',
+        'Immediate power control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for electrical injury'
+      ],
+      safety: ['Advanced techniques', 'Medical monitoring', 'Power control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-wax-play',
+      name: 'Extreme Wax Play',
+      description: 'Intensive wax play with multiple temperatures and techniques',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'medium',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Multiple wax types', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Multiple wax temperatures',
+        'Constant skin monitoring',
+        'Immediate temperature control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for burns'
+      ],
+      safety: ['Temperature control', 'Skin monitoring', 'Emergency plan', 'Burn assessment']
+    },
+    {
+      id: 'extreme-knife-play',
+      name: 'Extreme Knife Play',
+      description: 'Advanced knife play with multiple techniques and implements',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Multiple knife types', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Advanced knife techniques',
+        'Constant skin monitoring',
+        'Immediate safety control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for cuts'
+      ],
+      safety: ['Advanced techniques', 'Skin monitoring', 'Safety control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-fire-play',
+      name: 'Extreme Fire Play',
+      description: 'Intensive fire play with advanced techniques and safety',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Advanced fire tools', 'Fire safety equipment', 'Medical monitoring', 'Emergency kit'],
+      steps: [
+        'Advanced fire techniques',
+        'Constant safety monitoring',
+        'Immediate fire control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for burns'
+      ],
+      safety: ['Advanced techniques', 'Safety monitoring', 'Fire control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-needle-play',
+      name: 'Extreme Needle Play',
+      description: 'Advanced body piercing and needle play techniques',
+      category: 'body-modification',
+      intensity: 'extreme',
+      duration: 'medium',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Advanced needles', 'Sterile supplies', 'Medical monitoring', 'Emergency kit'],
+      steps: [
+        'Advanced piercing techniques',
+        'Constant medical monitoring',
+        'Immediate medical control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for infection'
+      ],
+      safety: ['Advanced techniques', 'Medical monitoring', 'Medical control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-branding-play',
+      name: 'Extreme Branding Play',
+      description: 'Advanced branding and marking techniques',
+      category: 'body-modification',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Advanced branding tools', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Advanced branding techniques',
+        'Constant medical monitoring',
+        'Immediate medical control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for tissue damage'
+      ],
+      safety: ['Advanced techniques', 'Medical monitoring', 'Medical control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-water-play',
+      name: 'Extreme Water Play',
+      description: 'Intensive water and liquid play techniques',
+      category: 'sensory',
+      intensity: 'extreme',
+      duration: 'short',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Submissive', 'Dominant'],
+      equipment: ['Advanced water tools', 'Medical monitoring', 'Safety equipment', 'Emergency kit'],
+      steps: [
+        'Advanced water techniques',
+        'Constant medical monitoring',
+        'Immediate safety control',
+        'Emergency response plan',
+        'Intensive medical aftercare',
+        'Check for complications'
+      ],
+      safety: ['Advanced techniques', 'Medical monitoring', 'Safety control', 'Emergency plan']
+    },
+    {
+      id: 'extreme-ritual-play',
+      name: 'Extreme Ritual Play',
+      description: 'Intensive ritual and ceremonial BDSM experiences',
+      category: 'psychological',
+      intensity: 'extreme',
+      duration: 'very-long',
+      difficulty: 'expert',
+      safetyLevel: 'very-high',
+      roles: ['Participant', 'Ritual Leader'],
+      equipment: ['Ritual items', 'Ceremonial tools', 'Safety equipment', 'Psychological support'],
+      steps: [
+        'Intensive ritual preparation',
+        'Deep psychological engagement',
+        'Constant psychological monitoring',
+        'Immediate psychological support',
+        'Intensive psychological aftercare',
+        'Check for psychological impact'
+      ],
+      safety: ['Ritual preparation', 'Psychological monitoring', 'Psychological support', 'Impact assessment']
     }
   ]
 
@@ -1599,7 +2042,8 @@ const ScenarioBuilder = ({ results }) => {
   const durationLevels = [
     { value: 'short', label: 'Short (15-30 min)', color: 'text-blue-400', bg: 'bg-blue-500/20' },
     { value: 'medium', label: 'Medium (30-60 min)', color: 'text-purple-400', bg: 'bg-purple-500/20' },
-    { value: 'long', label: 'Long (1+ hours)', color: 'text-pink-400', bg: 'bg-pink-500/20' }
+    { value: 'long', label: 'Long (1+ hours)', color: 'text-pink-400', bg: 'bg-pink-500/20' },
+    { value: 'very-long', label: 'Very Long (3+ hours)', color: 'text-red-400', bg: 'bg-red-500/20' }
   ]
 
   const safetyOptions = [
@@ -1611,13 +2055,15 @@ const ScenarioBuilder = ({ results }) => {
   const difficultyLevels = [
     { value: 'beginner', label: 'Beginner', color: 'text-green-400', bg: 'bg-green-500/20' },
     { value: 'intermediate', label: 'Intermediate', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-    { value: 'advanced', label: 'Advanced', color: 'text-red-400', bg: 'bg-red-500/20' }
+    { value: 'advanced', label: 'Advanced', color: 'text-red-400', bg: 'bg-red-500/20' },
+    { value: 'expert', label: 'Expert', color: 'text-purple-400', bg: 'bg-purple-500/20' }
   ]
 
   const safetyLevels = [
     { value: 'low', label: 'Low Risk', color: 'text-green-400', bg: 'bg-green-500/20', icon: '🟢' },
     { value: 'moderate', label: 'Moderate Risk', color: 'text-yellow-400', bg: 'bg-yellow-500/20', icon: '🟡' },
-    { value: 'high', label: 'High Risk', color: 'text-red-400', bg: 'bg-red-500/20', icon: '🔴' }
+    { value: 'high', label: 'High Risk', color: 'text-red-400', bg: 'bg-red-500/20', icon: '🔴' },
+    { value: 'very-high', label: 'Very High Risk', color: 'text-purple-400', bg: 'bg-purple-500/20', icon: '💀' }
   ]
 
   const scenarioCategories = [

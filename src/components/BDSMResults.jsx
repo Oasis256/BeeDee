@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BarChart3, TrendingUp, Heart, Zap, Info, X } from 'lucide-react'
 import { getRoleDescription } from '../utils/roleDescriptions'
-import { MarkdownText } from '../utils/markdownRenderer'
+import { MarkdownText } from '../utils/markdownRenderer.jsx'
 
 const BDSMResults = ({ results }) => {
   const [expandedRoles, setExpandedRoles] = useState({})
