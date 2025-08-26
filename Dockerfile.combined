@@ -11,7 +11,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci --prefer-offline --no-audit --loglevel=error --no-fund
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm ci --prefer-offline --no-audit --loglevel=error --no-fund --retry 3 --timeout 60000
 
 # Copy source code
 COPY . .
@@ -35,7 +36,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies for backend
-RUN npm ci --omit=dev --prefer-offline --no-audit --loglevel=error --no-fund
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm ci --omit=dev --prefer-offline --no-audit --loglevel=error --no-fund --retry 3 --timeout 60000
 
 # Copy source code
 COPY . .
