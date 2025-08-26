@@ -291,7 +291,7 @@ const SharedInterests = ({ results }) => {
                   Top 10 roles
                 </span>
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-purple-400/30">

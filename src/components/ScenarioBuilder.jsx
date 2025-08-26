@@ -267,7 +267,38 @@ const ScenarioBuilder = ({ results }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
+      style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}
     >
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .custom-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .dark-dropdown {
+          background-color: rgba(31, 41, 55, 0.9);
+          border: 1px solid rgba(168, 85, 247, 0.2);
+          color: white;
+        }
+        .dark-dropdown option {
+          background-color: rgba(31, 41, 55, 0.95);
+          color: white;
+          padding: 8px 12px;
+        }
+        .dark-dropdown option:hover {
+          background-color: rgba(168, 85, 247, 0.2);
+        }
+        .dark-dropdown:focus {
+          outline: none;
+          border-color: rgba(168, 85, 247, 0.5);
+          box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+        }
+      `}</style>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -356,7 +387,7 @@ const ScenarioBuilder = ({ results }) => {
               <select
                 value={customScenario.category}
                 onChange={(e) => setCustomScenario({ ...customScenario, category: e.target.value })}
-                className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                className="w-full p-3 rounded-lg dark-dropdown text-white focus:outline-none focus:border-purple-400"
               >
                 {scenarioCategories.map(category => (
                   <option key={category} value={category} className="bg-gray-800">
@@ -373,7 +404,7 @@ const ScenarioBuilder = ({ results }) => {
                 <select
                   value={customScenario.intensity}
                   onChange={(e) => setCustomScenario({ ...customScenario, intensity: e.target.value })}
-                  className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                  className="w-full p-3 rounded-lg dark-dropdown text-white focus:outline-none focus:border-purple-400"
                 >
                   {intensityLevels.map(level => (
                     <option key={level.value} value={level.value} className="bg-gray-800">
@@ -388,7 +419,7 @@ const ScenarioBuilder = ({ results }) => {
                 <select
                   value={customScenario.duration}
                   onChange={(e) => setCustomScenario({ ...customScenario, duration: e.target.value })}
-                  className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                  className="w-full p-3 rounded-lg dark-dropdown text-white focus:outline-none focus:border-purple-400"
                 >
                   {durationLevels.map(level => (
                     <option key={level.value} value={level.value} className="bg-gray-800">
@@ -403,7 +434,7 @@ const ScenarioBuilder = ({ results }) => {
                 <select
                   value={customScenario.difficulty}
                   onChange={(e) => setCustomScenario({ ...customScenario, difficulty: e.target.value })}
-                  className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                  className="w-full p-3 rounded-lg dark-dropdown text-white focus:outline-none focus:border-purple-400"
                 >
                   {difficultyLevels.map(level => (
                     <option key={level.value} value={level.value} className="bg-gray-800">
@@ -420,7 +451,7 @@ const ScenarioBuilder = ({ results }) => {
               <select
                 value={customScenario.safetyLevel}
                 onChange={(e) => setCustomScenario({ ...customScenario, safetyLevel: e.target.value })}
-                className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                className="w-full p-3 rounded-lg dark-dropdown text-white focus:outline-none focus:border-purple-400"
               >
                 {safetyLevels.map(level => (
                   <option key={level.value} value={level.value} className="bg-gray-800">
@@ -469,7 +500,7 @@ const ScenarioBuilder = ({ results }) => {
               <p className="text-sm opacity-75">Create a custom scenario or use a template to get started</p>
             </div>
           ) : (
-            <div className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
               {savedScenarios.map((scenario) => (
                 <div
                   key={scenario.id}
@@ -559,7 +590,7 @@ const ScenarioBuilder = ({ results }) => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-4xl mx-4 max-h-[80vh] overflow-y-auto"
+            className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-4xl mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -615,7 +646,7 @@ const ScenarioBuilder = ({ results }) => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-800 border border-red-400/30 rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto"
+            className="bg-gray-800 border border-red-400/30 rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -746,7 +777,7 @@ const ScenarioBuilder = ({ results }) => {
            <motion.div
              initial={{ scale: 0.9, opacity: 0 }}
              animate={{ scale: 1, opacity: 1 }}
-             className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto"
+             className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar"
              onClick={(e) => e.stopPropagation()}
            >
              <div className="flex items-center justify-between mb-6">

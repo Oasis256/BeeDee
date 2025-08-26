@@ -171,6 +171,33 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900">
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .custom-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .dark-dropdown {
+          background-color: rgba(31, 41, 55, 0.9);
+          border: 1px solid rgba(168, 85, 247, 0.2);
+          color: white;
+        }
+        .dark-dropdown option {
+          background-color: rgba(31, 41, 55, 0.95);
+          color: white;
+          padding: 8px 12px;
+        }
+        .dark-dropdown option:hover {
+          background-color: rgba(168, 85, 247, 0.2);
+        }
+        .dark-dropdown:focus {
+          outline: none;
+          border-color: rgba(168, 85, 247, 0.5);
+          box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+        }
+      `}</style>
       {/* Header */}
       <motion.header 
         initial={{ y: -50, opacity: 0 }}
@@ -357,7 +384,7 @@ function App() {
           >
             {/* Tab Navigation */}
             <div className="glass-effect rounded-2xl p-2 mb-6">
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto custom-scrollbar">
                 <button
                   onClick={() => setActiveTab('detailed')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${

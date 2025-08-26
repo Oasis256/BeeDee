@@ -55,9 +55,8 @@ class ApiService {
       }
     }
 
-    // If no environment variable, throw error instead of port discovery
-    logger.error('No VITE_API_URL environment variable found')
-    throw new Error('VITE_API_URL environment variable is required')
+    // If no environment variable, fall back to port discovery
+    logger.api('No VITE_API_URL environment variable found, falling back to port discovery')
 
     // Get the current host and protocol from the browser
     const currentHost = window.location.hostname

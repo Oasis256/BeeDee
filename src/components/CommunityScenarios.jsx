@@ -172,7 +172,39 @@ const CommunityScenarios = ({ results }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
+      style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}
     >
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .custom-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .dark-dropdown {
+          background-color: rgba(31, 41, 55, 0.9);
+          border: 1px solid rgba(168, 85, 247, 0.2);
+          color: white;
+        }
+        .dark-dropdown option {
+          background-color: rgba(31, 41, 55, 0.95);
+          color: white;
+          padding: 8px 12px;
+        }
+        .dark-dropdown option:hover {
+          background-color: rgba(168, 85, 247, 0.2);
+        }
+        .dark-dropdown:focus {
+          outline: none;
+          border-color: rgba(168, 85, 247, 0.5);
+          box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+        }
+      `}</style>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -207,7 +239,7 @@ const CommunityScenarios = ({ results }) => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 bg-white/10 border border-purple-400/20 text-white rounded-lg focus:outline-none focus:border-purple-400"
+            className="px-3 py-2 dark-dropdown text-white rounded-lg focus:outline-none focus:border-purple-400"
           >
             <option value="all">All Categories</option>
             <option value="bondage">Bondage</option>
@@ -223,7 +255,7 @@ const CommunityScenarios = ({ results }) => {
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="px-3 py-2 bg-white/10 border border-purple-400/20 text-white rounded-lg focus:outline-none focus:border-purple-400"
+            className="px-3 py-2 dark-dropdown text-white rounded-lg focus:outline-none focus:border-purple-400"
           >
             <option value="all">All Difficulties</option>
             <option value="beginner">Beginner</option>
@@ -235,7 +267,7 @@ const CommunityScenarios = ({ results }) => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2 bg-white/10 border border-purple-400/20 text-white rounded-lg focus:outline-none focus:border-purple-400"
+            className="px-3 py-2 dark-dropdown text-white rounded-lg focus:outline-none focus:border-purple-400"
           >
             <option value="popular">Most Popular</option>
             <option value="recent">Most Recent</option>
@@ -256,7 +288,7 @@ const CommunityScenarios = ({ results }) => {
           <p className="text-sm opacity-75">Try adjusting your search or filters</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 custom-scrollbar">
           {filteredScenarios.map((scenario) => (
             <motion.div
               key={scenario.id}
@@ -333,7 +365,7 @@ const CommunityScenarios = ({ results }) => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-2xl mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -375,7 +407,7 @@ const CommunityScenarios = ({ results }) => {
                   <select
                     value={uploadScenario.category}
                     onChange={(e) => setUploadScenario({ ...uploadScenario, category: e.target.value })}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                    className="w-full p-3 dark-dropdown text-white rounded-lg focus:outline-none focus:border-purple-400"
                   >
                     <option value="bondage">Bondage</option>
                     <option value="power-exchange">Power Exchange</option>
@@ -393,7 +425,7 @@ const CommunityScenarios = ({ results }) => {
                   <select
                     value={uploadScenario.difficulty}
                     onChange={(e) => setUploadScenario({ ...uploadScenario, difficulty: e.target.value })}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-purple-400/20 text-white focus:outline-none focus:border-purple-400"
+                    className="w-full p-3 dark-dropdown text-white rounded-lg focus:outline-none focus:border-purple-400"
                   >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>

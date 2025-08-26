@@ -21,6 +21,10 @@ class Database {
 
       // Create tables
       await this.createTables()
+      
+      // Seed community scenarios
+      await this.seedCommunityScenarios()
+      
       console.log('✅ Database initialized successfully')
     } catch (error) {
       console.error('❌ Database initialization error:', error)
@@ -123,7 +127,86 @@ class Database {
       )
     `)
 
+    // Community Scenarios table
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS community_scenarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        category TEXT DEFAULT 'power-exchange',
+        difficulty TEXT DEFAULT 'beginner',
+        intensity TEXT DEFAULT 'medium',
+        duration TEXT DEFAULT 'medium',
+        safety_level TEXT DEFAULT 'moderate',
+        roles TEXT, -- JSON array of roles
+        equipment TEXT, -- JSON array of equipment
+        steps TEXT, -- JSON array of steps
+        safety TEXT, -- JSON array of safety considerations
+        tags TEXT, -- JSON array of tags
+        instructions TEXT,
+        likes INTEGER DEFAULT 0,
+        downloads INTEGER DEFAULT 0,
+        average_rating REAL DEFAULT 0,
+        rating_count INTEGER DEFAULT 0,
+        created_by TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     console.log('✅ Database tables created successfully')
+    
+    // Migrate existing tables if needed
+    await this.migrateTables()
+  }
+
+  async migrateTables() {
+    try {
+      // Check if scenarios table has all required columns
+      const columns = await this.db.all("PRAGMA table_info(scenarios)")
+      const columnNames = columns.map(col => col.name)
+      
+      // Add missing columns if they don't exist
+      if (!columnNames.includes('difficulty')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN difficulty TEXT DEFAULT "intermediate"')
+        console.log('✅ Added difficulty column to scenarios table')
+      }
+      
+      if (!columnNames.includes('category')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN category TEXT DEFAULT "power-exchange"')
+        console.log('✅ Added category column to scenarios table')
+      }
+      
+      if (!columnNames.includes('role_assignments')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN role_assignments TEXT DEFAULT "{}"')
+        console.log('✅ Added role_assignments column to scenarios table')
+      }
+      
+      if (!columnNames.includes('equipment')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN equipment TEXT DEFAULT "[]"')
+        console.log('✅ Added equipment column to scenarios table')
+      }
+      
+      if (!columnNames.includes('steps')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN steps TEXT DEFAULT "[]"')
+        console.log('✅ Added steps column to scenarios table')
+      }
+      
+      if (!columnNames.includes('safety_level')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN safety_level TEXT DEFAULT "moderate"')
+        console.log('✅ Added safety_level column to scenarios table')
+      }
+      
+      if (!columnNames.includes('is_custom')) {
+        await this.db.run('ALTER TABLE scenarios ADD COLUMN is_custom BOOLEAN DEFAULT 0')
+        console.log('✅ Added is_custom column to scenarios table')
+      }
+      
+      console.log('✅ Database migration completed')
+    } catch (error) {
+      console.error('Error during database migration:', error)
+      throw error
+    }
   }
 
   // User Profile Methods
@@ -488,11 +571,11 @@ class Database {
       const { 
         name, 
         description, 
-        roles, 
-        intensity, 
-        duration, 
-        safety, 
-        testIds, 
+        roles = [], 
+        intensity = 'medium', 
+        duration = 'medium', 
+        safety = [], 
+        testIds = [], 
         isCustom = false,
         difficulty = 'intermediate',
         category = 'power-exchange',
@@ -502,6 +585,11 @@ class Database {
         safetyLevel = 'moderate'
       } = scenario
       
+      // Ensure all required fields are present
+      if (!name) {
+        throw new Error('Scenario name is required')
+      }
+      
       const result = await this.db.run(`
         INSERT INTO scenarios (
           name, description, roles, intensity, duration, safety, test_ids, is_custom,
@@ -509,22 +597,24 @@ class Database {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         name,
-        description,
-        JSON.stringify(roles),
+        description || '',
+        JSON.stringify(roles || []),
         intensity,
         duration,
-        JSON.stringify(safety),
-        JSON.stringify(testIds),
+        JSON.stringify(safety || []),
+        JSON.stringify(testIds || []),
         isCustom ? 1 : 0,
         difficulty,
         category,
-        JSON.stringify(roleAssignments),
-        JSON.stringify(equipment),
-        JSON.stringify(steps),
+        JSON.stringify(roleAssignments || {}),
+        JSON.stringify(equipment || []),
+        JSON.stringify(steps || []),
         safetyLevel
       ])
       
-      return result.lastID
+      // Return the created scenario
+      const createdScenario = await this.getScenario(result.lastID)
+      return { success: true, scenario: createdScenario }
     } catch (error) {
       console.error('Error saving scenario:', error)
       throw error
@@ -664,6 +754,214 @@ class Database {
       return stats
     } catch (error) {
       console.error('Error getting scenario stats:', error)
+      throw error
+    }
+  }
+
+  // Community Scenarios Methods
+  async getCommunityScenarios() {
+    try {
+      const scenarios = await this.db.all(`
+        SELECT * FROM community_scenarios 
+        ORDER BY likes DESC, created_at DESC
+      `)
+      
+      // Parse JSON fields
+      return scenarios.map(scenario => ({
+        ...scenario,
+        roles: scenario.roles ? JSON.parse(scenario.roles) : [],
+        equipment: scenario.equipment ? JSON.parse(scenario.equipment) : [],
+        steps: scenario.steps ? JSON.parse(scenario.steps) : [],
+        safety: scenario.safety ? JSON.parse(scenario.safety) : [],
+        tags: scenario.tags ? JSON.parse(scenario.tags) : []
+      }))
+    } catch (error) {
+      console.error('Error getting community scenarios:', error)
+      throw error
+    }
+  }
+
+  async createCommunityScenario(scenarioData) {
+    try {
+      const {
+        name,
+        description,
+        category,
+        difficulty,
+        intensity,
+        duration,
+        safetyLevel,
+        roles,
+        equipment,
+        steps,
+        safety,
+        tags,
+        instructions,
+        createdBy
+      } = scenarioData
+
+      const result = await this.db.run(`
+        INSERT INTO community_scenarios (
+          name, description, category, difficulty, intensity, duration, safety_level,
+          roles, equipment, steps, safety, tags, instructions, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        name,
+        description,
+        category,
+        difficulty,
+        intensity,
+        duration,
+        safetyLevel,
+        JSON.stringify(roles || []),
+        JSON.stringify(equipment || []),
+        JSON.stringify(steps || []),
+        JSON.stringify(safety || []),
+        JSON.stringify(tags || []),
+        instructions,
+        createdBy
+      ])
+
+      const scenario = await this.db.get('SELECT * FROM community_scenarios WHERE id = ?', [result.lastID])
+      
+      // Parse JSON fields
+      return {
+        ...scenario,
+        roles: scenario.roles ? JSON.parse(scenario.roles) : [],
+        equipment: scenario.equipment ? JSON.parse(scenario.equipment) : [],
+        steps: scenario.steps ? JSON.parse(scenario.steps) : [],
+        safety: scenario.safety ? JSON.parse(scenario.safety) : [],
+        tags: scenario.tags ? JSON.parse(scenario.tags) : []
+      }
+    } catch (error) {
+      console.error('Error creating community scenario:', error)
+      throw error
+    }
+  }
+
+  async likeCommunityScenario(id) {
+    try {
+      await this.db.run(`
+        UPDATE community_scenarios 
+        SET likes = likes + 1 
+        WHERE id = ?
+      `, [id])
+
+      const scenario = await this.db.get('SELECT likes FROM community_scenarios WHERE id = ?', [id])
+      return { likes: scenario.likes }
+    } catch (error) {
+      console.error('Error liking community scenario:', error)
+      throw error
+    }
+  }
+
+  async downloadCommunityScenario(id) {
+    try {
+      await this.db.run(`
+        UPDATE community_scenarios 
+        SET downloads = downloads + 1 
+        WHERE id = ?
+      `, [id])
+
+      const scenario = await this.db.get('SELECT downloads FROM community_scenarios WHERE id = ?', [id])
+      return { downloads: scenario.downloads }
+    } catch (error) {
+      console.error('Error downloading community scenario:', error)
+      throw error
+    }
+  }
+
+  async seedCommunityScenarios() {
+    try {
+      // Check if we already have community scenarios
+      const count = await this.db.get('SELECT COUNT(*) as count FROM community_scenarios')
+      if (count.count > 0) {
+        console.log('✅ Community scenarios already seeded')
+        return
+      }
+
+      const sampleScenarios = [
+        {
+          name: 'Gentle Introduction to Bondage',
+          description: 'A perfect first-time bondage experience designed for beginners. This scenario focuses on building trust and comfort with basic restraint techniques while maintaining clear communication and safety protocols.',
+          category: 'bondage',
+          difficulty: 'beginner',
+          intensity: 'low',
+          duration: 'short',
+          safetyLevel: 'low',
+          roles: ['Submissive', 'Dominant'],
+          equipment: ['Soft rope or scarves', 'Safety scissors', 'Comfortable surface'],
+          steps: [
+            'Discuss boundaries and safe words before starting',
+            'Start with simple wrist binding using soft materials',
+            'Keep sessions short (15-20 minutes maximum)',
+            'Check circulation and comfort every 5 minutes',
+            'Have safety scissors within immediate reach',
+            'Practice release techniques before starting',
+            'End with gentle aftercare and discussion'
+          ],
+          safety: ['Safe words', 'Regular check-ins', 'Easy release', 'No suspension', 'Soft materials only', 'Short duration'],
+          tags: ['beginner', 'bondage', 'trust-building'],
+          instructions: 'Focus on communication and building trust. This is about exploration, not intensity.',
+          createdBy: 'Community'
+        },
+        {
+          name: 'Sensory Exploration Evening',
+          description: 'A comprehensive sensory play experience that combines multiple sensations to create an intimate and arousing evening. Perfect for couples who want to explore sensation play in a safe, controlled environment.',
+          category: 'sensory',
+          difficulty: 'intermediate',
+          intensity: 'medium',
+          duration: 'long',
+          safetyLevel: 'moderate',
+          roles: ['Submissive', 'Dominant'],
+          equipment: ['Blindfold', 'Feathers', 'Ice cubes', 'Warm oil', 'Silk scarves', 'Different textures', 'Soft music'],
+          steps: [
+            'Blindfold the submissive to heighten other senses',
+            'Use different textures and temperatures on various body areas',
+            'Vary pressure and speed of touch and stimulation',
+            'Ask for feedback on sensations and preferences',
+            'Maintain constant communication throughout',
+            'End with gentle aftercare and sensation discussion',
+            'Document what worked well for future reference'
+          ],
+          safety: ['Safe words', 'Temperature awareness', 'Gentle pressure', 'Communication', 'Sensation feedback', 'Gradual exploration'],
+          tags: ['sensory', 'intermediate', 'intimate'],
+          instructions: 'Take your time and explore different sensations. Communication is key to finding what works for both partners.',
+          createdBy: 'Community'
+        },
+        {
+          name: 'Power Exchange Date Night',
+          description: 'A romantic evening that incorporates gentle power dynamics into a traditional date night. This scenario emphasizes the emotional and psychological aspects of dominance and submission in a loving, nurturing context.',
+          category: 'power-exchange',
+          difficulty: 'beginner',
+          intensity: 'low',
+          duration: 'long',
+          safetyLevel: 'low',
+          roles: ['Submissive', 'Dominant'],
+          equipment: ['Candles', 'Massage oil', 'Soft music', 'Comfortable bedding', 'Warm towels', 'Hydration'],
+          steps: [
+            'Create a romantic atmosphere with candles and soft music',
+            'Begin with gentle, full-body massage using warm oil',
+            'Gradually introduce power dynamics through touch and voice',
+            'Focus on emotional connection and mutual pleasure',
+            'Build intimacy through eye contact and gentle communication',
+            'End with extended cuddling and emotional aftercare',
+            'Discuss the experience and feelings afterward'
+          ],
+          safety: ['Emotional safety', 'Clear boundaries', 'Gentle care', 'Aftercare', 'Open communication', 'Mutual consent'],
+          tags: ['romantic', 'power-exchange', 'beginner'],
+          instructions: 'This is about emotional connection and intimacy. The power dynamics should enhance, not replace, the romantic connection.',
+          createdBy: 'Community'
+        }
+      ]
+
+      for (const scenario of sampleScenarios) {
+        await this.createCommunityScenario(scenario)
+      }
+
+      console.log('✅ Seeded community scenarios successfully')
+    } catch (error) {
+      console.error('Error seeding community scenarios:', error)
       throw error
     }
   }

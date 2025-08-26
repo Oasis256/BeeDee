@@ -190,7 +190,38 @@ const SessionAnalytics = ({ results }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
+      style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}
     >
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .custom-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .dark-dropdown {
+          background-color: rgba(31, 41, 55, 0.9);
+          border: 1px solid rgba(168, 85, 247, 0.2);
+          color: white;
+        }
+        .dark-dropdown option {
+          background-color: rgba(31, 41, 55, 0.95);
+          color: white;
+          padding: 8px 12px;
+        }
+        .dark-dropdown option:hover {
+          background-color: rgba(168, 85, 247, 0.2);
+        }
+        .dark-dropdown:focus {
+          outline: none;
+          border-color: rgba(168, 85, 247, 0.5);
+          box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+        }
+      `}</style>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -226,7 +257,7 @@ const SessionAnalytics = ({ results }) => {
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="px-3 py-1 bg-white/10 border border-purple-400/20 text-white rounded text-sm focus:outline-none focus:border-purple-400"
+            className="px-3 py-1 dark-dropdown text-white rounded text-sm focus:outline-none focus:border-purple-400"
           >
             <option value="all">All Time</option>
             <option value="week">Last 7 Days</option>
@@ -238,7 +269,7 @@ const SessionAnalytics = ({ results }) => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-1 bg-white/10 border border-purple-400/20 text-white rounded text-sm focus:outline-none focus:border-purple-400"
+            className="px-3 py-1 dark-dropdown text-white rounded text-sm focus:outline-none focus:border-purple-400"
           >
             <option value="all">All Categories</option>
             <option value="bondage">Bondage</option>
@@ -254,7 +285,7 @@ const SessionAnalytics = ({ results }) => {
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="px-3 py-1 bg-white/10 border border-purple-400/20 text-white rounded text-sm focus:outline-none focus:border-purple-400"
+            className="px-3 py-1 dark-dropdown text-white rounded text-sm focus:outline-none focus:border-purple-400"
           >
             <option value="all">All Difficulties</option>
             <option value="beginner">Beginner</option>
@@ -412,7 +443,7 @@ const SessionAnalytics = ({ results }) => {
               <Calendar className="w-5 h-5" />
               Recent Sessions
             </h3>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
               {filteredLogs
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                 .slice(0, 10)

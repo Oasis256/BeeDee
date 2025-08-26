@@ -508,9 +508,10 @@ app.get('/api/share/history', async (req, res) => {
 app.post('/api/scenarios', async (req, res) => {
   try {
     const scenarioData = req.body;
-    const scenarioId = await db.saveScenario(scenarioData);
-    res.json({ success: true, scenarioId });
+    const result = await db.saveScenario(scenarioData);
+    res.json(result);
   } catch (error) {
+    console.error('Error in /api/scenarios POST:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -631,6 +632,46 @@ app.get('/api/analytics/role-distribution', async (req, res) => {
   try {
     const distribution = await db.getRoleDistribution();
     res.json({ success: true, distribution });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Community Scenarios endpoints
+app.get('/api/community-scenarios', async (req, res) => {
+  try {
+    const scenarios = await db.getCommunityScenarios();
+    res.json({ success: true, scenarios });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/community-scenarios', async (req, res) => {
+  try {
+    const scenarioData = req.body;
+    const scenario = await db.createCommunityScenario(scenarioData);
+    res.json({ success: true, scenario });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/community-scenarios/:id/like', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.likeCommunityScenario(id);
+    res.json({ success: true, likes: result.likes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/community-scenarios/:id/download', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.downloadCommunityScenario(id);
+    res.json({ success: true, downloads: result.downloads });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
