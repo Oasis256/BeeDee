@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Play, Settings, Users, Zap, Heart, Target, Star, Plus, Save, Database, Trash2, CheckCircle, AlertCircle, Edit } from 'lucide-react'
 import apiService from '../utils/api'
+import { getAllScenarios, getScenariosByCategory, getScenariosByDifficulty, searchScenarios } from '../utils/scenarioDatabase'
 
 const ScenarioBuilder = ({ results }) => {
   const [selectedScenario, setSelectedScenario] = useState(null)
@@ -249,31 +250,8 @@ const ScenarioBuilder = ({ results }) => {
     })
   }
 
-  // Scenario Templates
-  const scenarioTemplates = [
-    // BEGINNER SCENARIOS
-    {
-      id: 'first-time-bondage',
-      name: 'First Time Bondage',
-      description: 'A gentle and safe introduction to bondage play designed specifically for beginners. This scenario focuses on building trust, establishing comfort with restraint, and learning fundamental safety practices. Perfect for couples who want to explore the sensation of being bound or doing the binding in a controlled, low-risk environment. The emphasis is on communication, consent, and gradual exploration rather than intense restraint.',
-      category: 'bondage',
-      intensity: 'low',
-      duration: 'short',
-      difficulty: 'beginner',
-      safetyLevel: 'low',
-      roles: ['Submissive', 'Dominant'],
-      equipment: ['Soft rope or scarves', 'Safety scissors', 'Comfortable surface', 'Pillows for support'],
-      steps: [
-        'Start with simple wrist binding using soft materials',
-        'Use only scarves or soft rope - no metal restraints',
-        'Keep sessions short (15-20 minutes maximum)',
-        'Check circulation every 5 minutes',
-        'Have safety scissors within immediate reach',
-        'Practice tying and untying knots beforehand',
-        'Maintain constant communication throughout'
-      ],
-      safety: ['Safe words', 'Regular check-ins', 'Easy release', 'No suspension', 'Circulation monitoring', 'Immediate release capability']
-    },
+  // Get scenarios from database
+  const scenarioTemplates = getAllScenarios()
     {
       id: 'romantic-evening',
       name: 'Romantic Evening',
