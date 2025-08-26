@@ -1,12 +1,13 @@
 import axios from 'axios'
+import logger from './logger.js'
 
 class ApiService {
   constructor() {
     this.baseURL = null
     this.discoveredPort = null
     
-    // Debug: Check environment variable immediately
-    console.log('🔍 ApiService constructor - Environment check:', {
+    // Log environment configuration
+    logger.api('Initializing API service', {
       VITE_API_URL: import.meta.env.VITE_API_URL,
       NODE_ENV: import.meta.env.NODE_ENV,
       MODE: import.meta.env.MODE
@@ -14,16 +15,13 @@ class ApiService {
   }
 
   async discoverPort() {
-    console.log('🚨 NEW CODE IS RUNNING - Environment variable should be checked first!')
-    
     if (this.discoveredPort) {
       return this.discoveredPort
     }
 
     // Check for environment variable first (production)
-    console.log('🚨 CHECKING ENVIRONMENT VARIABLE NOW!')
     const envApiUrl = import.meta.env.VITE_API_URL
-    console.log(`🔍 Environment variable check:`, {
+    logger.api('Checking environment variable', {
       VITE_API_URL: import.meta.env.VITE_API_URL,
       envApiUrl: envApiUrl,
       type: typeof envApiUrl
@@ -31,80 +29,76 @@ class ApiService {
     
     // Force use of environment variable if available
     if (envApiUrl) {
-      console.log(`🔍 Using environment API URL: ${envApiUrl}`)
+      logger.api(`Using environment API URL: ${envApiUrl}`)
       
       // Handle relative URLs (for nginx proxy setup)
       if (envApiUrl.startsWith('/')) {
         this.baseURL = envApiUrl
-        console.log(`✅ Using relative API URL: ${this.baseURL}`)
-        console.log(`🔗 Base URL set to: ${this.baseURL}`)
+        logger.api(`Using relative API URL: ${this.baseURL}`)
         return null
       }
       
       // Handle absolute URLs
       try {
         const healthUrl = envApiUrl.replace('/api', '/health')
-        console.log(`🔍 Testing health endpoint: ${healthUrl}`)
+        logger.api(`Testing health endpoint: ${healthUrl}`)
         const response = await axios.get(healthUrl, { timeout: 5000 })
         if (response.status === 200) {
           this.baseURL = envApiUrl
-          console.log(`✅ Successfully connected to backend via environment URL`)
-          console.log(`🔗 Base URL set to: ${this.baseURL}`)
+          logger.api(`Successfully connected to backend via environment URL`)
           return null
         }
       } catch (error) {
-        console.log(`❌ Failed to connect to environment API URL: ${error.message}`)
+        logger.error(`Failed to connect to environment API URL: ${error.message}`)
         // Don't fall back to port discovery if environment variable is set
         throw new Error(`Backend server not found at ${envApiUrl}`)
       }
     }
 
     // If no environment variable, throw error instead of port discovery
-    console.error(`❌ No VITE_API_URL environment variable found`)
+    logger.error('No VITE_API_URL environment variable found')
     throw new Error('VITE_API_URL environment variable is required')
 
     // Get the current host and protocol from the browser
     const currentHost = window.location.hostname
     const currentProtocol = window.location.protocol
     
-    console.log(`🔍 API Service: Current hostname is ${currentHost}, protocol is ${currentProtocol}`)
+    logger.api(`Current hostname is ${currentHost}, protocol is ${currentProtocol}`)
 
     // Special handling for your subdomain setup
     if (currentHost === 'bee.shu-le.tech') {
       const backendHost = 'dee.shu-le.tech'
-      console.log(`🔍 Detected bee.shu-le.tech frontend, connecting to ${backendHost} backend`)
+      logger.api(`Detected bee.shu-le.tech frontend, connecting to ${backendHost} backend`)
       
       // Try to connect to the backend subdomain
       try {
         const url = `${currentProtocol}//${backendHost}/health`
-        console.log(`🔍 Trying to connect to: ${url}`)
+        logger.api(`Trying to connect to: ${url}`)
         const response = await axios.get(url, { timeout: 5000 })
         if (response.status === 200) {
           this.discoveredPort = null // No port needed for subdomain
           this.baseURL = `${currentProtocol}//${backendHost}/api`
-          console.log(`✅ Successfully connected to backend on ${backendHost}`)
-          console.log(`🔗 Base URL set to: ${this.baseURL}`)
+          logger.api(`Successfully connected to backend on ${backendHost}`)
           return null
         }
       } catch (error) {
-        console.log(`❌ Failed to connect to ${currentProtocol}//${backendHost} - ${error.message}`)
+        logger.error(`Failed to connect to ${currentProtocol}//${backendHost} - ${error.message}`)
       }
       
       // If HTTPS failed, try HTTP as fallback
       if (currentProtocol === 'https:') {
         try {
           const url = `http://${backendHost}/health`
-          console.log(`🔍 Trying HTTP fallback: ${url}`)
+          logger.api(`Trying HTTP fallback: ${url}`)
           const response = await axios.get(url, { timeout: 5000 })
           if (response.status === 200) {
             this.discoveredPort = null
             this.baseURL = `http://${backendHost}/api`
-            console.log(`✅ Successfully connected to backend on ${backendHost} via HTTP`)
-            console.log(`🔗 Base URL set to: ${this.baseURL}`)
+            logger.api(`Successfully connected to backend on ${backendHost} via HTTP`)
             return null
           }
         } catch (error) {
-          console.log(`❌ Failed to connect to http://${backendHost} - ${error.message}`)
+          logger.error(`Failed to connect to http://${backendHost} - ${error.message}`)
         }
       }
     }
@@ -113,84 +107,80 @@ class ApiService {
     const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1'
     const host = isLocalhost ? 'localhost' : currentHost
     
-    console.log(`🔄 Falling back to port discovery on ${host}`)
+    logger.api(`Falling back to port discovery on ${host}`)
 
     // Try ports from 3001 to 3010 on the detected host with both protocols
     for (let port = 3001; port <= 3010; port++) {
       // Try current protocol first
       try {
         const url = `${currentProtocol}//${host}:${port}/health`
-        console.log(`🔍 Trying to connect to: ${url}`)
+        logger.api(`Trying to connect to: ${url}`)
         const response = await axios.get(url, { timeout: 3000 })
         if (response.status === 200) {
           this.discoveredPort = port
           this.baseURL = `${currentProtocol}//${host}:${port}/api`
-          console.log(`✅ Successfully discovered backend server on ${host}:${port}`)
-          console.log(`🔗 Base URL set to: ${this.baseURL}`)
+          logger.api(`Successfully discovered backend server on ${host}:${port}`)
           return port
         }
       } catch (error) {
-        console.log(`❌ Failed to connect to ${currentProtocol}//${host}:${port} - ${error.message}`)
+        logger.error(`Failed to connect to ${currentProtocol}//${host}:${port} - ${error.message}`)
       }
       
       // If current protocol failed, try the opposite protocol
       const oppositeProtocol = currentProtocol === 'https:' ? 'http:' : 'https:'
       try {
         const url = `${oppositeProtocol}//${host}:${port}/health`
-        console.log(`🔍 Trying to connect to: ${url}`)
+        logger.api(`Trying to connect to: ${url}`)
         const response = await axios.get(url, { timeout: 3000 })
         if (response.status === 200) {
           this.discoveredPort = port
           this.baseURL = `${oppositeProtocol}//${host}:${port}/api`
-          console.log(`✅ Successfully discovered backend server on ${host}:${port}`)
-          console.log(`🔗 Base URL set to: ${this.baseURL}`)
+          logger.api(`Successfully discovered backend server on ${host}:${port}`)
           return port
         }
       } catch (error) {
-        console.log(`❌ Failed to connect to ${oppositeProtocol}//${host}:${port} - ${error.message}`)
+        logger.error(`Failed to connect to ${oppositeProtocol}//${host}:${port} - ${error.message}`)
       }
     }
     
     // If we're not on localhost, also try localhost as a fallback
     if (host !== 'localhost') {
-      console.log(`🔄 Trying localhost fallback...`)
+      logger.api(`Trying localhost fallback...`)
       for (let port = 3001; port <= 3010; port++) {
         // Try current protocol first
         try {
           const url = `${currentProtocol}//localhost:${port}/health`
-          console.log(`🔍 Trying to connect to: ${url}`)
+          logger.api(`Trying to connect to: ${url}`)
           const response = await axios.get(url, { timeout: 3000 })
           if (response.status === 200) {
             this.discoveredPort = port
             this.baseURL = `${currentProtocol}//localhost:${port}/api`
-            console.log(`✅ Successfully discovered backend server on localhost:${port}`)
-            console.log(`🔗 Base URL set to: ${this.baseURL}`)
+            logger.api(`Successfully discovered backend server on localhost:${port}`)
             return port
           }
         } catch (error) {
-          console.log(`❌ Failed to connect to ${currentProtocol}//localhost:${port} - ${error.message}`)
+          logger.error(`Failed to connect to ${currentProtocol}//localhost:${port} - ${error.message}`)
         }
         
         // Try opposite protocol
         const oppositeProtocol = currentProtocol === 'https:' ? 'http:' : 'https:'
         try {
           const url = `${oppositeProtocol}//localhost:${port}/health`
-          console.log(`🔍 Trying to connect to: ${url}`)
+          logger.api(`Trying to connect to: ${url}`)
           const response = await axios.get(url, { timeout: 3000 })
           if (response.status === 200) {
             this.discoveredPort = port
             this.baseURL = `${oppositeProtocol}//localhost:${port}/api`
-            console.log(`✅ Successfully discovered backend server on localhost:${port}`)
-            console.log(`🔗 Base URL set to: ${this.baseURL}`)
+            logger.api(`Successfully discovered backend server on localhost:${port}`)
             return port
           }
         } catch (error) {
-          console.log(`❌ Failed to connect to ${oppositeProtocol}//localhost:${port} - ${error.message}`)
+          logger.error(`Failed to connect to ${oppositeProtocol}//localhost:${port} - ${error.message}`)
         }
       }
     }
     
-    console.error(`❌ Backend server not found`)
+    logger.error(`Backend server not found`)
     throw new Error(`Backend server not found`)
   }
 
@@ -208,7 +198,7 @@ class ApiService {
       const response = await axios.get(`${baseURL}/bdsm-results/${testId}`)
       return response.data
     } catch (error) {
-      console.error('Error fetching test results:', error)
+      logger.error('Error fetching test results:', error)
       throw error
     }
   }
@@ -224,7 +214,7 @@ class ApiService {
       })
       return response.data
     } catch (error) {
-      console.error('Error creating profile:', error)
+      logger.error('Error creating profile:', error)
       throw error
     }
   }
@@ -235,7 +225,7 @@ class ApiService {
       const response = await axios.get(`${baseURL}/profiles`)
       return response.data
     } catch (error) {
-      console.error('Error fetching profiles:', error)
+      logger.error('Error fetching profiles:', error)
       throw error
     }
   }
@@ -246,7 +236,7 @@ class ApiService {
       const response = await axios.get(`${baseURL}/profiles/${testId}`)
       return response.data
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      logger.error('Error fetching profile:', error)
       throw error
     }
   }
@@ -300,8 +290,8 @@ class ApiService {
       console.log(`✅ getFavorites: Response received:`, response.data)
       return response.data
     } catch (error) {
-      console.error('❌ Error fetching favorites:', error)
-      console.error('❌ Error details:', {
+      logger.error('Error fetching favorites:', error)
+      logger.error('Error details:', {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
