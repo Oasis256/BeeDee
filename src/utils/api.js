@@ -15,6 +15,16 @@ class ApiService {
     const envApiUrl = import.meta.env.VITE_API_URL
     if (envApiUrl) {
       console.log(`🔍 Using environment API URL: ${envApiUrl}`)
+      
+      // Handle relative URLs (for nginx proxy setup)
+      if (envApiUrl.startsWith('/')) {
+        this.baseURL = envApiUrl
+        console.log(`✅ Using relative API URL: ${this.baseURL}`)
+        console.log(`🔗 Base URL set to: ${this.baseURL}`)
+        return null
+      }
+      
+      // Handle absolute URLs
       try {
         const healthUrl = envApiUrl.replace('/api', '/health')
         console.log(`🔍 Testing health endpoint: ${healthUrl}`)
