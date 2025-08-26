@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Settings, Users, Zap, Heart, Target, Star, Plus, Save, Database, Trash2, CheckCircle, AlertCircle, Edit } from 'lucide-react'
+import { Play, Settings, Users, Zap, Heart, Target, Star, Plus, Save, Database, Trash2, CheckCircle, AlertCircle, Edit, Shield } from 'lucide-react'
 import apiService from '../utils/api'
 import { getAllScenarios, getScenariosByCategory, getScenariosByDifficulty, searchScenarios } from '../utils/scenarioDatabase'
+import SafetyChecklist from './SafetyChecklist'
 
 const ScenarioBuilder = ({ results }) => {
   const [selectedScenario, setSelectedScenario] = useState(null)
@@ -20,6 +21,8 @@ const ScenarioBuilder = ({ results }) => {
   const [editingScenario, setEditingScenario] = useState(null)
   const [showTemplates, setShowTemplates] = useState(false)
   const [showSafetyGuide, setShowSafetyGuide] = useState(false)
+  const [showSafetyChecklist, setShowSafetyChecklist] = useState(false)
+  const [selectedScenarioForChecklist, setSelectedScenarioForChecklist] = useState(null)
   const [customScenario, setCustomScenario] = useState({
     name: '',
     description: '',
@@ -150,10 +153,27 @@ const ScenarioBuilder = ({ results }) => {
   }
 
   const startTimer = (scenario, duration = null) => {
+    // Show safety checklist first for scenarios with higher risk
+    if (scenario.safetyLevel === 'high' || scenario.safetyLevel === 'very-high' || scenario.difficulty === 'advanced' || scenario.difficulty === 'expert') {
+      setSelectedScenarioForChecklist(scenario)
+      setShowSafetyChecklist(true)
+      return
+    }
+    
     const targetTime = duration || (scenario.duration === 'short' ? 900 : scenario.duration === 'medium' ? 1800 : 3600)
     setActiveTimer({ scenario, targetTime, isRange: false })
     setTimerTime(0)
     setIsTimerRunning(true)
+  }
+
+  const handleSafetyChecklistComplete = () => {
+    setShowSafetyChecklist(false)
+    const scenario = selectedScenarioForChecklist
+    const targetTime = scenario.duration === 'short' ? 900 : scenario.duration === 'medium' ? 1800 : 3600
+    setActiveTimer({ scenario, targetTime, isRange: false })
+    setTimerTime(0)
+    setIsTimerRunning(true)
+    setSelectedScenarioForChecklist(null)
   }
 
   const stopTimer = () => {
@@ -193,6 +213,9 @@ const ScenarioBuilder = ({ results }) => {
       duration: formatTime(timerTime),
       rating: sessionRating,
       notes: sessionNotes,
+      category: activeTimer?.scenario?.category || 'unknown',
+      difficulty: activeTimer?.scenario?.difficulty || 'unknown',
+      intensity: activeTimer?.scenario?.intensity || 'unknown',
       timestamp: new Date().toISOString()
     }
     
@@ -259,13 +282,23 @@ const ScenarioBuilder = ({ results }) => {
             <Database className="w-4 h-4" />
             Templates
           </button>
-          <button
-            onClick={() => setShowSafetyGuide(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <AlertCircle className="w-4 h-4" />
-            Safety Guide
-          </button>
+                     <button
+             onClick={() => setShowSafetyGuide(true)}
+             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+           >
+             <AlertCircle className="w-4 h-4" />
+             Safety Guide
+           </button>
+           <button
+             onClick={() => {
+               setSelectedScenarioForChecklist(customScenario)
+               setShowSafetyChecklist(true)
+             }}
+             className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+           >
+             <Shield className="w-4 h-4" />
+             Safety Checklist
+           </button>
         </div>
       </div>
 
@@ -702,8 +735,40 @@ const ScenarioBuilder = ({ results }) => {
         </motion.div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
+             {/* Safety Checklist Modal */}
+       {showSafetyChecklist && (
+         <motion.div
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+           onClick={() => setShowSafetyChecklist(false)}
+         >
+           <motion.div
+             initial={{ scale: 0.9, opacity: 0 }}
+             animate={{ scale: 1, opacity: 1 }}
+             className="bg-gray-800 border border-purple-400/30 rounded-lg p-6 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto"
+             onClick={(e) => e.stopPropagation()}
+           >
+             <div className="flex items-center justify-between mb-6">
+               <h3 className="text-2xl font-bold text-white">Safety Checklist</h3>
+               <button
+                 onClick={() => setShowSafetyChecklist(false)}
+                 className="text-purple-300 hover:text-white"
+               >
+                 ✕
+               </button>
+             </div>
+             
+             <SafetyChecklist 
+               scenario={selectedScenarioForChecklist} 
+               onComplete={handleSafetyChecklistComplete}
+             />
+           </motion.div>
+         </motion.div>
+       )}
+
+       {/* Delete Confirmation Modal */}
+       {showDeleteConfirm && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
