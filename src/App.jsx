@@ -14,6 +14,7 @@ import AdvancedAnalysis from './components/AdvancedAnalysis'
 import ExportResults from './components/ExportResults'
 import UserProfiles from './components/UserProfiles'
 import SessionAnalytics from './components/SessionAnalytics'
+import CommunityScenarios from './components/CommunityScenarios'
 import apiService from './utils/api'
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics'
+  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
 
   const addTestId = () => {
@@ -445,6 +446,17 @@ function App() {
                   <BarChart className="w-5 h-5" />
                   Session Analytics
                 </button>
+                <button
+                  onClick={() => setActiveTab('community')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'community'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Users className="w-5 h-5" />
+                  Community
+                </button>
               </div>
             </div>
 
@@ -472,6 +484,8 @@ function App() {
               <UserProfiles results={results} />
             ) : activeTab === 'analytics' ? (
               <SessionAnalytics results={results} />
+            ) : activeTab === 'community' ? (
+              <CommunityScenarios results={results} />
             ) : null}
           </motion.div>
         )}

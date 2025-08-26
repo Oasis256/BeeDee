@@ -1,4 +1,5 @@
 // Scenario Database - Separates content from code for better maintainability
+// Enhanced with 50+ comprehensive scenarios across all categories and difficulty levels
 
 // Helper functions for working with scenarios
 export const getScenarioById = (id) => {
@@ -763,5 +764,321 @@ export const scenarioDatabase = {
       'Check for any burns or damage'
     ],
     safety: ['Safety equipment', 'Fire extinguisher', 'Thorough testing', 'Constant monitoring', 'Medical awareness']
+  },
+
+  // Additional Beginner Scenarios
+  'rope-basics': {
+    id: 'rope-basics',
+    name: 'Basic Rope Bondage',
+    description: 'A comprehensive introduction to rope bondage designed specifically for absolute beginners. This scenario focuses on learning fundamental safety knots, simple restraint techniques, and essential communication skills. Perfect for couples who want to explore bondage in a safe, controlled manner without overwhelming complexity. The emphasis is on building trust, establishing clear communication patterns, and developing a solid foundation of rope safety knowledge. This scenario covers basic wrist and ankle ties, proper tension management, circulation monitoring, and emergency release procedures. It\'s designed to be educational, safe, and confidence-building, allowing participants to explore the psychological and physical aspects of restraint while maintaining complete safety control.',
+    roles: ['Rigger', 'Rope Bunny'],
+    intensity: 'low',
+    duration: 'short',
+    safety: ['Safety scissors within reach', 'Check circulation regularly', 'Never leave tied person alone'],
+    test_ids: [],
+    difficulty: 'beginner',
+    category: 'bondage',
+    role_assignments: {},
+    equipment: ['Cotton rope', 'Safety scissors', 'Timer'],
+    steps: [
+      'Discuss boundaries and safe words',
+      'Practice basic knots on yourself first',
+      'Start with simple wrist ties',
+      'Check circulation every 10 minutes',
+      'Keep safety scissors within reach',
+      'Communicate throughout the session'
+    ],
+    safetyLevel: 'low'
+  },
+
+  'sensory-intro': {
+    id: 'sensory-intro',
+    name: 'Sensory Introduction',
+    description: 'A gentle and accessible introduction to sensory play using common household items and natural materials. This scenario explores the fascinating world of different textures, temperatures, and sensations in a safe, controlled environment designed for complete beginners. Perfect for couples who want to explore sensory stimulation without investing in complex equipment or learning advanced techniques. The scenario focuses on heightening awareness and creating intimate connections through touch, sound, and other sensory experiences. Participants will discover how simple items like feathers, ice cubes, silk scarves, and warm oil can create intense sensations and deepen their connection. The emphasis is on communication, consent, and discovering what feels pleasurable for each individual. This scenario is particularly effective for building intimacy and trust while exploring new ways to experience pleasure together.',
+    roles: ['Giver', 'Receiver'],
+    intensity: 'low',
+    duration: 'short',
+    safety: ['Test items on yourself first', 'Have safe words established', 'Start gentle and build up'],
+    test_ids: [],
+    difficulty: 'beginner',
+    category: 'sensory',
+    role_assignments: {},
+    equipment: ['Feather', 'Ice cubes', 'Silk scarf', 'Blindfold'],
+    steps: [
+      'Establish safe words and boundaries',
+      'Blindfold the receiver',
+      'Start with gentle feather touches',
+      'Introduce different textures gradually',
+      'Use ice cubes for temperature play',
+      'End with gentle aftercare'
+    ],
+    safetyLevel: 'low'
+  },
+
+  'power-exchange-basic': {
+    id: 'power-exchange-basic',
+    name: 'Basic Power Exchange',
+    description: 'A gentle and structured introduction to power exchange dynamics designed for couples who are curious about dominance and submission but want to start with the absolute basics. This scenario introduces the fundamental concepts of power dynamics in a safe, controlled environment with clear boundaries and constant communication. Perfect for couples exploring power dynamics for the first time who want to understand the psychological and emotional aspects of giving and receiving control. The scenario focuses on establishing clear roles, developing trust, and learning how power exchange can enhance intimacy and connection. Participants will learn how to communicate desires, set boundaries, and create a safe space for exploring power dynamics. The emphasis is on mutual consent, respect, and understanding that power exchange is a collaborative experience that should benefit both partners equally.',
+    roles: ['Dominant', 'Submissive'],
+    intensity: 'low',
+    duration: 'short',
+    safety: ['Clear boundaries established', 'Safe words in place', 'Regular check-ins'],
+    test_ids: [],
+    difficulty: 'beginner',
+    category: 'power-exchange',
+    role_assignments: {},
+    equipment: ['Timer', 'Notebook for boundaries'],
+    steps: [
+      'Discuss and write down boundaries',
+      'Establish clear safe words',
+      'Start with simple commands',
+      'Regular check-ins every 15 minutes',
+      'End with discussion and aftercare'
+    ],
+    safetyLevel: 'low'
+  },
+
+  // Additional Intermediate Scenarios
+  'rope-intermediate': {
+    id: 'rope-intermediate',
+    name: 'Intermediate Rope Work',
+    description: 'An advanced rope bondage scenario that builds upon fundamental skills and introduces more sophisticated techniques including chest harnesses, decorative ties, and complex patterns. This scenario is designed for couples who have mastered basic rope safety and want to explore more intricate and visually appealing bondage techniques. The scenario focuses on creating beautiful, functional ties that are both aesthetically pleasing and comfortable for extended wear. Participants will learn advanced knot techniques, proper tension distribution, and how to create complex patterns that enhance both the visual and physical experience. This scenario requires solid experience with basic rope safety, circulation monitoring, and emergency release procedures. The emphasis is on technique refinement, artistic expression, and creating deeper psychological and physical connections through more sophisticated restraint methods.',
+    roles: ['Rigger', 'Rope Bunny'],
+    intensity: 'medium',
+    duration: 'medium',
+    safety: ['Advanced safety knowledge required', 'Multiple safety scissors', 'Regular circulation checks'],
+    test_ids: [],
+    difficulty: 'intermediate',
+    category: 'bondage',
+    role_assignments: {},
+    equipment: ['Multiple ropes', 'Safety scissors', 'Timer', 'Cushions'],
+    steps: [
+      'Review safety protocols',
+      'Practice chest harness on yourself',
+      'Apply chest harness to partner',
+      'Add decorative elements',
+      'Monitor circulation and comfort',
+      'Plan safe release procedure'
+    ],
+    safetyLevel: 'moderate'
+  },
+
+  'impact-play-basic': {
+    id: 'impact-play-basic',
+    name: 'Basic Impact Play',
+    description: 'A comprehensive introduction to impact play designed for couples who want to explore the sensations of spanking and impact in a safe, controlled environment. This scenario teaches fundamental impact techniques, proper warm-up procedures, and essential safety protocols that are crucial for anyone interested in exploring impact play. The scenario focuses on understanding body responses, learning proper technique, and establishing clear communication patterns for this intense form of play. Participants will learn how to identify safe impact areas, understand different sensations, and develop the skills needed for safe and pleasurable impact play. The emphasis is on education, safety, and building confidence in both giving and receiving impact. This scenario is essential foundational knowledge for anyone interested in exploring the wide world of impact play and related BDSM activities.',
+    roles: ['Top', 'Bottom'],
+    intensity: 'medium',
+    duration: 'medium',
+    safety: ['Identify safe areas', 'Warm up gradually', 'Have aftercare plan ready'],
+    test_ids: [],
+    difficulty: 'intermediate',
+    category: 'impact-play',
+    role_assignments: {},
+    equipment: ['Hands', 'Paddle', 'Timer', 'Aftercare items'],
+    steps: [
+      'Identify safe impact areas',
+      'Start with gentle hand spanking',
+      'Gradually increase intensity',
+      'Monitor reactions and comfort',
+      'Include breaks and check-ins',
+      'Provide thorough aftercare'
+    ],
+    safetyLevel: 'moderate'
+  },
+
+  'role-play-scenario': {
+    id: 'role-play-scenario',
+    name: 'Fantasy Role Play',
+    description: 'A structured and comprehensive role play scenario designed to help couples explore different personas, dynamics, and fantasies in a safe, controlled environment. This scenario allows participants to step outside their everyday roles and explore new aspects of their sexuality and relationship dynamics. Perfect for building intimacy, improving communication, and discovering new ways to connect with each other. The scenario focuses on creating detailed character profiles, establishing clear boundaries, and developing immersive scenarios that enhance both the psychological and physical aspects of the experience. Participants will learn how to create compelling characters, maintain role consistency, and safely explore fantasies while maintaining clear communication and consent. The emphasis is on creativity, mutual enjoyment, and using role play as a tool for deeper connection and understanding.',
+    roles: ['Character A', 'Character B'],
+    intensity: 'medium',
+    duration: 'medium',
+    safety: ['Clear character boundaries', 'Safe words for each character', 'Debrief after session'],
+    test_ids: [],
+    difficulty: 'intermediate',
+    category: 'role-play',
+    role_assignments: {},
+    equipment: ['Costumes/props', 'Timer', 'Notebook for characters'],
+    steps: [
+      'Create detailed character profiles',
+      'Establish scene boundaries',
+      'Set up safe words for each character',
+      'Begin role play scenario',
+      'Monitor comfort and engagement',
+      'Debrief and discuss experience'
+    ],
+    safetyLevel: 'moderate'
+  },
+
+  // Additional Advanced Scenarios
+  'rope-advanced': {
+    id: 'rope-advanced',
+    name: 'Advanced Rope Suspension',
+    description: 'A highly advanced rope bondage scenario involving complex suspension techniques that require extensive experience, professional training, and comprehensive safety equipment. This scenario represents the pinnacle of rope bondage artistry and technical skill, involving advanced suspension work that elevates the bound person off the ground in various positions. The scenario requires professional training, proper equipment setup, and a thorough understanding of suspension physics, anatomy, and safety protocols. Participants will explore advanced suspension techniques, complex load-bearing structures, and sophisticated rope patterns that create both functional restraint and artistic beauty. This scenario is only suitable for experienced practitioners who have mastered basic and intermediate rope techniques and have received proper training in suspension safety. The emphasis is on technical precision, artistic expression, and maintaining the highest safety standards while creating breathtaking suspension experiences.',
+    roles: ['Rigger', 'Rope Bunny'],
+    intensity: 'high',
+    duration: 'long',
+    safety: ['Professional training required', 'Proper suspension equipment', 'Multiple safety measures'],
+    test_ids: [],
+    difficulty: 'advanced',
+    category: 'bondage',
+    role_assignments: {},
+    equipment: ['Suspension rig', 'Multiple ropes', 'Safety equipment', 'Crash mat'],
+    steps: [
+      'Verify equipment safety',
+      'Practice suspension techniques',
+      'Apply safety harness',
+      'Begin suspension work',
+      'Monitor throughout session',
+      'Safe lowering and aftercare'
+    ],
+    safetyLevel: 'high'
+  },
+
+  'breath-play-advanced': {
+    id: 'breath-play-advanced',
+    name: 'Advanced Breath Play',
+    description: 'A highly advanced and potentially dangerous form of play that involves complex breath control techniques requiring extensive experience, professional training, and strict safety protocols. This scenario explores advanced breath control methods that can create intense psychological and physical sensations through controlled oxygen deprivation and carbon dioxide buildup. The scenario requires professional training, comprehensive safety equipment, and a thorough understanding of human physiology and emergency response procedures. Participants will explore sophisticated breath control techniques, advanced monitoring methods, and complex safety protocols that are essential for this high-risk activity. This scenario is only suitable for experienced practitioners who have received proper training and have extensive experience with safer forms of breath play. The emphasis is on absolute safety, constant monitoring, and immediate emergency response capability while exploring the intense sensations and psychological effects of advanced breath control.',
+    roles: ['Top', 'Bottom'],
+    intensity: 'high',
+    duration: 'short',
+    safety: ['Professional training essential', 'Immediate release capability', 'Medical monitoring'],
+    test_ids: [],
+    difficulty: 'advanced',
+    category: 'breath-play',
+    role_assignments: {},
+    equipment: ['Timer', 'Safety equipment', 'Medical monitoring'],
+    steps: [
+      'Verify training and experience',
+      'Set up safety monitoring',
+      'Establish clear signals',
+      'Begin breath control work',
+      'Monitor vital signs',
+      'Immediate release if needed'
+    ],
+    safetyLevel: 'very-high'
+  },
+
+  'medical-play-advanced': {
+    id: 'medical-play-advanced',
+    name: 'Advanced Medical Play',
+    description: 'A sophisticated and complex medical role play scenario that requires extensive medical knowledge, proper training, and comprehensive safety protocols. This scenario involves detailed medical scenarios that explore the psychological dynamics of medical examinations, procedures, and the power dynamics inherent in medical relationships. The scenario requires proper medical knowledge, sterile equipment, and a thorough understanding of medical safety protocols and emergency procedures. Participants will explore complex medical scenarios, detailed procedures, and the intense psychological aspects of medical role play while maintaining strict safety standards. This scenario is only suitable for experienced practitioners who have received proper training and have extensive knowledge of medical procedures and safety protocols. The emphasis is on realistic medical scenarios, proper sterile technique, and maintaining the psychological aspects of medical play while ensuring complete safety and proper medical knowledge.',
+    roles: ['Medical Professional', 'Patient'],
+    intensity: 'high',
+    duration: 'long',
+    safety: ['Medical knowledge required', 'Sterile equipment', 'Emergency protocols'],
+    test_ids: [],
+    difficulty: 'advanced',
+    category: 'medical-play',
+    role_assignments: {},
+    equipment: ['Medical equipment', 'Sterile supplies', 'Emergency kit'],
+    steps: [
+      'Verify medical knowledge',
+      'Set up sterile environment',
+      'Begin medical scenario',
+      'Monitor throughout session',
+      'Maintain medical protocols',
+      'Provide medical aftercare'
+    ],
+    safetyLevel: 'high'
+  },
+
+  // Additional Expert Scenarios
+  'fire-play-expert': {
+    id: 'fire-play-expert',
+    name: 'Expert Fire Play',
+    description: 'The most advanced and dangerous form of fire play that requires expert-level training, comprehensive safety equipment, and extensive experience with fire manipulation techniques. This scenario involves complex fire manipulation that creates dramatic visual effects and intense sensations through controlled flame application. The scenario requires professional training, specialized fire safety equipment, and a thorough understanding of fire behavior, safety protocols, and emergency response procedures. Participants will explore advanced fire techniques, complex flame patterns, and sophisticated safety measures that are essential for this extremely high-risk activity. This scenario is only suitable for expert practitioners who have received comprehensive training and have extensive experience with safer forms of fire play. The emphasis is on absolute safety, constant vigilance, and immediate emergency response capability while creating breathtaking visual and sensory experiences through controlled fire manipulation.',
+    roles: ['Fire Top', 'Fire Bottom'],
+    intensity: 'extreme',
+    duration: 'medium',
+    safety: ['Professional training required', 'Fire safety equipment', 'Emergency protocols'],
+    test_ids: [],
+    difficulty: 'expert',
+    category: 'sensory',
+    role_assignments: {},
+    equipment: ['Fire safety equipment', 'Extinguishers', 'Safety gear'],
+    steps: [
+      'Verify professional training',
+      'Set up fire safety equipment',
+      'Begin fire play techniques',
+      'Monitor throughout session',
+      'Maintain fire safety protocols',
+      'Emergency response if needed'
+    ],
+    safetyLevel: 'very-high'
+  },
+
+  'knife-play-expert': {
+    id: 'knife-play-expert',
+    name: 'Expert Knife Play',
+    description: 'The most advanced and dangerous form of knife play that requires expert-level training, extensive experience, and strict safety protocols. This scenario involves complex knife manipulation techniques that create intense psychological and physical sensations through the controlled presence and movement of blades. The scenario requires expert training, specialized safety equipment, and a thorough understanding of knife safety, anatomy, and emergency response procedures. Participants will explore advanced knife techniques, complex blade manipulation, and sophisticated safety measures that are essential for this extremely high-risk activity. This scenario is only suitable for expert practitioners who have received comprehensive training and have extensive experience with safer forms of knife play. The emphasis is on absolute safety, constant vigilance, and immediate emergency response capability while exploring the intense psychological and physical sensations of advanced knife manipulation.',
+    roles: ['Knife Top', 'Knife Bottom'],
+    intensity: 'extreme',
+    duration: 'medium',
+    safety: ['Expert training required', 'Dull blades only', 'Emergency protocols'],
+    test_ids: [],
+    difficulty: 'expert',
+    category: 'sensory',
+    role_assignments: {},
+    equipment: ['Dull knives', 'Safety equipment', 'Emergency kit'],
+    steps: [
+      'Verify expert training',
+      'Use only dull blades',
+      'Begin knife play techniques',
+      'Monitor throughout session',
+      'Maintain safety protocols',
+      'Emergency response if needed'
+    ],
+    safetyLevel: 'very-high'
+  },
+
+  // Specialty Scenarios
+  'caregiver-intensive': {
+    id: 'caregiver-intensive',
+    name: 'Intensive Caregiver Dynamic',
+    description: 'A deeply emotional and psychologically intensive caregiver dynamic that explores the full spectrum of caregiver relationships and requires significant emotional intelligence, communication skills, and psychological awareness. This scenario focuses on creating a comprehensive caregiving experience that encompasses emotional support, physical care, and psychological nurturing. The scenario requires extensive emotional intelligence, strong communication skills, and a thorough understanding of caregiver dynamics and psychological safety. Participants will explore the complex emotional aspects of caregiving, develop deep trust and vulnerability, and create a nurturing environment that supports both partners emotional and psychological needs. This scenario is designed for couples who want to explore the most intense aspects of caregiver relationships and requires significant experience with basic caregiver dynamics. The emphasis is on emotional safety, psychological support, and creating a deeply nurturing and supportive dynamic that enhances both partners wellbeing and connection.',
+    roles: ['Caregiver', 'Little'],
+    intensity: 'medium',
+    duration: 'very-long',
+    safety: ['Emotional safety protocols', 'Clear boundaries', 'Aftercare plan'],
+    test_ids: [],
+    difficulty: 'advanced',
+    category: 'caregiver',
+    role_assignments: {},
+    equipment: ['Comfort items', 'Timer', 'Communication tools'],
+    steps: [
+      'Establish emotional boundaries',
+      'Begin caregiver dynamic',
+      'Provide emotional support',
+      'Monitor emotional state',
+      'Maintain communication',
+      'Extended aftercare period'
+    ],
+    safetyLevel: 'moderate'
+  },
+
+  'pet-play-advanced': {
+    id: 'pet-play-advanced',
+    name: 'Advanced Pet Play',
+    description: 'A sophisticated and complex pet play scenario that involves detailed training protocols, behavior modification techniques, and advanced pet training methods. This scenario explores the psychological aspects of animal personas, training relationships, and the deep trust that develops between owner and pet. The scenario requires extensive experience with pet play dynamics, strong communication skills, and a thorough understanding of animal behavior and training principles. Participants will explore advanced pet training techniques, complex behavior modification protocols, and sophisticated pet play dynamics that create deep psychological immersion and connection. This scenario is designed for experienced practitioners who have mastered basic pet play and want to explore the most complex aspects of animal role play and training relationships. The emphasis is on creating realistic pet behaviors, developing deep trust and connection, and exploring the psychological aspects of animal personas and training dynamics.',
+    roles: ['Owner', 'Pet'],
+    intensity: 'high',
+    duration: 'long',
+    safety: ['Clear training protocols', 'Safe equipment', 'Behavioral boundaries'],
+    test_ids: [],
+    difficulty: 'advanced',
+    category: 'pet-play',
+    role_assignments: {},
+    equipment: ['Training equipment', 'Pet gear', 'Safety items'],
+    steps: [
+      'Establish training protocols',
+      'Begin pet training session',
+      'Implement behavior modification',
+      'Monitor pet behavior',
+      'Maintain training consistency',
+      'Provide pet aftercare'
+    ],
+    safetyLevel: 'moderate'
   }
 }

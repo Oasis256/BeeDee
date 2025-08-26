@@ -461,6 +461,51 @@ class ApiService {
     }
   }
 
+  // Community Scenarios
+  async getCommunityScenarios() {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/community-scenarios`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching community scenarios:', error)
+      throw error
+    }
+  }
+
+  async uploadScenario(scenarioData) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/community-scenarios`, scenarioData)
+      return response.data
+    } catch (error) {
+      console.error('Error uploading scenario:', error)
+      throw error
+    }
+  }
+
+  async likeScenario(scenarioId) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/community-scenarios/${scenarioId}/like`)
+      return response.data
+    } catch (error) {
+      console.error('Error liking scenario:', error)
+      throw error
+    }
+  }
+
+  async downloadScenario(scenarioId) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/community-scenarios/${scenarioId}/download`)
+      return response.data
+    } catch (error) {
+      console.error('Error downloading scenario:', error)
+      throw error
+    }
+  }
+
   // Statistics
   async getProfileStats() {
     try {
