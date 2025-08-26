@@ -255,164 +255,180 @@ const ScenarioBuilder = ({ results }) => {
     {
       id: 'first-time-bondage',
       name: 'First Time Bondage',
-      description: 'A gentle introduction to bondage for beginners',
+      description: 'A gentle and safe introduction to bondage play designed specifically for beginners. This scenario focuses on building trust, establishing comfort with restraint, and learning fundamental safety practices. Perfect for couples who want to explore the sensation of being bound or doing the binding in a controlled, low-risk environment. The emphasis is on communication, consent, and gradual exploration rather than intense restraint.',
       category: 'bondage',
       intensity: 'low',
       duration: 'short',
       difficulty: 'beginner',
       safetyLevel: 'low',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Soft rope or scarves', 'Safety scissors'],
+      equipment: ['Soft rope or scarves', 'Safety scissors', 'Comfortable surface', 'Pillows for support'],
       steps: [
-        'Start with simple wrist binding',
-        'Use soft materials only',
-        'Keep sessions short (15-20 minutes)',
-        'Check circulation frequently',
-        'Have safety scissors nearby'
+        'Start with simple wrist binding using soft materials',
+        'Use only scarves or soft rope - no metal restraints',
+        'Keep sessions short (15-20 minutes maximum)',
+        'Check circulation every 5 minutes',
+        'Have safety scissors within immediate reach',
+        'Practice tying and untying knots beforehand',
+        'Maintain constant communication throughout'
       ],
-      safety: ['Safe words', 'Regular check-ins', 'Easy release', 'No suspension']
+      safety: ['Safe words', 'Regular check-ins', 'Easy release', 'No suspension', 'Circulation monitoring', 'Immediate release capability']
     },
     {
       id: 'romantic-evening',
       name: 'Romantic Evening',
-      description: 'A sensual and intimate evening focused on connection',
+      description: 'A deeply intimate and sensual evening designed to strengthen emotional bonds through gentle power exchange and physical connection. This scenario emphasizes the romantic aspects of BDSM, focusing on trust, vulnerability, and mutual pleasure rather than intense domination. Perfect for couples who want to explore dominance and submission in a loving, nurturing context. The evening builds gradually from gentle touch to more intimate activities, always maintaining the focus on emotional connection and mutual satisfaction.',
       category: 'power-exchange',
       intensity: 'low',
       duration: 'long',
       difficulty: 'beginner',
       safetyLevel: 'low',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Candles', 'Massage oil', 'Soft music'],
+      equipment: ['Candles', 'Massage oil', 'Soft music', 'Comfortable bedding', 'Warm towels', 'Hydration'],
       steps: [
-        'Set the mood with candles and music',
-        'Start with gentle massage',
-        'Build intimacy gradually',
-        'Focus on emotional connection',
-        'End with cuddling and aftercare'
+        'Create a romantic atmosphere with candles and soft music',
+        'Begin with gentle, full-body massage using warm oil',
+        'Gradually introduce power dynamics through touch and voice',
+        'Focus on emotional connection and mutual pleasure',
+        'Build intimacy through eye contact and gentle communication',
+        'End with extended cuddling and emotional aftercare',
+        'Discuss the experience and feelings afterward'
       ],
-      safety: ['Emotional safety', 'Clear boundaries', 'Gentle care', 'Aftercare']
+      safety: ['Emotional safety', 'Clear boundaries', 'Gentle care', 'Aftercare', 'Open communication', 'Mutual consent']
     },
     {
       id: 'caregiver-date',
       name: 'Caregiver Date',
-      description: 'A nurturing and caring dynamic for emotional connection',
+      description: 'A nurturing and emotionally supportive dynamic that focuses on caregiving and being cared for. This scenario explores the caregiver/little dynamic in a gentle, non-sexual context, emphasizing emotional safety, trust, and mutual support. Perfect for partners who want to explore age regression, caregiving roles, or simply enjoy a nurturing dynamic. The focus is on creating a safe space where one partner can be vulnerable and cared for while the other provides guidance, comfort, and emotional support.',
       category: 'caregiver',
       intensity: 'low',
       duration: 'long',
       difficulty: 'beginner',
       safetyLevel: 'low',
       roles: ['Little', 'Daddy/Mommy'],
-      equipment: ['Comfortable clothes', 'Snacks', 'Activities'],
+      equipment: ['Comfortable clothes', 'Snacks', 'Activities', 'Comfort items', 'Soft blankets', 'Age-appropriate toys'],
       steps: [
-        'Create a safe, comfortable space',
-        'Engage in gentle activities',
-        'Provide emotional support',
-        'Maintain clear boundaries',
-        'End with gentle aftercare'
+        'Create a safe, comfortable, and nurturing environment',
+        'Establish clear caregiver/little roles and boundaries',
+        'Engage in gentle, age-appropriate activities together',
+        'Provide emotional support and guidance throughout',
+        'Maintain clear communication and consent boundaries',
+        'End with gentle aftercare and emotional check-in',
+        'Discuss feelings and experiences afterward'
       ],
-      safety: ['Emotional safety', 'Clear roles', 'Gentle care', 'No pressure']
+      safety: ['Emotional safety', 'Clear roles', 'Gentle care', 'No pressure', 'Age-appropriate activities', 'Emotional check-ins']
     },
     {
       id: 'sensory-exploration',
       name: 'Sensory Exploration',
-      description: 'Discover new sensations through touch, taste, and sound',
+      description: 'A gentle introduction to sensory play that focuses on discovering new sensations through various textures, temperatures, and stimuli. This scenario is designed to heighten awareness and create intimate connections through touch, sound, and other sensory experiences. Perfect for couples who want to explore sensation play in a safe, controlled environment. The emphasis is on communication, consent, and discovering what feels pleasurable for both partners.',
       category: 'sensory',
       intensity: 'low',
       duration: 'medium',
       difficulty: 'beginner',
       safetyLevel: 'low',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Blindfold', 'Feathers', 'Ice cubes', 'Warm oil'],
+      equipment: ['Blindfold', 'Feathers', 'Ice cubes', 'Warm oil', 'Silk scarves', 'Different textures', 'Soft music'],
       steps: [
-        'Blindfold the submissive',
-        'Use different textures and temperatures',
-        'Vary pressure and speed',
-        'Ask for feedback on sensations',
-        'End with gentle aftercare'
+        'Blindfold the submissive to heighten other senses',
+        'Use different textures and temperatures on various body areas',
+        'Vary pressure and speed of touch and stimulation',
+        'Ask for feedback on sensations and preferences',
+        'Maintain constant communication throughout',
+        'End with gentle aftercare and sensation discussion',
+        'Document what worked well for future reference'
       ],
-      safety: ['Safe words', 'Temperature awareness', 'Gentle pressure', 'Communication']
+      safety: ['Safe words', 'Temperature awareness', 'Gentle pressure', 'Communication', 'Sensation feedback', 'Gradual exploration']
     },
     {
       id: 'role-play-basics',
       name: 'Role Play Basics',
-      description: 'Simple role-playing scenarios for beginners',
+      description: 'An introduction to role-playing that focuses on simple, familiar scenarios to build comfort and confidence. This scenario helps couples explore different personas and dynamics in a safe, controlled environment. Perfect for beginners who want to try role-playing without complex costumes or elaborate scenarios. The emphasis is on communication, consent, and gradually building comfort with taking on different roles.',
       category: 'role-play',
       intensity: 'low',
       duration: 'medium',
       difficulty: 'beginner',
       safetyLevel: 'low',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Costumes (optional)', 'Props (optional)'],
+      equipment: ['Costumes (optional)', 'Props (optional)', 'Comfortable space', 'Communication tools'],
       steps: [
-        'Choose simple roles (teacher/student, boss/employee)',
-        'Set clear boundaries and limits',
-        'Start with verbal role-play',
-        'Gradually add physical elements',
-        'Maintain character throughout'
+        'Choose simple, familiar roles (teacher/student, boss/employee)',
+        'Set clear boundaries and limits for the scenario',
+        'Start with verbal role-play and dialogue',
+        'Gradually add physical elements and touch',
+        'Maintain character throughout the session',
+        'Have regular check-ins to ensure comfort',
+        'End with discussion about the experience'
       ],
-      safety: ['Clear boundaries', 'Safe words', 'Consent check-ins', 'Easy exit']
+      safety: ['Clear boundaries', 'Safe words', 'Consent check-ins', 'Easy exit', 'Character breaks if needed', 'Open communication']
     },
 
     // INTERMEDIATE SCENARIOS
     {
       id: 'impact-introduction',
       name: 'Impact Introduction',
-      description: 'Safe introduction to impact play for beginners',
+      description: 'A structured introduction to impact play that focuses on safety, communication, and gradual intensity building. This scenario is designed for couples who want to explore the sensations of impact play in a controlled, educational environment. The emphasis is on learning proper technique, understanding body responses, and establishing clear communication patterns. Perfect for those who are curious about impact play but want to start safely.',
       category: 'impact-play',
       intensity: 'medium',
       duration: 'short',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Masochist', 'Sadist'],
-      equipment: ['Hands only', 'Safe words established'],
+      equipment: ['Hands only', 'Safe words established', 'Comfortable surface', 'Aftercare supplies'],
       steps: [
-        'Start with hands only',
-        'Begin with gentle spanking',
-        'Gradually increase intensity',
-        'Check in frequently',
-        'Provide thorough aftercare'
+        'Start with hands only - no implements for first sessions',
+        'Begin with gentle spanking on safe areas (buttocks, thighs)',
+        'Gradually increase intensity based on feedback',
+        'Check in frequently using established safe words',
+        'Monitor skin condition and body responses',
+        'Provide thorough aftercare including skin care',
+        'Discuss experience and plan for future sessions'
       ],
-      safety: ['Safe words', 'Gradual intensity', 'Aftercare', 'No implements yet']
+      safety: ['Safe words', 'Gradual intensity', 'Aftercare', 'No implements yet', 'Skin monitoring', 'Safe areas only']
     },
     {
       id: 'rope-bondage-basic',
       name: 'Basic Rope Bondage',
-      description: 'Introduction to rope work with simple ties',
+      description: 'A comprehensive introduction to rope bondage that focuses on fundamental techniques, safety practices, and building confidence with rope work. This scenario is designed for couples who have some experience with basic bondage and want to learn proper rope techniques. The emphasis is on education, safety, and creating beautiful, functional ties that are both aesthetically pleasing and safe.',
       category: 'bondage',
       intensity: 'medium',
       duration: 'medium',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Cotton rope', 'Safety scissors', 'Rope cutter'],
+      equipment: ['Cotton rope', 'Safety scissors', 'Rope cutter', 'Comfortable surface', 'Pillows for support'],
       steps: [
-        'Learn basic single column tie',
-        'Practice on yourself first',
-        'Start with wrist binding',
-        'Check circulation every 10 minutes',
-        'Have multiple safety tools nearby'
+        'Learn and practice basic single column tie thoroughly',
+        'Practice all ties on yourself or a practice dummy first',
+        'Start with simple wrist binding and basic ties',
+        'Check circulation every 10 minutes and monitor comfort',
+        'Have multiple safety tools within immediate reach',
+        'Learn proper tension and pressure techniques',
+        'Practice untying quickly and safely'
       ],
-      safety: ['Rope safety', 'Circulation checks', 'Safety tools', 'Proper technique']
+      safety: ['Rope safety', 'Circulation checks', 'Safety tools', 'Proper technique', 'Practice first', 'Quick release capability']
     },
     {
       id: 'power-exchange-dynamic',
       name: 'Power Exchange Dynamic',
-      description: 'Exploring dominance and submission in daily activities',
+      description: 'A comprehensive exploration of power exchange that extends beyond the bedroom into daily life and activities. This scenario focuses on building a sustainable, long-term dynamic that enhances the relationship through structured protocols, clear expectations, and mutual growth. Perfect for couples who want to deepen their power exchange beyond occasional play sessions. The emphasis is on creating a balanced, consensual dynamic that enriches both partners lives.',
       category: 'power-exchange',
       intensity: 'medium',
       duration: 'long',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Collar (optional)', 'Rules list', 'Journal'],
+      equipment: ['Collar (optional)', 'Rules list', 'Journal', 'Communication tools', 'Progress tracking'],
       steps: [
-        'Establish clear rules and expectations',
-        'Set up daily protocols',
-        'Create accountability system',
-        'Regular check-ins and communication',
-        'Maintain balance and consent'
+        'Establish clear rules, expectations, and boundaries together',
+        'Set up daily protocols and routines that work for both partners',
+        'Create accountability system with regular check-ins',
+        'Maintain regular communication about the dynamic',
+        'Balance power exchange with equality in decision-making',
+        'Regularly review and adjust the dynamic as needed',
+        'Ensure the dynamic enhances rather than restricts the relationship'
       ],
-      safety: ['Clear communication', 'Regular check-ins', 'Flexible boundaries', 'Consent']
+      safety: ['Clear communication', 'Regular check-ins', 'Flexible boundaries', 'Consent', 'Relationship balance', 'Mutual growth']
     },
     {
       id: 'sensory-deprivation',
@@ -1184,23 +1200,24 @@ const ScenarioBuilder = ({ results }) => {
     {
       id: 'extreme-impact-marathon',
       name: 'Extreme Impact Marathon',
-      description: 'Prolonged, intense impact play with multiple implements and techniques',
+      description: 'An intensive, prolonged impact play session designed for experienced practitioners who want to push their limits in a controlled, safe environment. This scenario involves multiple implements, extended duration, and requires extensive preparation and monitoring. The focus is on building intensity gradually, managing pain and pleasure responses, and providing comprehensive aftercare. This is NOT for beginners and requires extensive experience with impact play, proper training, and medical knowledge.',
       category: 'impact-play',
       intensity: 'extreme',
       duration: 'very-long',
       difficulty: 'expert',
       safetyLevel: 'very-high',
       roles: ['Masochist', 'Sadist'],
-      equipment: ['Multiple impact implements', 'Medical kit', 'Aftercare supplies', 'Monitoring equipment'],
+      equipment: ['Multiple impact implements', 'Medical kit', 'Aftercare supplies', 'Monitoring equipment', 'Hydration', 'Comfort items'],
       steps: [
-        'Extensive warm-up period',
-        'Use multiple implements in rotation',
-        'Monitor skin condition constantly',
-        'Provide breaks and hydration',
-        'Intense aftercare and medical monitoring',
-        'Check for serious injury'
+        'Extensive warm-up period with gentle implements',
+        'Use multiple implements in rotation to avoid over-stimulation',
+        'Monitor skin condition constantly for damage',
+        'Provide regular breaks for hydration and assessment',
+        'Intense aftercare and medical monitoring post-session',
+        'Check for serious injury and provide medical attention if needed',
+        'Extended recovery period with ongoing monitoring'
       ],
-      safety: ['Extensive warm-up', 'Constant monitoring', 'Regular breaks', 'Medical monitoring']
+      safety: ['Extensive warm-up', 'Constant monitoring', 'Regular breaks', 'Medical monitoring', 'Injury assessment', 'Extended recovery']
     },
     {
       id: 'extreme-sensory-overload',
