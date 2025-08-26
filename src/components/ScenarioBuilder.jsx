@@ -433,124 +433,136 @@ const ScenarioBuilder = ({ results }) => {
     {
       id: 'sensory-deprivation',
       name: 'Sensory Deprivation',
-      description: 'Exploring sensation through deprivation and enhancement',
+      description: 'A structured exploration of sensory deprivation that focuses on enhancing remaining senses through controlled deprivation of others. This scenario is designed to heighten awareness and create intense sensory experiences by removing visual and auditory input while enhancing touch, taste, and other sensations. Perfect for couples who want to explore the psychological and physical effects of sensory deprivation in a safe, controlled environment.',
       category: 'sensory',
       intensity: 'medium',
       duration: 'medium',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Blindfold', 'Earplugs', 'Restraints', 'Various textures'],
+      equipment: ['Blindfold', 'Earplugs', 'Restraints', 'Various textures', 'Comfort items', 'Communication tools'],
       steps: [
-        'Start with single sense deprivation',
-        'Gradually add more deprivation',
-        'Enhance remaining senses',
-        'Maintain communication',
-        'Provide gentle reintroduction to senses'
+        'Start with single sense deprivation (blindfold only)',
+        'Gradually add more deprivation (earplugs, restraints)',
+        'Enhance remaining senses with various textures and sensations',
+        'Maintain constant communication and check-ins',
+        'Provide gentle reintroduction to senses one at a time',
+        'Monitor psychological state throughout the session',
+        'End with comprehensive aftercare and sensation discussion'
       ],
-      safety: ['Gradual deprivation', 'Communication', 'Safe words', 'Gentle reintroduction']
+      safety: ['Gradual deprivation', 'Communication', 'Safe words', 'Gentle reintroduction', 'Psychological monitoring', 'Sensation discussion']
     },
     {
       id: 'pet-play-basics',
       name: 'Pet Play Basics',
-      description: 'Introduction to animal role-play dynamics',
+      description: 'An introduction to pet play dynamics that focuses on exploring animal personas and training relationships in a safe, consensual environment. This scenario helps couples explore the psychological aspects of taking on animal characteristics, building trust through training, and creating a nurturing dynamic. Perfect for those interested in exploring animal role-play without the complexity of full transformation scenarios.',
       category: 'pet-play',
       intensity: 'medium',
       duration: 'medium',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Pet', 'Owner'],
-      equipment: ['Collar', 'Leash', 'Pet toys', 'Treats'],
+      equipment: ['Collar', 'Leash', 'Pet toys', 'Treats', 'Comfortable space', 'Training aids'],
       steps: [
-        'Establish pet persona and behaviors',
-        'Set up training commands',
-        'Create safe play environment',
-        'Practice basic commands',
-        'End with positive reinforcement'
+        'Establish pet persona and specific animal behaviors',
+        'Set up clear training commands and expectations',
+        'Create safe play environment with boundaries',
+        'Practice basic commands with positive reinforcement',
+        'Maintain clear communication throughout the session',
+        'End with positive reinforcement and aftercare',
+        'Discuss the experience and plan for future sessions'
       ],
-      safety: ['Clear roles', 'Safe environment', 'Positive reinforcement', 'Consent']
+      safety: ['Clear roles', 'Safe environment', 'Positive reinforcement', 'Consent', 'Communication', 'Boundary respect']
     },
     {
       id: 'degradation-light',
       name: 'Light Degradation',
-      description: 'Mild verbal and psychological play',
+      description: 'A gentle introduction to verbal and psychological degradation play that focuses on mild humiliation and verbal control in a safe, consensual environment. This scenario is designed for couples who want to explore the psychological aspects of degradation without intense emotional impact. The emphasis is on communication, consent, and understanding the difference between consensual play and actual harm.',
       category: 'psychological',
       intensity: 'medium',
       duration: 'short',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Degradee', 'Degrader'],
-      equipment: ['Safe words', 'Aftercare items'],
+      equipment: ['Safe words', 'Aftercare items', 'Communication tools', 'Comfort items'],
       steps: [
-        'Establish clear boundaries',
-        'Start with mild language',
-        'Check in frequently',
-        'Provide positive reinforcement',
-        'End with thorough aftercare'
+        'Establish clear boundaries and limits for language use',
+        'Start with mild language and gradually test comfort levels',
+        'Check in frequently using established safe words',
+        'Provide positive reinforcement and emotional support',
+        'End with thorough aftercare and emotional check-in',
+        'Discuss the experience and emotional impact afterward',
+        'Plan for future sessions with adjusted boundaries if needed'
       ],
-      safety: ['Clear boundaries', 'Frequent check-ins', 'Aftercare', 'Consent']
+      safety: ['Clear boundaries', 'Frequent check-ins', 'Aftercare', 'Consent', 'Emotional monitoring', 'Language limits']
     },
     {
       id: 'age-play-basics',
       name: 'Age Play Basics',
-      description: 'Gentle age regression and caregiving dynamics',
+      description: 'A gentle exploration of age regression and caregiving dynamics that focuses on emotional safety, trust, and nurturing relationships. This scenario is designed for couples who want to explore age play in a safe, non-sexual context, emphasizing emotional connection and care rather than sexual elements. Perfect for those interested in exploring vulnerability, caregiving roles, or age regression in a controlled environment.',
       category: 'age-play',
       intensity: 'low',
       duration: 'long',
       difficulty: 'intermediate',
       safetyLevel: 'moderate',
       roles: ['Little', 'Caregiver'],
-      equipment: ['Comfort items', 'Activities', 'Snacks'],
+      equipment: ['Comfort items', 'Activities', 'Snacks', 'Age-appropriate toys', 'Soft blankets', 'Comfortable space'],
       steps: [
-        'Establish age range and persona',
-        'Create safe, nurturing environment',
-        'Engage in age-appropriate activities',
-        'Maintain clear boundaries',
-        'Provide gentle aftercare'
+        'Establish specific age range and persona for the little',
+        'Create safe, nurturing environment with age-appropriate items',
+        'Engage in age-appropriate activities and play',
+        'Maintain clear boundaries between play and reality',
+        'Provide gentle aftercare and emotional support',
+        'Discuss the experience and emotional impact afterward',
+        'Plan for future sessions with adjusted boundaries if needed'
       ],
-      safety: ['Clear boundaries', 'Safe environment', 'Gentle care', 'Consent']
+      safety: ['Clear boundaries', 'Safe environment', 'Gentle care', 'Consent', 'Age-appropriate activities', 'Emotional support']
     },
 
     // ADVANCED SCENARIOS
     {
       id: 'advanced-bondage',
       name: 'Advanced Bondage',
-      description: 'Complex rope work and suspension preparation',
+      description: 'A comprehensive advanced bondage scenario that focuses on complex rope work, suspension techniques, and advanced safety protocols. This scenario is designed for experienced practitioners who have mastered basic rope work and want to explore more complex ties and suspension. The emphasis is on safety, proper technique, and building confidence with advanced bondage practices.',
       category: 'bondage',
       intensity: 'high',
       duration: 'long',
       difficulty: 'advanced',
       safetyLevel: 'high',
       roles: ['Submissive', 'Dominant'],
-      equipment: ['Multiple rope types', 'Suspension rig', 'Safety equipment'],
+      equipment: ['Multiple rope types', 'Suspension rig', 'Safety equipment', 'Medical kit', 'Spotter assistance'],
       steps: [
-        'Master basic ties thoroughly',
-        'Learn suspension safety',
-        'Practice with spotter present',
-        'Check all connections',
-        'Have emergency plan ready'
+        'Master basic ties thoroughly before attempting advanced techniques',
+        'Learn suspension safety and proper rigging techniques',
+        'Practice all techniques with spotter present',
+        'Check all connections and safety equipment thoroughly',
+        'Have emergency plan and medical kit ready',
+        'Monitor circulation and comfort throughout the session',
+        'Provide comprehensive aftercare and recovery time'
       ],
-      safety: ['Advanced training', 'Spotter required', 'Emergency plan', 'Proper equipment']
+      safety: ['Advanced training', 'Spotter required', 'Emergency plan', 'Proper equipment', 'Medical monitoring', 'Recovery time']
     },
     {
       id: 'intense-impact',
       name: 'Intense Impact Play',
-      description: 'Advanced impact play with multiple implements',
+      description: 'An advanced impact play scenario designed for experienced practitioners who want to explore intense sensations with multiple implements and techniques. This scenario focuses on building intensity gradually, managing pain and pleasure responses, and providing comprehensive aftercare. Perfect for those who have mastered basic impact play and want to explore more intense experiences.',
       category: 'impact-play',
       intensity: 'high',
       duration: 'medium',
       difficulty: 'advanced',
       safetyLevel: 'high',
       roles: ['Masochist', 'Sadist'],
-      equipment: ['Multiple implements', 'First aid kit', 'Aftercare items'],
+      equipment: ['Multiple implements', 'First aid kit', 'Aftercare items', 'Comfort items', 'Monitoring tools'],
       steps: [
-        'Warm up thoroughly',
-        'Use multiple implements',
-        'Monitor skin condition',
-        'Provide intense aftercare',
-        'Check for bruising and damage'
+        'Warm up thoroughly with gentle implements first',
+        'Use multiple implements in rotation to avoid over-stimulation',
+        'Monitor skin condition and body responses constantly',
+        'Provide intense aftercare and medical monitoring',
+        'Check for bruising and damage post-session',
+        'Allow adequate recovery time between sessions',
+        'Document responses for future reference'
       ],
-      safety: ['Proper warm-up', 'Skin monitoring', 'Intense aftercare', 'Medical awareness']
+      safety: ['Proper warm-up', 'Skin monitoring', 'Intense aftercare', 'Medical awareness', 'Recovery time', 'Response documentation']
     },
     {
       id: 'total-power-exchange',
@@ -1243,44 +1255,46 @@ const ScenarioBuilder = ({ results }) => {
     {
       id: 'extreme-power-exchange',
       name: 'Extreme Power Exchange',
-      description: 'Complete surrender and total dominance with extreme protocols',
+      description: 'The most intense form of power exchange involving complete surrender and total dominance with comprehensive protocols and 24/7 monitoring. This scenario is designed for expert-level practitioners who have extensive experience with power dynamics and want to explore the ultimate form of dominance and submission. Requires extensive preparation, psychological assessment, and ongoing monitoring to ensure safety and consent.',
       category: 'power-exchange',
       intensity: 'extreme',
       duration: 'very-long',
       difficulty: 'expert',
       safetyLevel: 'very-high',
       roles: ['Slave', 'Master/Mistress'],
-      equipment: ['Protocols', 'Communication tools', 'Monitoring systems', 'Safety equipment'],
+      equipment: ['Protocols', 'Communication tools', 'Monitoring systems', 'Safety equipment', 'Psychological support'],
       steps: [
-        'Establish extreme protocols',
-        'Complete surrender of control',
-        '24/7 monitoring and control',
-        'Regular psychological check-ins',
-        'Maintain safety and consent',
-        'Provide intensive aftercare'
+        'Establish comprehensive extreme protocols with detailed rules',
+        'Complete surrender of control with full accountability',
+        '24/7 monitoring and control with regular check-ins',
+        'Regular psychological check-ins and mental health monitoring',
+        'Maintain safety and consent throughout the entire dynamic',
+        'Provide intensive aftercare and psychological support',
+        'Regular evaluation and adjustment of the dynamic'
       ],
-      safety: ['Extreme protocols', '24/7 monitoring', 'Psychological check-ins', 'Intensive aftercare']
+      safety: ['Extreme protocols', '24/7 monitoring', 'Psychological check-ins', 'Intensive aftercare', 'Mental health monitoring', 'Regular evaluation']
     },
     {
       id: 'extreme-primal-hunt',
       name: 'Extreme Primal Hunt',
-      description: 'Intense primal play with full hunting and capture scenarios',
+      description: 'The most intense form of primal play involving full hunting and capture scenarios with complete animalistic engagement. This scenario is designed for expert-level practitioners who want to explore the rawest form of primal instincts in a controlled, safe environment. Requires extensive preparation, physical conditioning, and comprehensive safety measures to prevent injury while allowing for intense physical engagement.',
       category: 'primal',
       intensity: 'extreme',
       duration: 'long',
       difficulty: 'expert',
       safetyLevel: 'very-high',
       roles: ['Prey', 'Hunter'],
-      equipment: ['Safe hunting environment', 'Protective gear', 'Medical kit', 'Safety equipment'],
+      equipment: ['Safe hunting environment', 'Protective gear', 'Medical kit', 'Safety equipment', 'Communication devices'],
       steps: [
-        'Create extensive hunting environment',
-        'Full primal mindset engagement',
-        'Intense chase and capture',
-        'Monitor physical exertion',
-        'Provide intensive aftercare',
-        'Check for injuries'
+        'Create extensive hunting environment with multiple escape routes',
+        'Full primal mindset engagement with clear boundaries',
+        'Intense chase and capture with safety monitoring',
+        'Monitor physical exertion and energy levels constantly',
+        'Provide intensive aftercare and physical recovery',
+        'Check for injuries and provide medical attention if needed',
+        'Extended recovery period with ongoing monitoring'
       ],
-      safety: ['Extensive environment', 'Physical monitoring', 'Intensive aftercare', 'Injury checking']
+      safety: ['Extensive environment', 'Physical monitoring', 'Intensive aftercare', 'Injury checking', 'Energy monitoring', 'Extended recovery']
     },
     {
       id: 'extreme-degradation',
