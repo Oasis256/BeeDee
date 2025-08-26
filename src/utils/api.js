@@ -14,11 +14,14 @@ class ApiService {
   }
 
   async discoverPort() {
+    console.log('🚨 NEW CODE IS RUNNING - Environment variable should be checked first!')
+    
     if (this.discoveredPort) {
       return this.discoveredPort
     }
 
     // Check for environment variable first (production)
+    console.log('🚨 CHECKING ENVIRONMENT VARIABLE NOW!')
     const envApiUrl = import.meta.env.VITE_API_URL
     console.log(`🔍 Environment variable check:`, {
       VITE_API_URL: import.meta.env.VITE_API_URL,
