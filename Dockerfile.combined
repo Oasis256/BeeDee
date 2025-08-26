@@ -1,0 +1,43 @@
+# Combined Frontend + Backend Dockerfile
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci --prefer-offline --no-audit --loglevel=error --no-fund
+
+# Copy source code
+COPY . .
+
+# Build the frontend
+RUN npm run build
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Install only production dependencies for runtime
+RUN npm ci --omit=dev --prefer-offline --no-audit --loglevel=error --no-fund
+
+# Copy built frontend to serve directory
+RUN mkdir -p /app/serve && cp -r dist/* /app/serve/
+
+# Install serve for static file serving
+RUN npm install -g serve
+
+# Expose ports
+EXPOSE 3001 3000
+
+# Create startup script
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "Starting backend server..."' >> /app/start.sh && \
+    echo 'node server.js &' >> /app/start.sh && \
+    echo 'echo "Starting frontend server..."' >> /app/start.sh && \
+    echo 'serve -s /app/serve -l 3000' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Start both services
+CMD ["/app/start.sh"]
