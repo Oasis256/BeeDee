@@ -13,6 +13,9 @@ RUN npm ci --prefer-offline --no-audit --loglevel=error --no-fund
 # Copy source code
 COPY . .
 
+# Set environment variable for the build
+ENV VITE_API_URL=/api
+
 # Build the frontend
 RUN npm run build
 

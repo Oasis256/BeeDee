@@ -13,6 +13,12 @@ class ApiService {
 
     // Check for environment variable first (production)
     const envApiUrl = import.meta.env.VITE_API_URL
+    console.log(`🔍 Environment variable check:`, {
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+      envApiUrl: envApiUrl,
+      type: typeof envApiUrl
+    })
+    
     if (envApiUrl) {
       console.log(`🔍 Using environment API URL: ${envApiUrl}`)
       
