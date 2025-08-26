@@ -4,6 +4,13 @@ class ApiService {
   constructor() {
     this.baseURL = null
     this.discoveredPort = null
+    
+    // Debug: Check environment variable immediately
+    console.log('🔍 ApiService constructor - Environment check:', {
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+      NODE_ENV: import.meta.env.NODE_ENV,
+      MODE: import.meta.env.MODE
+    })
   }
 
   async discoverPort() {
@@ -19,6 +26,7 @@ class ApiService {
       type: typeof envApiUrl
     })
     
+    // Force use of environment variable if available
     if (envApiUrl) {
       console.log(`🔍 Using environment API URL: ${envApiUrl}`)
       
@@ -47,6 +55,10 @@ class ApiService {
         throw new Error(`Backend server not found at ${envApiUrl}`)
       }
     }
+
+    // If no environment variable, throw error instead of port discovery
+    console.error(`❌ No VITE_API_URL environment variable found`)
+    throw new Error('VITE_API_URL environment variable is required')
 
     // Get the current host and protocol from the browser
     const currentHost = window.location.hostname
