@@ -16,6 +16,7 @@ import UserProfiles from './components/UserProfiles'
 import SessionAnalytics from './components/SessionAnalytics'
 import CommunityScenarios from './components/CommunityScenarios'
 import PositionPreferences from './components/PositionPreferences'
+import SexPositions from './components/SexPositions'
 import apiService from './utils/api'
 
 function App() {
@@ -25,7 +26,7 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions'
+  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
 
   const addTestId = () => {
@@ -172,7 +173,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900">
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -486,6 +487,17 @@ function App() {
                   Positions
                 </button>
                 <button
+                  onClick={() => setActiveTab('sex-positions')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'sex-positions'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Heart className="w-5 h-5" />
+                  Sex Positions
+                </button>
+                <button
                   onClick={() => setActiveTab('community')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'community'
@@ -525,6 +537,8 @@ function App() {
               <SessionAnalytics results={results} />
             ) : activeTab === 'positions' ? (
               <PositionPreferences results={results} />
+            ) : activeTab === 'sex-positions' ? (
+              <SexPositions results={results} />
             ) : activeTab === 'community' ? (
               <CommunityScenarios results={results} />
             ) : null}
