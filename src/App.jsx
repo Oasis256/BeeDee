@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -15,6 +15,7 @@ import ExportResults from './components/ExportResults'
 import UserProfiles from './components/UserProfiles'
 import SessionAnalytics from './components/SessionAnalytics'
 import CommunityScenarios from './components/CommunityScenarios'
+import PositionPreferences from './components/PositionPreferences'
 import apiService from './utils/api'
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community'
+  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
 
   const addTestId = () => {
@@ -474,6 +475,17 @@ function App() {
                   Session Analytics
                 </button>
                 <button
+                  onClick={() => setActiveTab('positions')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'positions'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <ArrowUpDown className="w-5 h-5" />
+                  Positions
+                </button>
+                <button
                   onClick={() => setActiveTab('community')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'community'
@@ -511,6 +523,8 @@ function App() {
               <UserProfiles results={results} />
             ) : activeTab === 'analytics' ? (
               <SessionAnalytics results={results} />
+            ) : activeTab === 'positions' ? (
+              <PositionPreferences results={results} />
             ) : activeTab === 'community' ? (
               <CommunityScenarios results={results} />
             ) : null}
