@@ -19,6 +19,8 @@ import {
   Activity,
   X
 } from 'lucide-react'
+import { externalResources, disclaimer, safetyGuidelines } from '../utils/externalResources'
+import HowToGuideModal from './HowToGuideModal'
 
 const PositionPreferences = ({ results }) => {
   const [positionPreferences, setPositionPreferences] = useState({})
@@ -27,6 +29,8 @@ const PositionPreferences = ({ results }) => {
   const [showAddPosition, setShowAddPosition] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState(null)
   const [showPositionModal, setShowPositionModal] = useState(false)
+  const [showRecommendations, setShowRecommendations] = useState(false)
+  const [showHowToGuide, setShowHowToGuide] = useState(false)
 
   // Position categories with emojis and descriptions
   const positionCategories = {
@@ -416,6 +420,167 @@ const PositionPreferences = ({ results }) => {
     setShowPositionModal(true)
   }
 
+  // Generate position recommendations based on BDSM test results
+  const generateRecommendations = () => {
+    const recommendations = {
+      individual: {},
+      couples: [],
+      sweet: {}
+    }
+
+    results.forEach((result, index) => {
+      const topRoles = result.results.slice(0, 3)
+      const individualRecs = []
+      const sweetRecs = []
+
+      // Individual recommendations based on top roles
+      topRoles.forEach(role => {
+        const roleName = role.role.toLowerCase()
+        
+        // Power exchange recommendations
+        if (roleName.includes('dominant') || roleName.includes('master') || roleName.includes('daddy')) {
+          individualRecs.push({
+            category: 'power-exchange',
+            position: 'Dominant',
+            reason: `Your ${role.percentage}% ${role.role} score suggests you enjoy taking control`,
+            confidence: role.percentage
+          })
+        }
+        
+        if (roleName.includes('submissive') || roleName.includes('slave') || roleName.includes('little')) {
+          individualRecs.push({
+            category: 'power-exchange',
+            position: 'Submissive',
+            reason: `Your ${role.percentage}% ${role.role} score indicates you enjoy surrendering control`,
+            confidence: role.percentage
+          })
+        }
+
+        // Physical position recommendations based on roles
+        if (roleName.includes('sadist') || roleName.includes('rigger')) {
+          individualRecs.push({
+            category: 'physical-positions',
+            position: 'Doggy Style',
+            reason: `Your ${role.percentage}% ${role.role} score suggests you'd enjoy positions with control`,
+            confidence: role.percentage
+          })
+        }
+
+        if (roleName.includes('masochist') || roleName.includes('rope bunny')) {
+          individualRecs.push({
+            category: 'physical-positions',
+            position: 'Butterfly',
+            reason: `Your ${role.percentage}% ${role.role} score indicates you enjoy being vulnerable`,
+            confidence: role.percentage
+          })
+        }
+
+        // Sweet/gentle recommendations for high scores
+        if (role.percentage >= 80) {
+          if (roleName.includes('switch')) {
+            sweetRecs.push({
+              category: 'physical-positions',
+              position: 'Missionary',
+              reason: `Your high ${role.percentage}% Switch score suggests you'd enjoy intimate, face-to-face positions`,
+              confidence: role.percentage
+            })
+          }
+          
+          if (roleName.includes('submissive') || roleName.includes('little')) {
+            sweetRecs.push({
+              category: 'physical-positions',
+              position: 'Spooning',
+              reason: `Your ${role.percentage}% ${role.role} score suggests gentle, intimate positions would be perfect`,
+              confidence: role.percentage
+            })
+          }
+        }
+      })
+
+      recommendations.individual[result.id] = individualRecs
+      recommendations.sweet[result.id] = sweetRecs
+    })
+
+    // Couples recommendations
+    if (results.length >= 2) {
+      for (let i = 0; i < results.length; i++) {
+        for (let j = i + 1; j < results.length; j++) {
+          const result1 = results[i]
+          const result2 = results[j]
+          const coupleRecs = []
+
+          const role1 = result1.results[0]?.role.toLowerCase()
+          const role2 = result2.results[0]?.role.toLowerCase()
+          const score1 = result1.results[0]?.percentage || 0
+          const score2 = result2.results[0]?.percentage || 0
+
+          // Complementary role recommendations
+          if ((role1.includes('dominant') && role2.includes('submissive')) ||
+              (role1.includes('submissive') && role2.includes('dominant'))) {
+            coupleRecs.push({
+              category: 'intense-positions',
+              position: 'Deep Doggy',
+              reason: `Perfect complementary roles: ${result1.results[0]?.role} (${score1}%) and ${result2.results[0]?.role} (${score2}%)`,
+              confidence: Math.min(score1, score2)
+            })
+          }
+
+          if ((role1.includes('rigger') && role2.includes('rope bunny')) ||
+              (role1.includes('rope bunny') && role2.includes('rigger'))) {
+            coupleRecs.push({
+              category: 'bondage-positions',
+              position: 'Spread Eagle',
+              reason: `Ideal bondage pair: ${result1.results[0]?.role} (${score1}%) and ${result2.results[0]?.role} (${score2}%)`,
+              confidence: Math.min(score1, score2)
+            })
+          }
+
+          // Switch compatibility
+          if (role1.includes('switch') || role2.includes('switch')) {
+            coupleRecs.push({
+              category: 'physical-positions',
+              position: 'Cowgirl',
+              reason: `Switch flexibility allows for dynamic role changes during play`,
+              confidence: Math.max(score1, score2)
+            })
+          }
+
+          // High intensity for high scores
+          if (score1 >= 85 && score2 >= 85) {
+            coupleRecs.push({
+              category: 'intense-positions',
+              position: 'Carry Pound',
+              reason: `Both partners have high scores (${score1}% and ${score2}%) - perfect for intense positions`,
+              confidence: Math.min(score1, score2)
+            })
+          }
+
+          // Sweet recommendations for moderate scores
+          if (score1 <= 60 && score2 <= 60) {
+            coupleRecs.push({
+              category: 'physical-positions',
+              position: 'Spooning',
+              reason: `Moderate scores suggest gentle, intimate positions would be most comfortable`,
+              confidence: 100 - Math.max(score1, score2)
+            })
+          }
+
+          if (coupleRecs.length > 0) {
+            recommendations.couples.push({
+              partner1: result1,
+              partner2: result2,
+              recommendations: coupleRecs
+            })
+          }
+        }
+      }
+    }
+
+    return recommendations
+  }
+
+  const recommendations = generateRecommendations()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -438,13 +603,29 @@ const PositionPreferences = ({ results }) => {
           <h2 className="text-2xl font-bold text-white mb-2">Position & Role Dynamics</h2>
           <p className="text-purple-200">Track position preferences and analyze role compatibility</p>
         </div>
-        <button
-          onClick={() => setShowAddPosition(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Position
-        </button>
+                 <div className="flex gap-2">
+           <button
+             onClick={() => setShowHowToGuide(true)}
+             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-lg hover:from-blue-600 hover:to-cyan-700 transition-colors"
+           >
+             <Target className="w-4 h-4" />
+             How-To Guide
+           </button>
+           <button
+             onClick={() => setShowRecommendations(true)}
+             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
+           >
+             <Star className="w-4 h-4" />
+             Get Recommendations
+           </button>
+           <button
+             onClick={() => setShowAddPosition(true)}
+             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+           >
+             <Plus className="w-4 h-4" />
+             Add Position
+           </button>
+         </div>
       </div>
 
       {/* Role Dynamics Analysis */}
@@ -695,10 +876,374 @@ const PositionPreferences = ({ results }) => {
                    Always communicate openly about comfort, limits, and desires before attempting any new position.
                  </p>
                </div>
-             </div>
+
+                {/* General Safety Guidelines */}
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6">
+                  <h4 className="text-xl font-bold text-red-300 mb-4 flex items-center gap-2">
+                    <Shield className="w-6 h-6" />
+                    Essential Safety Guidelines
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="text-lg font-semibold text-red-200 mb-3">Before Any Position:</h5>
+                      <ul className="text-red-100 space-y-2 text-sm">
+                        <li>• Establish clear safe words and signals</li>
+                        <li>• Discuss limits, boundaries, and expectations</li>
+                        <li>• Ensure both partners are comfortable and consenting</li>
+                        <li>• Have emergency contacts readily available</li>
+                        <li>• Prepare safety equipment (scissors, first aid)</li>
+                        <li>• Choose a safe, private environment</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-lg font-semibold text-red-200 mb-3">During Play:</h5>
+                      <ul className="text-red-100 space-y-2 text-sm">
+                        <li>• Always respect safe words immediately</li>
+                        <li>• Check in regularly with your partner</li>
+                        <li>• Monitor physical and emotional state</li>
+                        <li>• Communicate clearly about comfort and limits</li>
+                        <li>• Be prepared to stop or adjust at any time</li>
+                        <li>• Watch for signs of distress or discomfort</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* External Resources Section */}
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-6">
+                  <h4 className="text-xl font-bold text-blue-300 mb-4 flex items-center gap-2">
+                    <Target className="w-6 h-6" />
+                    External Learning Resources
+                  </h4>
+                  
+                  <div className="space-y-6">
+                    {/* Visual Guides */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">📸 Visual Position Guides</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Anatomical Diagrams</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.kinkly.com/position-guides" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Kinkly Position Library</a></li>
+                            <li>• <a href="https://www.cosmopolitan.com/sex-love/sex-positions/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Cosmopolitan Sex Positions</a></li>
+                            <li>• <a href="https://www.menshealth.com/sex-women/g19544885/sex-positions/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Men's Health Position Guide</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">BDSM-Specific Visuals</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.fetlife.com/groups/rope-bondage" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">FetLife Rope Bondage Group</a></li>
+                            <li>• <a href="https://www.reddit.com/r/BDSMcommunity/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Community Reddit</a></li>
+                            <li>• <a href="https://www.tumblr.com/tagged/bdsm-positions" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Positions on Tumblr</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Video Tutorials */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">🎥 Video Tutorials</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Educational Platforms</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.youtube.com/c/KinkUniversity" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Kink University (YouTube)</a></li>
+                            <li>• <a href="https://www.youtube.com/c/WattsTheSafeword" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Watts the Safeword</a></li>
+                            <li>• <a href="https://www.youtube.com/c/EvieLupine" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Evie Lupine BDSM</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Professional Content</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.kinkacademy.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Kink Academy</a></li>
+                            <li>• <a href="https://www.crash-restraint.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Crash Restraint (Rope)</a></li>
+                            <li>• <a href="https://www.theduchy.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">The Duchy (Rope Tutorials)</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Written Guides */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">📚 Comprehensive Written Guides</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">BDSM Education</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.bdsmtest.org/education" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Test Education</a></li>
+                            <li>• <a href="https://www.fetlife.com/learning" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">FetLife Learning Center</a></li>
+                            <li>• <a href="https://www.kinkly.com/education" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Kinkly Education Hub</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Safety & Technique</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.ncsfreedom.org/resources/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">NCSF Safety Resources</a></li>
+                            <li>• <a href="https://www.rope365.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Rope365 Daily Tutorials</a></li>
+                            <li>• <a href="https://www.bdsmwiki.info/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Wiki</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Position-Specific Resources */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">🎯 Position-Specific Resources</h5>
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Power Exchange</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.dominantguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Dominant Guide</a></li>
+                            <li>• <a href="https://www.submissiveguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Submissive Guide</a></li>
+                            <li>• <a href="https://www.switchguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Switch Guide</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Bondage & Rope</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.twistedmonk.com/learn/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Twisted Monk Tutorials</a></li>
+                            <li>• <a href="https://www.rope365.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Rope365 Daily</a></li>
+                            <li>• <a href="https://www.ropeconnection.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Rope Connection</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Impact Play</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.impactplayguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Impact Play Guide</a></li>
+                            <li>• <a href="https://www.spankingguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Spanking Guide</a></li>
+                            <li>• <a href="https://www.floggingguide.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Flogging Guide</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Community & Events */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">🤝 Community & Events</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Online Communities</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.fetlife.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">FetLife Community</a></li>
+                            <li>• <a href="https://www.reddit.com/r/BDSMcommunity/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Community Reddit</a></li>
+                            <li>• <a href="https://discord.gg/bdsm" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Discord Servers</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Events & Workshops</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.fetlife.com/events" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">FetLife Events</a></li>
+                            <li>• <a href="https://www.kinkacademy.com/events" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Kink Academy Events</a></li>
+                            <li>• <a href="https://www.bdsmconferences.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">BDSM Conferences</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Safety & Legal */}
+                    <div>
+                      <h5 className="text-lg font-semibold text-blue-200 mb-3">🛡️ Safety & Legal Resources</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Safety Organizations</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.ncsfreedom.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">NCSF (National Coalition)</a></li>
+                            <li>• <a href="https://www.woodhullfoundation.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Woodhull Freedom Foundation</a></li>
+                            <li>• <a href="https://www.consentacademy.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Consent Academy</a></li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-700/30 rounded-lg p-4">
+                          <h6 className="font-medium text-blue-300 mb-2">Medical & Health</h6>
+                          <ul className="text-blue-100 space-y-1 text-sm">
+                            <li>• <a href="https://www.plannedparenthood.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">Planned Parenthood</a></li>
+                            <li>• <a href="https://www.cdc.gov/std/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">CDC STD Information</a></li>
+                            <li>• <a href="https://www.ashasexualhealth.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">ASHA Sexual Health</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+                      <h6 className="font-medium text-yellow-300 mb-2">⚠️ Important Disclaimer</h6>
+                      <p className="text-yellow-100 text-sm">
+                        These external resources are provided for educational purposes only. Always verify the credibility of sources, 
+                        prioritize safety, and ensure all activities are consensual. The links provided are examples and may not be 
+                        actively maintained. Always research thoroughly before engaging in any BDSM activities.
+                      </p>
+                    </div>
+                  </div>
+                                 </div>
+               </div>
+             </motion.div>
            </motion.div>
-         </motion.div>
-       )}
+         )}
+
+         {/* Recommendations Modal */}
+         {showRecommendations && (
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+             onClick={() => setShowRecommendations(false)}
+           >
+             <motion.div
+               initial={{ scale: 0.9, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               exit={{ scale: 0.9, opacity: 0 }}
+               className="bg-gray-800 border border-purple-400/20 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+               onClick={(e) => e.stopPropagation()}
+             >
+               <div className="flex items-center justify-between mb-6">
+                 <div className="flex items-center gap-3">
+                   <Star className="w-8 h-8 text-yellow-400" />
+                   <h3 className="text-2xl font-bold text-white">Position Recommendations</h3>
+                 </div>
+                 <button
+                   onClick={() => setShowRecommendations(false)}
+                   className="text-gray-400 hover:text-white transition-colors"
+                 >
+                   <X className="w-6 h-6" />
+                 </button>
+               </div>
+
+               <div className="space-y-8">
+                 {/* Individual Recommendations */}
+                 <div>
+                   <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                     <Users className="w-5 h-5" />
+                     Individual Recommendations
+                   </h4>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {results.map((result, index) => {
+                       const individualRecs = recommendations.individual[result.id] || []
+                       const sweetRecs = recommendations.sweet[result.id] || []
+                       
+                       return (
+                         <div key={result.id} className="bg-gray-700/30 rounded-lg p-4">
+                           <div className="flex items-center gap-3 mb-3">
+                             <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                               <span className="text-white font-bold text-sm">
+                                 {result.selectedEmoji || '♞'}
+                               </span>
+                             </div>
+                             <h5 className="font-semibold text-white">{result.testName || `Profile ${index + 1}`}</h5>
+                           </div>
+                           
+                           <div className="space-y-3">
+                             {individualRecs.map((rec, recIndex) => (
+                               <div key={recIndex} className="bg-gray-600/30 rounded p-3">
+                                 <div className="flex items-center justify-between mb-2">
+                                   <span className="text-sm font-medium text-purple-300">
+                                     {positionCategories[rec.category]?.emoji} {rec.position}
+                                   </span>
+                                   <span className="text-xs bg-purple-500/20 text-purple-200 px-2 py-1 rounded">
+                                     {rec.confidence}% match
+                                   </span>
+                                 </div>
+                                 <p className="text-xs text-purple-200">{rec.reason}</p>
+                               </div>
+                             ))}
+                             
+                             {/* Sweet Recommendations */}
+                             {sweetRecs.length > 0 && (
+                               <div className="mt-4">
+                                 <h6 className="text-sm font-medium text-pink-300 mb-2 flex items-center gap-1">
+                                   <Heart className="w-4 h-4" />
+                                   Sweet & Gentle
+                                 </h6>
+                                 {sweetRecs.map((rec, recIndex) => (
+                                   <div key={recIndex} className="bg-pink-500/10 border border-pink-500/20 rounded p-3 mb-2">
+                                     <div className="flex items-center justify-between mb-2">
+                                       <span className="text-sm font-medium text-pink-300">
+                                         {positionCategories[rec.category]?.emoji} {rec.position}
+                                       </span>
+                                       <span className="text-xs bg-pink-500/20 text-pink-200 px-2 py-1 rounded">
+                                         {rec.confidence}% match
+                                       </span>
+                                     </div>
+                                     <p className="text-xs text-pink-200">{rec.reason}</p>
+                                   </div>
+                                 ))}
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                       )
+                     })}
+                   </div>
+                 </div>
+
+                 {/* Couples Recommendations */}
+                 {recommendations.couples.length > 0 && (
+                   <div>
+                     <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                       <Heart className="w-5 h-5" />
+                       Couples Recommendations
+                     </h4>
+                     <div className="space-y-4">
+                       {recommendations.couples.map((couple, index) => (
+                         <div key={index} className="bg-gray-700/30 rounded-lg p-4">
+                           <div className="flex items-center gap-3 mb-4">
+                             <div className="flex items-center gap-2">
+                               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                 <span className="text-white font-bold text-sm">
+                                   {couple.partner1.selectedEmoji || '♞'}
+                                 </span>
+                               </div>
+                               <span className="text-white font-medium">{couple.partner1.testName || 'Partner 1'}</span>
+                             </div>
+                             <span className="text-purple-300">+</span>
+                             <div className="flex items-center gap-2">
+                               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                 <span className="text-white font-bold text-sm">
+                                   {couple.partner2.selectedEmoji || '♞'}
+                                 </span>
+                               </div>
+                               <span className="text-white font-medium">{couple.partner2.testName || 'Partner 2'}</span>
+                             </div>
+                           </div>
+                           
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                             {couple.recommendations.map((rec, recIndex) => (
+                               <div key={recIndex} className="bg-gray-600/30 rounded p-3">
+                                 <div className="flex items-center justify-between mb-2">
+                                   <span className="text-sm font-medium text-purple-300">
+                                     {positionCategories[rec.category]?.emoji} {rec.position}
+                                   </span>
+                                   <span className="text-xs bg-purple-500/20 text-purple-200 px-2 py-1 rounded">
+                                     {rec.confidence}% match
+                                   </span>
+                                 </div>
+                                 <p className="text-xs text-purple-200">{rec.reason}</p>
+                               </div>
+                             ))}
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {/* No Recommendations Message */}
+                 {Object.keys(recommendations.individual).length === 0 && recommendations.couples.length === 0 && (
+                   <div className="text-center py-8">
+                     <Star className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                     <h4 className="text-lg font-semibold text-gray-400 mb-2">No Recommendations Yet</h4>
+                     <p className="text-gray-500">Add more BDSM test results to get personalized position recommendations!</p>
+                   </div>
+                 )}
+               </div>
+             </motion.div>
+           </motion.div>
+         )}
+
+        {/* How-To Guide Modal */}
+        <HowToGuideModal 
+          isOpen={showHowToGuide} 
+          onClose={() => setShowHowToGuide(false)} 
+        />
      </motion.div>
    )
  }
