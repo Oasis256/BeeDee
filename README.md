@@ -18,6 +18,14 @@ A comprehensive web application for comparing BDSM test results, creating scenar
 - **Role Assignment**: Assign specific roles to test results
 - **Timer Integration**: Built-in session timing and tracking
 
+### 🔥 **Sex Positions Guide**
+- **Comprehensive Database**: 235 real sex positions from Cosmopolitan guides
+- **99.2% Success Rate**: High-quality content extraction with lazy loading support
+- **9 Categories**: Oral, Missionary, Anal, Chair, Lesbian, Beginner, Romantic, Solo, Deep Penetration
+- **Rich Content**: Each position includes descriptions, how-to instructions, and images
+- **Interactive Gallery**: Click-to-expand images and detailed position views
+- **Search & Filter**: Find positions by category or search terms
+
 ### 📈 **Session Analytics Dashboard**
 - **Progress Tracking**: Monitor your BDSM exploration journey
 - **Category Analysis**: See which types of play you explore most
@@ -189,6 +197,14 @@ A comprehensive web application for comparing BDSM test results, creating scenar
 - **Animations**: Framer Motion
 - **Deployment**: Docker with Nginx reverse proxy
 
+### Data Scraping
+- **Web Scraping**: Puppeteer-based content extraction
+- **Lazy Loading Support**: Handles dynamic content loading
+- **High Success Rate**: 99.2% content extraction success
+- **Source**: Cosmopolitan sex position guides
+- **Data Format**: JSON with rich metadata
+- **Automation**: Single-command scraping process
+
 ### Key Components
 - `App.jsx`: Main application component
 - `ScenarioBuilder.jsx`: Scenario creation and management
@@ -261,7 +277,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔄 Changelog
 
-### v2.0.0 (Current)
+### v2.1.0 (Current)
+- 🔥 Sex Positions Guide (235 positions, 99.2% success rate)
 - ✨ Session Analytics Dashboard
 - 🛡️ Dynamic Safety Checklists
 - 👥 Community Scenario Sharing

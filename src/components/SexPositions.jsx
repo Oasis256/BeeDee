@@ -36,7 +36,7 @@ const SexPositions = ({ results }) => {
       try {
         setLoading(true);
         // Load the lazy-loading optimized data (99.2% success rate)
-        const response = await fetch('/all-positions-with-lazy-loading.json');
+        const response = await fetch('/all-sex-positions.json');
         if (response.ok) {
           const data = await response.json();
           setScrapedData(data);
