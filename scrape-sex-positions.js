@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 
 async function scrapePositionsWithLazyLoading() {
-  const browser = await puppeteer.launch({
+  const launchOptions = {
     headless: true,
     args: [
       '--no-sandbox',
@@ -12,10 +12,25 @@ async function scrapePositionsWithLazyLoading() {
       '--no-first-run',
       '--no-zygote',
       '--single-process',
-      '--disable-extensions'
-    ],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
-  });
+      '--disable-extensions',
+      '--disable-web-security',
+      '--disable-features=VizDisplayCompositor'
+    ]
+  };
+
+  // Add executable path if available (for Docker/Linux)
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  // Add additional args from environment if available
+  if (process.env.PUPPETEER_ARGS) {
+    launchOptions.args.push(...process.env.PUPPETEER_ARGS.split(' '));
+  }
+
+  console.log('🚀 Launching browser with options:', JSON.stringify(launchOptions, null, 2));
+  
+  const browser = await puppeteer.launch(launchOptions);
 
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');

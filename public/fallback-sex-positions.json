@@ -1,0 +1,63 @@
+{
+  "categories": [
+    {
+      "category": "Sample Positions",
+      "title": "Sample Sex Positions",
+      "url": "https://example.com/sample-positions",
+      "positions": [
+        {
+          "number": 1,
+          "title": "Missionary",
+          "description": "A classic intimate position where partners face each other.",
+          "image": "https://via.placeholder.com/400x300/FF6B9D/FFFFFF?text=Missionary",
+          "difficulty": "Beginner",
+          "duration": "5-15 minutes",
+          "partners": "2"
+        },
+        {
+          "number": 2,
+          "title": "Doggy Style",
+          "description": "A passionate position that allows for deep penetration.",
+          "image": "https://via.placeholder.com/400x300/4ECDC4/FFFFFF?text=Doggy+Style",
+          "difficulty": "Beginner",
+          "duration": "5-20 minutes",
+          "partners": "2"
+        },
+        {
+          "number": 3,
+          "title": "Spooning",
+          "description": "A gentle, intimate position perfect for cuddling.",
+          "image": "https://via.placeholder.com/400x300/45B7D1/FFFFFF?text=Spooning",
+          "difficulty": "Beginner",
+          "duration": "10-30 minutes",
+          "partners": "2"
+        },
+        {
+          "number": 4,
+          "title": "Cowgirl",
+          "description": "A position where the receiving partner takes control.",
+          "image": "https://via.placeholder.com/400x300/96CEB4/FFFFFF?text=Cowgirl",
+          "difficulty": "Intermediate",
+          "duration": "5-15 minutes",
+          "partners": "2"
+        },
+        {
+          "number": 5,
+          "title": "Standing",
+          "description": "An exciting position that can be done against a wall.",
+          "image": "https://via.placeholder.com/400x300/FFEAA7/FFFFFF?text=Standing",
+          "difficulty": "Intermediate",
+          "duration": "5-10 minutes",
+          "partners": "2"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "totalPositions": 5,
+    "totalCategories": 1,
+    "scrapedAt": "2024-01-01T00:00:00.000Z",
+    "source": "Fallback Data",
+    "version": "1.0.0"
+  }
+}

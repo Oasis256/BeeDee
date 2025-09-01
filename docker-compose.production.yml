@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Combined Frontend + Backend service with Nginx
+  beedee:
+    env_file:
+      - ~/sVault/Prog/swag/Env/.env
+    container_name: BeeDee
+    hostname: beedee
+    image: oasis256/beedee
+    build:
+      context: https://github.com/Oasis256/BeeDee.git
+      dockerfile: Dockerfile.linux
+      args:
+        VITE_API_URL: /api
+    ports:
+      - "1919:80"  # Combined frontend + backend via nginx
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=/api
+    restart: unless-stopped
+    volumes:
+      - ~/Vault/config/Swag/BeeDee/Data/:/app/data
+    profiles:
+      - prod-custom
+    networks:
+      default:
+      macNet:
+        ipv4_address: 10.0.0.31
+      # shuleNet:
+      #   ipv4_address: 172.16.17.50
+
+  # Development service (separate for hot reload)
+  dee-dev:
+    env_file:
+      - ~/sVault/Prog/swag/Env/.env
+    container_name: BeeDee-Dev
+    hostname: beedee-dev
+    build:
+      context: https://github.com/Oasis256/BeeDee.git
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://beedee-backend:3001
+    command: npm run dev:full
+    depends_on:
+      - backend
+    profiles:
+      - dev
+
+networks:
+  default:
+    external: true
+  macNet:
+    external: true
+  # shuleNet:
+  #   external: true

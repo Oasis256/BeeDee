@@ -88,6 +88,7 @@ const SexPositions = ({ results }) => {
         setLoading(true);
         console.log('🔄 Starting to load data...');
         
+        // Try main data file first
         const response = await fetch('/all-sex-positions.json');
         console.log('📡 Response status:', response.status);
         
@@ -96,12 +97,37 @@ const SexPositions = ({ results }) => {
           console.log('✅ Loaded positions:', data.length, 'categories');
           setScrapedData(data);
         } else {
-          console.error('❌ Failed to load positions, using fallback data');
-          setScrapedData(fallbackData);
+          console.warn('⚠️ Main data file not found, trying fallback file...');
+          
+          // Try fallback data file
+          const fallbackResponse = await fetch('/fallback-sex-positions.json');
+          if (fallbackResponse.ok) {
+            const fallbackFileData = await fallbackResponse.json();
+            console.log('✅ Loaded fallback positions:', fallbackFileData.categories?.length || 0, 'categories');
+            setScrapedData(fallbackFileData.categories || []);
+          } else {
+            console.error('❌ Both main and fallback files failed, using built-in fallback data');
+            setScrapedData(fallbackData);
+          }
         }
       } catch (error) {
-        console.error('❌ Error loading data, using fallback data:', error);
-        setScrapedData(fallbackData);
+        console.error('❌ Error loading data, trying fallback file...', error);
+        
+        // Try fallback file on error
+        try {
+          const fallbackResponse = await fetch('/fallback-sex-positions.json');
+          if (fallbackResponse.ok) {
+            const fallbackFileData = await fallbackResponse.json();
+            console.log('✅ Loaded fallback positions:', fallbackFileData.categories?.length || 0, 'categories');
+            setScrapedData(fallbackFileData.categories || []);
+          } else {
+            console.error('❌ Fallback file also failed, using built-in fallback data');
+            setScrapedData(fallbackData);
+          }
+        } catch (fallbackError) {
+          console.error('❌ Fallback file also failed:', fallbackError);
+          setScrapedData(fallbackData);
+        }
       } finally {
         setLoading(false);
         console.log('🏁 Finished loading data');
