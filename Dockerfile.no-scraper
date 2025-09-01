@@ -1,4 +1,4 @@
-# Combined Frontend + Backend Dockerfile with Nginx
+# Dockerfile without scraper (for fallback)
 FROM node:20-alpine AS builder
 
 # Accept build argument
@@ -6,20 +6,6 @@ ARG VITE_API_URL=/api
 
 # Set working directory
 WORKDIR /app
-
-# Install dependencies required for Puppeteer
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
-
-# Set Puppeteer to use the installed Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Copy package files
 COPY package*.json ./
@@ -34,12 +20,7 @@ COPY . .
 # Set environment variable for the build
 ENV VITE_API_URL=$VITE_API_URL
 
-# Run the scraper to get fresh data
-RUN echo "Running scraper to fetch sex positions data..." && \
-    node scrape-sex-positions.js && \
-    echo "Scraping completed successfully!"
-
-# Build the frontend
+# Build the frontend (without running scraper)
 RUN npm run build
 
 # Production stage
@@ -70,12 +51,17 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Create data directory
 RUN mkdir -p /app/data
 
-# Create startup script
+# Create startup script that runs scraper at runtime if needed
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'echo "Ensuring data file is available..."' >> /app/start.sh && \
+    echo 'echo "Checking for data file..."' >> /app/start.sh && \
     echo 'if [ ! -f /usr/share/nginx/html/all-sex-positions.json ]; then' >> /app/start.sh && \
-    echo '  echo "Copying scraped data to nginx directory..."' >> /app/start.sh && \
-    echo '  cp /app/all-sex-positions.json /usr/share/nginx/html/ 2>/dev/null || echo "Data file not found, will be generated on first run"' >> /app/start.sh && \
+    echo '  echo "No data file found, attempting to run scraper..."' >> /app/start.sh && \
+    echo '  if command -v node >/dev/null 2>&1; then' >> /app/start.sh && \
+    echo '    echo "Running scraper..."' >> /app/start.sh && \
+    echo '    node scrape-sex-positions.js && cp all-sex-positions.json /usr/share/nginx/html/ 2>/dev/null || echo "Scraper failed, using fallback data"' >> /app/start.sh && \
+    echo '  else' >> /app/start.sh && \
+    echo '    echo "Node.js not available, using fallback data"' >> /app/start.sh && \
+    echo '  fi' >> /app/start.sh && \
     echo 'fi' >> /app/start.sh && \
     echo 'echo "Starting backend server..."' >> /app/start.sh && \
     echo 'node server.js &' >> /app/start.sh && \

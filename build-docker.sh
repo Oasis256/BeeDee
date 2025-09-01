@@ -2,8 +2,8 @@
 
 echo "🐳 Building Docker image with scraper..."
 
-# Build the Docker image
-docker build -t beedee-sex-positions .
+# Build the Docker image with Puppeteer support
+docker build -f Dockerfile.alpine -t beedee-sex-positions .
 
 if [ $? -eq 0 ]; then
     echo "✅ Docker build completed successfully!"

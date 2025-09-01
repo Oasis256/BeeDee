@@ -75,6 +75,14 @@ docker build --build-arg VITE_API_URL=https://your-api.com/api -t beedee-sex-pos
 - Check internet connection
 - Verify Cosmopolitan website accessibility
 - Check Docker has enough memory (recommend 2GB+)
+- **Puppeteer issues**: Try the alternative Dockerfile:
+  ```bash
+  # Use the Puppeteer-optimized version
+  docker build -f Dockerfile.alpine -t beedee-sex-positions .
+  
+  # Or use the no-scraper version as fallback
+  docker build -f Dockerfile.no-scraper -t beedee-sex-positions .
+  ```
 
 ### Data not loading
 - Verify `all-sex-positions.json` exists in the container

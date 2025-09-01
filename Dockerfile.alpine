@@ -1,4 +1,4 @@
-# Combined Frontend + Backend Dockerfile with Nginx
+# Alternative Dockerfile with better Puppeteer support
 FROM node:20-alpine AS builder
 
 # Accept build argument
@@ -15,7 +15,8 @@ RUN apk add --no-cache \
     freetype-dev \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    dumb-init
 
 # Set Puppeteer to use the installed Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
