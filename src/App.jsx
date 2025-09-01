@@ -17,6 +17,7 @@ import SessionAnalytics from './components/SessionAnalytics'
 import CommunityScenarios from './components/CommunityScenarios'
 import PositionPreferences from './components/PositionPreferences'
 import SexPositions from './components/SexPositions'
+import DebugApp from './components/DebugApp'
 import apiService from './utils/api'
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions'
+  const [activeTab, setActiveTab] = useState('sex-positions') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
 
   const addTestId = () => {
@@ -508,6 +509,17 @@ function App() {
                   <Users className="w-5 h-5" />
                   Community
                 </button>
+                <button
+                  onClick={() => setActiveTab('debug')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'debug'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Activity className="w-5 h-5" />
+                  Debug
+                </button>
               </div>
             </div>
 
@@ -541,6 +553,8 @@ function App() {
               <SexPositions results={results} />
             ) : activeTab === 'community' ? (
               <CommunityScenarios results={results} />
+            ) : activeTab === 'debug' ? (
+              <DebugApp />
             ) : null}
           </motion.div>
         )}

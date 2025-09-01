@@ -20,6 +20,11 @@ COPY . .
 # Set environment variable for the build
 ENV VITE_API_URL=$VITE_API_URL
 
+# Run the scraper to get fresh data
+RUN echo "Running scraper to fetch sex positions data..." && \
+    node scrape-sex-positions.js && \
+    echo "Scraping completed successfully!"
+
 # Build the frontend
 RUN npm run build
 
@@ -53,6 +58,11 @@ RUN mkdir -p /app/data
 
 # Create startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "Ensuring data file is available..."' >> /app/start.sh && \
+    echo 'if [ ! -f /usr/share/nginx/html/all-sex-positions.json ]; then' >> /app/start.sh && \
+    echo '  echo "Copying scraped data to nginx directory..."' >> /app/start.sh && \
+    echo '  cp /app/all-sex-positions.json /usr/share/nginx/html/ 2>/dev/null || echo "Data file not found, will be generated on first run"' >> /app/start.sh && \
+    echo 'fi' >> /app/start.sh && \
     echo 'echo "Starting backend server..."' >> /app/start.sh && \
     echo 'node server.js &' >> /app/start.sh && \
     echo 'echo "Starting nginx..."' >> /app/start.sh && \
