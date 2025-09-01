@@ -37,7 +37,12 @@ async function scrapePositionsWithLazyLoading() {
 
   const allDetailedPositions = [];
 
-  const positionUrls = [
+  // First, discover articles from the index pages
+  console.log('🔍 DISCOVERING ARTICLES FROM INDEX PAGES...');
+  const discoveredArticles = await discoverArticles(browser);
+  
+  // Combine discovered articles with hardcoded ones
+  const hardcodedUrls = [
     { url: 'https://www.cosmopolitan.com/sex-love/g4967/oral-sex-positions-you-need/', category: 'Oral Positions', expectedCount: 38 },
     { url: 'https://www.cosmopolitan.com/sex-love/positions/g63107690/missionary-sex-positions-list/', category: 'Missionary Variations', expectedCount: 22 },
     { url: 'https://www.cosmopolitan.com/sex-love/positions/g5025/anal-sex-positions/', category: 'Anal Positions', expectedCount: 27 },
@@ -46,8 +51,37 @@ async function scrapePositionsWithLazyLoading() {
     { url: 'https://www.cosmopolitan.com/sex-love/positions/news/g5949/first-time-sex-positions/', category: 'Beginner Positions', expectedCount: 20 },
     { url: 'https://www.cosmopolitan.com/sex-love/positions/g2064/romantic-sex-positions/', category: 'Romantic Positions', expectedCount: 33 },
     { url: 'https://www.cosmopolitan.com/sex-love/positions/g5727/masturbation-positions-for-women/', category: 'Solo Positions', expectedCount: 25 },
-    { url: 'https://www.cosmopolitan.com/sex-love/positions/g6018/sex-positions-deep-penetration/', category: 'Deep Penetration', expectedCount: 20 }
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g6018/sex-positions-deep-penetration/', category: 'Deep Penetration', expectedCount: 20 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/a38014355/butterfly-sex-position/', category: 'Butterfly Positions', expectedCount: 5 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g65554852/captain-sex-position/', category: 'Captain Positions', expectedCount: 4 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g64906903/prone-bone-position/', category: 'Prone Bone Positions', expectedCount: 3 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g45228399/weird-sex-positions/', category: 'Weird Sex Positions', expectedCount: 8 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g42180073/doggy-style-sex-position/', category: 'Doggy Style Variations', expectedCount: 10 },
+    { url: 'https://www.cosmopolitan.com/sex-love/positions/g65292946/apex-sex-position/', category: 'Apex Sex Positions', expectedCount: 3 }
   ];
+
+  // Create a map of URLs to avoid duplicates
+  const urlMap = new Map();
+  
+  // Add hardcoded URLs first
+  hardcodedUrls.forEach(article => {
+    urlMap.set(article.url, article);
+  });
+  
+  // Add discovered articles (they will override hardcoded ones if same URL)
+  discoveredArticles.forEach(article => {
+    if (!urlMap.has(article.url)) {
+      urlMap.set(article.url, {
+        url: article.url,
+        category: article.category || 'Discovered Positions',
+        expectedCount: 10 // Default expected count for discovered articles
+      });
+    }
+  });
+
+  const positionUrls = Array.from(urlMap.values());
+  
+  console.log(`📊 Total articles to scrape: ${positionUrls.length} (${hardcodedUrls.length} hardcoded + ${discoveredArticles.length} discovered)`);
 
   try {
     for (const position of positionUrls) {
@@ -389,7 +423,7 @@ async function scrapePositionsWithLazyLoading() {
     console.log(`   Image Rate: ${((totalPositionsWithImages / totalScraped) * 100).toFixed(1)}%`);
 
     // Copy to public folder for the frontend
-    fs.copyFileSync('all-sex-positions.json', 'public/all-sex-positions.json');
+    fs.copyFileSync('all-positions-with-lazy-loading.json', 'public/all-sex-positions.json');
     console.log(`\n📁 Copied to public/all-sex-positions.json for frontend use`);
 
   } catch (error) {
@@ -406,7 +440,7 @@ async function discoverArticles(browser) {
   const allArticles = [];
   const mainIndexUrl = 'https://www.cosmopolitan.com/sex-love/positions/';
   let pageNumber = 1;
-  const maxPages = 20; // Safety limit
+  const maxPages = 10; // Increased from 20, but still reasonable safety limit
   let previousArticleCount = 0;
   
   while (pageNumber <= maxPages) {
@@ -481,9 +515,16 @@ async function discoverArticles(browser) {
 
       console.log(`   Found ${pageArticles.length} article links on index page ${pageNumber}`);
       
-      // Check if we've reached the end (same count as previous page)
-      if (pageArticles.length === previousArticleCount && pageNumber > 1) {
-        console.log(`   Same article count as previous page (${pageArticles.length}), reached the end`);
+      // For cumulative pagination, we need to check if we're getting NEW articles
+      // not just the same count
+      const newArticles = pageArticles.filter(article => 
+        !allArticles.some(existing => existing.url === article.url)
+      );
+      
+      console.log(`   New articles on this page: ${newArticles.length}`);
+      
+      if (newArticles.length === 0 && pageNumber > 1) {
+        console.log(`   No new articles found on page ${pageNumber}, reached the end`);
         break;
       }
       
@@ -492,15 +533,9 @@ async function discoverArticles(browser) {
         break;
       }
 
-      // Add unique articles only
-      pageArticles.forEach(article => {
-        const exists = allArticles.some(existing => existing.url === article.url);
-        if (!exists) {
-          allArticles.push(article);
-        }
-      });
-      
-      previousArticleCount = pageArticles.length;
+      // Add only new articles to our collection
+      allArticles.push(...newArticles);
+      console.log(`   Total unique articles discovered so far: ${allArticles.length}`);
       pageNumber++;
       
     } catch (error) {
@@ -949,6 +984,33 @@ async function scrapeArticle(browser, article) {
             });
             
             console.log(`Alternative method found ${data.positions.length} positions`);
+            
+            // Also look for editorial links to other positions
+            const editorialLinks = Array.from(document.querySelectorAll('section[data-embed="editorial-link"] a'));
+            console.log(`Found ${editorialLinks.length} editorial links`);
+            
+            editorialLinks.forEach((link, index) => {
+              const url = link.href;
+              const title = link.textContent.trim();
+              
+              if (url && title && url.includes('/sex-love/') && url.includes('positions') && title.length > 3) {
+                data.positions.push({
+                  number: data.positions.length + 1,
+                  title: title,
+                  description: `Link to: ${title}`,
+                  howToDoIt: `See article: ${url}`,
+                  images: [],
+                  slideId: `editorial-${index}`,
+                  pageNumber: currentPageNumber,
+                  source: 'editorial-link',
+                  isEditorialLink: true,
+                  linkUrl: url
+                });
+                data.lazyLoadInfo.slideSectionsWithContent++;
+              }
+            });
+            
+            console.log(`Total positions after editorial links: ${data.positions.length}`);
           }
 
           return data;
