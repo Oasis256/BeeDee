@@ -90,54 +90,114 @@ const SexPositions = ({ results }) => {
       'all': { name: 'All Positions', emoji: '🌟', count: scrapedData.reduce((sum, cat) => sum + cat.positions.length, 0) }
     }
 
-    // Extract categories from the data
-    const categoryMap = {
-      'Oral Positions': { name: 'Oral Positions', emoji: '😊' },
-      'Missionary Variations': { name: 'Missionary', emoji: '💕' },
-      'Anal Positions': { name: 'Anal Positions', emoji: '🔥' },
-      'Chair Positions': { name: 'Chair Sex', emoji: '🪑' },
-      'Lesbian Positions': { name: 'Lesbian', emoji: '💝' },
-      'Beginner Positions': { name: 'Beginners', emoji: '🌱' },
-      'Romantic Positions': { name: 'Romantic', emoji: '💖' },
-      'Solo Positions': { name: 'Solo', emoji: '🫂' },
-      'Deep Penetration': { name: 'Deep Penetration', emoji: '⚡' }
-    }
-
-    // Count positions in each category
-    Object.keys(categoryMap).forEach(key => {
-      const category = scrapedData.find(cat => cat.category === key)
-      if (category) {
-        categories[key] = { ...categoryMap[key], count: category.positions.length }
+    // Group articles by their actual categories from the data
+    const categoryGroups = {}
+    
+    scrapedData.forEach(article => {
+      // Extract category from article title or use a default
+      let category = 'Sex Positions' // default
+      
+      // Try to determine category from title
+      const title = article.title.toLowerCase()
+      if (title.includes('oral') || title.includes('blow job')) {
+        category = 'Oral Positions'
+      } else if (title.includes('anal')) {
+        category = 'Anal Positions'
+      } else if (title.includes('missionary')) {
+        category = 'Missionary Variations'
+      } else if (title.includes('lesbian')) {
+        category = 'Lesbian Positions'
+      } else if (title.includes('first-time') || title.includes('debut')) {
+        category = 'Beginner Positions'
+      } else if (title.includes('romantic')) {
+        category = 'Romantic Positions'
+      } else if (title.includes('masturbation') || title.includes('solo')) {
+        category = 'Solo Positions'
+      } else if (title.includes('deep penetration')) {
+        category = 'Deep Penetration'
+      } else if (title.includes('chair')) {
+        category = 'Chair Positions'
+      } else if (title.includes('rim job') || title.includes('rimming')) {
+        category = 'Rimming Positions'
+      } else if (title.includes('foursome') || title.includes('threesome')) {
+        category = 'Group Positions'
+      } else if (title.includes('guide') || title.includes('positions guide')) {
+        category = 'Position Guides'
+      } else if (title.includes('bridge') || title.includes('eiffel tower') || title.includes('speed bump')) {
+        category = 'Specialty Positions'
       }
+      
+      if (!categoryGroups[category]) {
+        categoryGroups[category] = []
+      }
+      categoryGroups[category].push(article)
+    })
+
+    // Create category objects with counts
+    Object.keys(categoryGroups).forEach(key => {
+      const count = categoryGroups[key].reduce((sum, article) => sum + article.positions.length, 0)
+      const emoji = getCategoryEmoji(key)
+      categories[key] = { name: key, emoji, count, articles: categoryGroups[key] }
     })
 
     return categories
+  }
+
+  const getCategoryEmoji = (category) => {
+    const emojiMap = {
+      'Oral Positions': '😊',
+      'Anal Positions': '🔥',
+      'Missionary Variations': '💕',
+      'Lesbian Positions': '💝',
+      'Beginner Positions': '🌱',
+      'Romantic Positions': '💖',
+      'Solo Positions': '🫂',
+      'Deep Penetration': '⚡',
+      'Chair Positions': '🪑',
+      'Rimming Positions': '🍑',
+      'Group Positions': '👥',
+      'Position Guides': '📚',
+      'Specialty Positions': '⭐',
+      'Sex Positions': '💫'
+    }
+    return emojiMap[category] || '💫'
   }
 
   const categories = getCategories()
 
   // Filter data based on category and search
   const getFilteredData = () => {
-    let filtered = scrapedData
-
-    // Filter by category
-    if (activeCategory !== 'all') {
-      filtered = filtered.filter(item => item.category === activeCategory)
+    if (activeCategory === 'all') {
+      // Return all articles grouped by category
+      const groupedData = []
+      Object.keys(categories).forEach(key => {
+        if (key !== 'all' && categories[key].articles) {
+          groupedData.push({
+            category: key,
+            title: key,
+            description: `${categories[key].count} positions in ${key}`,
+            images: [],
+            positions: categories[key].articles.flatMap(article => article.positions),
+            articles: categories[key].articles
+          })
+        }
+      })
+      return groupedData
+    } else {
+      // Return specific category
+      const category = categories[activeCategory]
+      if (category && category.articles) {
+        return [{
+          category: activeCategory,
+          title: activeCategory,
+          description: `${category.count} positions in ${activeCategory}`,
+          images: [],
+          positions: category.articles.flatMap(article => article.positions),
+          articles: category.articles
+        }]
+      }
     }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.map(category => ({
-        ...category,
-        positions: category.positions.filter(pos =>
-          pos.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          pos.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          pos.howToDoIt.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      })).filter(category => category.positions.length > 0)
-    }
-
-    return filtered
+    return []
   }
 
   const filteredData = getFilteredData()
@@ -245,34 +305,75 @@ const SexPositions = ({ results }) => {
               transition={{ duration: 0.5 }}
               className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20"
             >
-              {/* Category Image */}
+              {/* Category Image - Use diverse images from positions */}
               <div className="relative mb-4">
-                <img
-                  src={category.images[0]?.src || 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=300&fit=crop&crop=center'}
-                  alt={category.title}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <div className="absolute top-2 right-2 bg-black/50 rounded-full p-2">
-                  <Eye className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute bottom-2 left-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded text-xs font-medium">
-                  {category.positions.length} Positions
-                </div>
-                <div className="absolute bottom-2 right-2 bg-black/50 rounded-full px-2 py-1 text-xs text-white">
-                  {category.images.length} Images
-                </div>
+                {(() => {
+                  // Get a diverse image from the positions in this category
+                  const allImages = category.positions
+                    .filter(pos => pos.images && pos.images.length > 0)
+                    .flatMap(pos => pos.images)
+                    .filter(img => img.src && !img.src.includes('logo') && !img.src.includes('ad'))
+                  
+                  const imageCount = allImages.length
+                  const displayImage = allImages[0] || null
+                  
+                  return (
+                    <>
+                      {displayImage ? (
+                        <img
+                          src={displayImage.src}
+                          alt={displayImage.alt || category.title}
+                          className="w-full h-48 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      {/* Fallback gradient if no image */}
+                      <div 
+                        className={`w-full h-48 rounded-lg ${displayImage ? 'hidden' : 'block'}`}
+                        style={{
+                          background: `linear-gradient(135deg, 
+                            hsl(${Math.random() * 360}, 70%, 60%), 
+                            hsl(${(Math.random() * 360 + 180) % 360}, 70%, 60%))`
+                        }}
+                      >
+                        <div className="flex items-center justify-center h-full">
+                          <span className="text-4xl">{categories[category.category]?.emoji || '💫'}</span>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 right-2 bg-black/50 rounded-full p-2">
+                        <Eye className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded text-xs font-medium">
+                        {category.positions.length} Positions
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-black/50 rounded-full px-2 py-1 text-xs text-white">
+                        {imageCount} Images
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
 
               {/* Category Info */}
               <div className="space-y-3">
-                <h3 className="text-xl font-bold text-white">{category.title}</h3>
+                <h3 className="text-xl font-bold text-white">{category.category}</h3>
                 <p className="text-purple-200 text-sm">{category.description}</p>
                 
-                {/* Category Badge */}
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-purple-500/30 rounded-full text-xs text-purple-200">
-                    {category.category}
-                  </span>
+                {/* Article Titles */}
+                <div className="space-y-1">
+                  {category.articles && category.articles.slice(0, 2).map((article, index) => (
+                    <div key={index} className="text-xs text-purple-300">
+                      • {article.title}
+                    </div>
+                  ))}
+                  {category.articles && category.articles.length > 2 && (
+                    <div className="text-xs text-purple-400">
+                      +{category.articles.length - 2} more articles
+                    </div>
+                  )}
                 </div>
 
                 {/* Sample Positions with Content */}
@@ -427,7 +528,32 @@ const SexPositions = ({ results }) => {
 
               {/* Individual Positions */}
               <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white">All Positions in This Guide</h3>
+                <h3 className="text-xl font-bold text-white">All Positions in {selectedPosition.category}</h3>
+                
+                {/* Show articles if this is a category view */}
+                {selectedPosition.articles && selectedPosition.articles.length > 1 && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-white mb-3">Articles in this category:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedPosition.articles.map((article, index) => (
+                        <div key={index} className="bg-white/10 rounded-lg p-3 border border-white/20">
+                          <h5 className="font-medium text-white mb-1">{article.title}</h5>
+                          <p className="text-purple-200 text-sm">{article.positions.length} positions</p>
+                          <a 
+                            href={article.originalUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-pink-300 hover:text-pink-200 text-xs flex items-center gap-1 mt-2"
+                          >
+                            View Original Article
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {selectedPosition.positions.map((position) => (
                     <div key={position.number} className="bg-white/10 rounded-lg p-4 border border-white/20">
