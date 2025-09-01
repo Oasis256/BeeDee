@@ -430,6 +430,17 @@ async function scrapePositionsWithLazyLoading() {
     console.error('Error during lazy-loading optimized scraping:', error);
   } finally {
     await browser.close();
+    
+    // Now automatically run the failed articles processor to catch any missed positions
+    console.log('\n🔍 Running failed articles processor to catch missed positions...');
+    try {
+      const { execSync } = await import('child_process');
+      execSync('node process-failed-articles.js', { stdio: 'inherit' });
+      console.log('\n✅ Failed articles processor completed successfully!');
+    } catch (error) {
+      console.log('\n⚠️ Failed articles processor encountered an error:', error.message);
+      console.log('   You can run it manually with: node process-failed-articles.js');
+    }
   }
 }
 
@@ -672,12 +683,29 @@ async function scrapeArticle(browser, article) {
 
           // Enhanced content validation function
           const isValidContent = (text) => {
-            if (!text || text.length < 10 || text.length > 2000) return false;
+            if (!text || text.length < 5 || text.length > 2000) return false;
             
             const excludeKeywords = [
               'advertisement', 'sponsored', 'click here', 'subscribe', 'newsletter',
               'follow us', 'share this', 'related articles', 'more from', 'read more',
               'cookie policy', 'privacy policy', 'terms of service', 'contact us'
+            ];
+            
+            return !excludeKeywords.some(keyword => text.toLowerCase().includes(keyword));
+          };
+
+          // Position title validation function (less restrictive)
+          const isValidPositionTitle = (text) => {
+            if (!text || text.length < 3 || text.length > 150) return false;
+            
+            const excludeKeywords = [
+              'advertisement', 'sponsored', 'click here', 'subscribe', 'newsletter',
+              'follow us', 'share this', 'related articles', 'more from', 'read more',
+              'cookie policy', 'privacy policy', 'terms of service', 'contact us',
+              'sex positions', 'oral sex', 'missionary', 'anal sex', 'chair sex',
+              'lesbian sex', 'first-time', 'romantic sex', 'masturbation',
+              'deep penetration', 'related', 'more', 'read', 'follow', 'subscribe',
+              'tips', 'guide', 'expert'
             ];
             
             return !excludeKeywords.some(keyword => text.toLowerCase().includes(keyword));
@@ -845,145 +873,162 @@ async function scrapeArticle(browser, article) {
           // Enhanced alternative method for missing positions
           if (data.positions.length === 0) {
             console.log(`No positions found in slide sections, trying alternative method...`);
+            console.log(`Starting alternative method with data.positions.length = ${data.positions.length}`);
             
-            // Find sections with data-embed="body-image" that contain images
-            const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
-            console.log(`Found ${bodyImageSections.length} body-image sections`);
+            // Method 1: Look for h2 elements with data-node-id that have nearby body-image sections
+            const h2Elements = Array.from(document.querySelectorAll('h2[data-node-id]'));
+            console.log(`Found ${h2Elements.length} h2 elements with data-node-id`);
             
-            bodyImageSections.forEach((section, index) => {
-              const images = section.querySelectorAll('img');
-              if (images.length > 0) {
-                // Look for h2 elements with data-node-id near this section
-                const h2Elements = Array.from(document.querySelectorAll('h2[data-node-id]'));
+            h2Elements.forEach((h2, index) => {
+              const title = h2.textContent.trim();
+              console.log(`Checking H2 ${index + 1}: "${title}"`);
+              
+              // Skip if title is too generic or too long
+              if (!title || !isValidPositionTitle(title)) {
+                console.log(`Skipping H2 "${title}" - failed validation`);
+                return; // Skip this h2
+              }
+              
+              console.log(`Processing H2: "${title}" - passed validation`);
+              
+              // Look for nearby body-image sections
+              const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
+              let closestSection = null;
+              let minDistance = Infinity;
+              
+              bodyImageSections.forEach(bodySection => {
+                const h2Rect = h2.getBoundingClientRect();
+                const sectionRect = bodySection.getBoundingClientRect();
+                const distance = Math.abs(h2Rect.top - sectionRect.top);
                 
-                h2Elements.forEach(h2 => {
-                  const title = h2.textContent.trim();
+                if (distance < minDistance && distance < 400) { // Increased distance for better matching
+                  minDistance = distance;
+                  closestSection = bodySection;
+                }
+              });
+              
+              if (closestSection) {
+                // Extract images from the related body-image section
+                const sectionImages = Array.from(closestSection.querySelectorAll('img'))
+                  .map(img => ({
+                    src: img.src,
+                    alt: img.alt || '',
+                    width: img.width,
+                    height: img.height
+                  }))
+                  .filter(img => isValidImage(img));
+                
+                // Look for description in <p data-journey-content="true"> elements
+                let description = '';
+                let howToDoIt = '';
+                
+                // First, look for the specific data-journey-content="true" pattern
+                const journeyContentParagraphs = Array.from(document.querySelectorAll('p[data-journey-content="true"]'));
+                const allText = [];
+                
+                // Find paragraphs that are close to this h2
+                journeyContentParagraphs.forEach(p => {
+                  const pRect = p.getBoundingClientRect();
+                  const h2Rect = h2.getBoundingClientRect();
+                  const distance = Math.abs(pRect.top - h2Rect.top);
                   
-                  // Enhanced proximity detection
-                  let closestSection = null;
-                  let minDistance = Infinity;
-                  
-                  bodyImageSections.forEach(bodySection => {
-                    const h2Rect = h2.getBoundingClientRect();
-                    const sectionRect = bodySection.getBoundingClientRect();
-                    const distance = Math.abs(h2Rect.top - sectionRect.top);
-                    
-                    if (distance < minDistance && distance < 300) { // Reduced from 500px
-                      minDistance = distance;
-                      closestSection = bodySection;
-                    }
-                  });
-                  
-                  if (closestSection === section && title && 
-                      !title.includes('Sex Positions') && 
-                      !title.includes('Oral Sex') &&
-                      !title.includes('Missionary') &&
-                      !title.includes('Anal Sex') &&
-                      !title.includes('Chair Sex') &&
-                      !title.includes('Lesbian Sex') &&
-                      !title.includes('First-Time') &&
-                      !title.includes('Romantic Sex') &&
-                      !title.includes('Masturbation') &&
-                      !title.includes('Deep Penetration') &&
-                      !title.includes('Advertisement') &&
-                      !title.includes('Related') &&
-                      !title.includes('More') &&
-                      !title.includes('Read') &&
-                      !title.includes('Follow') &&
-                      !title.includes('Subscribe') &&
-                      !title.includes('Newsletter') &&
-                      !title.includes('Tips') &&
-                      !title.includes('Guide') &&
-                      !title.includes('Expert') &&
-                      title.length > 3 && 
-                      title.length < 150 &&
-                      isValidContent(title)) {
-                    
-                    // Extract images from the related body-image section
-                    const sectionImages = Array.from(section.querySelectorAll('img'))
-                      .map(img => ({
-                        src: img.src,
-                        alt: img.alt || '',
-                        width: img.width,
-                        height: img.height
-                      }))
-                      .filter(img => isValidImage(img));
-                    
-                    // Enhanced text extraction for alternative method
-                    let description = '';
-                    let howToDoIt = '';
-                    
-                    let nextElement = h2.nextElementSibling;
-                    let elementCount = 0;
-                    const allText = [];
-                    
-                    while (nextElement && elementCount < 5) {
-                      const text = nextElement.textContent.trim();
-                      if (isValidContent(text) && !allText.includes(text)) {
-                        allText.push(text);
-                      }
-                      nextElement = nextElement.nextElementSibling;
-                      elementCount++;
-                    }
-                    
-                    if (allText.length > 0) {
-                      const cleanTexts = allText.map(text => {
-                        let cleanText = text.replace(/@[A-Z0-9_]+/g, '').trim();
-                        cleanText = cleanText.replace(/\s+/g, ' ').trim();
-                        cleanText = cleanText.replace(/SHOP NOW.*$/i, '').trim();
-                        cleanText = cleanText.replace(/Buy Now.*$/i, '').trim();
-                        return cleanText;
-                      }).filter(text => text.length > 5 && isValidContent(text));
-
-                      if (cleanTexts.length > 0) {
-                        description = cleanTexts[0];
-                        
-                        for (let i = 1; i < cleanTexts.length; i++) {
-                          const text = cleanTexts[i].toLowerCase();
-                          if (text.includes('how to') || 
-                              text.includes('instructions') ||
-                              text.includes('step') ||
-                              text.includes('position') ||
-                              text.includes('start') ||
-                              text.includes('begin') ||
-                              text.includes('first') ||
-                              text.includes('then') ||
-                              text.includes('next') ||
-                              text.includes('finally') ||
-                              text.includes('while') ||
-                              text.includes('during') ||
-                              text.includes('partner')) {
-                            howToDoIt = cleanTexts[i];
-                            break;
-                          }
-                        }
-                        
-                        if (!howToDoIt && cleanTexts.length > 1) {
-                          howToDoIt = cleanTexts[1];
-                        }
-                      }
-                    }
-                    
-                    // Add the position if we have valid content
-                    if (title && (description || sectionImages.length > 0) && isValidContent(title)) {
-                      data.positions.push({
-                        number: data.positions.length + 1,
-                        title: title,
-                        description: description.trim(),
-                        howToDoIt: howToDoIt.trim(),
-                        images: sectionImages,
-                        slideId: h2.getAttribute('data-node-id'),
-                        pageNumber: currentPageNumber,
-                        source: 'h2-with-body-image'
-                      });
-                      data.lazyLoadInfo.slideSectionsWithContent++;
+                  if (distance < 500) { // Look for paragraphs within 500px
+                    const text = p.textContent.trim();
+                    if (isValidContent(text) && !allText.includes(text)) {
+                      allText.push(text);
                     }
                   }
                 });
+                
+                // If no journey-content paragraphs found, look for regular paragraphs near the h2
+                if (allText.length === 0) {
+                  let nextElement = h2.nextElementSibling;
+                  let elementCount = 0;
+                  
+                  while (nextElement && elementCount < 8) { // Increased from 5
+                    const text = nextElement.textContent.trim();
+                    if (isValidContent(text) && !allText.includes(text)) {
+                      allText.push(text);
+                    }
+                    nextElement = nextElement.nextElementSibling;
+                    elementCount++;
+                  }
+                }
+                
+                if (allText.length > 0) {
+                  const cleanTexts = allText.map(text => {
+                    let cleanText = text.replace(/@[A-Z0-9_]+/g, '').trim();
+                    cleanText = cleanText.replace(/\s+/g, ' ').trim();
+                    cleanText = cleanText.replace(/SHOP NOW.*$/i, '').trim();
+                    cleanText = cleanText.replace(/Buy Now.*$/i, '').trim();
+                    cleanText = cleanText.replace(/READ MORE.*$/i, '').trim();
+                    return cleanText;
+                  }).filter(text => text.length > 5 && isValidContent(text));
+
+                  if (cleanTexts.length > 0) {
+                    description = cleanTexts[0];
+                    
+                    // Look for instruction-like text
+                    for (let i = 1; i < cleanTexts.length; i++) {
+                      const text = cleanTexts[i].toLowerCase();
+                      if (text.includes('how to') || 
+                          text.includes('instructions') ||
+                          text.includes('step') ||
+                          text.includes('position') ||
+                          text.includes('start') ||
+                          text.includes('begin') ||
+                          text.includes('first') ||
+                          text.includes('then') ||
+                          text.includes('next') ||
+                          text.includes('finally') ||
+                          text.includes('while') ||
+                          text.includes('during') ||
+                          text.includes('partner') ||
+                          text.includes('receiver') ||
+                          text.includes('giver')) {
+                        howToDoIt = cleanTexts[i];
+                        break;
+                      }
+                    }
+                    
+                    if (!howToDoIt && cleanTexts.length > 1) {
+                      howToDoIt = cleanTexts[1];
+                    }
+                  }
+                }
+                
+                          // Add the position if we have valid content
+          if (title && (description || sectionImages.length > 0) && isValidPositionTitle(title)) {
+                  console.log(`✅ Adding position: "${title}" with ${sectionImages.length} images`);
+                  console.log(`   Description: ${description.substring(0, 50)}...`);
+                  console.log(`   Current data.positions.length: ${data.positions.length}`);
+                  
+                  data.positions.push({
+                    number: data.positions.length + 1,
+                    title: title,
+                    description: description.trim(),
+                    howToDoIt: howToDoIt.trim(),
+                    images: sectionImages,
+                    slideId: h2.getAttribute('data-node-id'),
+                    pageNumber: currentPageNumber,
+                    source: 'h2-with-body-image'
+                  });
+                  
+                  console.log(`   After adding, data.positions.length: ${data.positions.length}`);
+                  data.lazyLoadInfo.slideSectionsWithContent++;
+                  console.log(`Alternative method found position: "${title}"`);
+                } else {
+                  console.log(`❌ Skipping "${title}" - missing description or images`);
+                  console.log(`   Has title: ${!!title}`);
+                  console.log(`   Has description: ${!!description}`);
+                  console.log(`   Has images: ${sectionImages.length > 0}`);
+                  console.log(`   Passes validation: ${isValidPositionTitle(title)}`);
+                }
               }
             });
             
             console.log(`Alternative method found ${data.positions.length} positions`);
+            console.log(`Alternative method positions:`, data.positions.map(p => p.title));
             
             // Also look for editorial links to other positions
             const editorialLinks = Array.from(document.querySelectorAll('section[data-embed="editorial-link"] a'));
@@ -1010,7 +1055,77 @@ async function scrapeArticle(browser, article) {
               }
             });
             
-            console.log(`Total positions after editorial links: ${data.positions.length}`);
+            // Look for base-link elements that often contain position links
+            const baseLinks = Array.from(document.querySelectorAll('a[data-theme-key="base-link"]'));
+            console.log(`Found ${baseLinks.length} base-link elements`);
+            
+            // Store base-link URLs for later processing (we'll scrape these articles separately)
+            const baseLinkUrls = [];
+            baseLinks.forEach((link, index) => {
+              const url = link.href;
+              const title = link.textContent.trim();
+              
+              if (url && title && url.includes('/sex-love/') && url.includes('positions') && title.length > 3) {
+                baseLinkUrls.push({ url, title, index });
+                console.log(`🔗 Found base-link: "${title}" -> ${url}`);
+              }
+            });
+            
+            // Store base-link URLs in the data for later processing
+            if (baseLinkUrls.length > 0) {
+              if (!data.baseLinkUrls) data.baseLinkUrls = [];
+              data.baseLinkUrls.push(...baseLinkUrls);
+              console.log(`📝 Stored ${baseLinkUrls.length} base-link URLs for later processing`);
+            }
+            
+            // Also look for any other links that might be position-related
+            const allLinks = Array.from(document.querySelectorAll('a'));
+            const positionLinks = allLinks.filter(link => {
+              const url = link.href;
+              const title = link.textContent.trim();
+              return url && title && 
+                     url.includes('/sex-love/') && 
+                     url.includes('positions') && 
+                     title.length > 3 &&
+                     !title.includes('Sex Positions') &&
+                     !title.includes('Oral Sex') &&
+                     !title.includes('Missionary') &&
+                     !title.includes('Anal Sex') &&
+                     !title.includes('Chair Sex') &&
+                     !title.includes('Lesbian Sex') &&
+                     !title.includes('First-Time') &&
+                     !title.includes('Romantic Sex') &&
+                     !title.includes('Masturbation') &&
+                     !title.includes('Deep Penetration');
+            });
+            
+            console.log(`Found ${positionLinks.length} additional position-related links`);
+            
+            positionLinks.forEach((link, index) => {
+              const url = link.href;
+              const title = link.textContent.trim();
+              
+              // Check if this link is already in our positions
+              const alreadyExists = data.positions.some(pos => pos.linkUrl === url);
+              
+              if (!alreadyExists) {
+                data.positions.push({
+                  number: data.positions.length + 1,
+                  title: title,
+                  description: `Link to: ${title}`,
+                  howToDoIt: `See article: ${url}`,
+                  images: [],
+                  slideId: `additional-link-${index}`,
+                  pageNumber: currentPageNumber,
+                  source: 'additional-link',
+                  isEditorialLink: true,
+                  linkUrl: url
+                });
+                data.lazyLoadInfo.slideSectionsWithContent++;
+              }
+            });
+            
+            console.log(`Total positions after all link extraction: ${data.positions.length}`);
           }
 
           return data;
@@ -1099,6 +1214,8 @@ function printSummary(allDetailedPositions) {
   console.log(`   Description Rate: ${((totalPositionsWithDescriptions / totalScraped) * 100).toFixed(1)}%`);
   console.log(`   Image Rate: ${((totalPositionsWithImages / totalScraped) * 100).toFixed(1)}%`);
 }
+
+
 
 // Run the enhanced scraper
 scrapePositionsWithLazyLoading();
