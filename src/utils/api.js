@@ -749,6 +749,76 @@ class ApiService {
       throw error
     }
   }
+
+  // Erotic Stories API methods
+  async createEroticStory(coupleId, authorId, title, content, mood, tags, isPrivate) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/erotic-stories`, {
+        coupleId,
+        authorId,
+        title,
+        content,
+        mood,
+        tags,
+        isPrivate
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error creating erotic story:', error)
+      throw error
+    }
+  }
+
+  async getEroticStories(coupleId) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/erotic-stories/${coupleId}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching erotic stories:', error)
+      throw error
+    }
+  }
+
+  async getEroticStory(coupleId, id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/erotic-stories/${coupleId}/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching erotic story:', error)
+      throw error
+    }
+  }
+
+  async updateEroticStory(id, title, content, mood, tags, isPrivate) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.put(`${baseURL}/erotic-stories/${id}`, {
+        title,
+        content,
+        mood,
+        tags,
+        isPrivate
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error updating erotic story:', error)
+      throw error
+    }
+  }
+
+  async deleteEroticStory(id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.delete(`${baseURL}/erotic-stories/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error deleting erotic story:', error)
+      throw error
+    }
+  }
 }
 
 const apiService = new ApiService()

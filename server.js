@@ -529,6 +529,54 @@ app.delete('/api/boundaries/:id', async (req, res) => {
   }
 });
 
+// Erotic Stories endpoints
+app.post('/api/erotic-stories', async (req, res) => {
+  try {
+    const { coupleId, authorId, title, content, mood, tags, isPrivate } = req.body;
+    const story = await db.createEroticStory(coupleId, authorId, title, content, mood, tags, isPrivate);
+    res.json({ success: true, story });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/erotic-stories/:coupleId', async (req, res) => {
+  try {
+    const stories = await db.getEroticStories(parseInt(req.params.coupleId));
+    res.json({ success: true, stories });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/erotic-stories/:coupleId/:id', async (req, res) => {
+  try {
+    const story = await db.getEroticStory(parseInt(req.params.id));
+    res.json({ success: true, story });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/erotic-stories/:id', async (req, res) => {
+  try {
+    const { title, content, mood, tags, isPrivate } = req.body;
+    const story = await db.updateEroticStory(parseInt(req.params.id), title, content, mood, tags, isPrivate);
+    res.json({ success: true, story });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/erotic-stories/:id', async (req, res) => {
+  try {
+    await db.deleteEroticStory(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Favorites endpoints
 app.post('/api/favorites', async (req, res) => {
   try {

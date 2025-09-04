@@ -10,16 +10,21 @@ import {
   CheckCircle, 
   AlertTriangle,
   Users,
-  Star
+  Star,
+  BookOpen,
+  Edit3
 } from 'lucide-react';
 import apiService from '../utils/api';
 
 const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [checkIns, setCheckIns] = useState([]);
   const [boundaries, setBoundaries] = useState([]);
+  const [eroticStories, setEroticStories] = useState([]);
   const [selectedTab, setSelectedTab] = useState('checkins');
   const [showCheckInForm, setShowCheckInForm] = useState(false);
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
+  const [showStoryForm, setShowStoryForm] = useState(false);
+  const [editingStory, setEditingStory] = useState(null);
 
   const [checkInForm, setCheckInForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -37,19 +42,38 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
     notes: ''
   });
 
+  const [storyForm, setStoryForm] = useState({
+    title: '',
+    content: '',
+    mood: 'romantic',
+    tags: [],
+    isPrivate: true
+  });
+
   useEffect(() => {
+    console.log('CoupleCommunicationHub received coupleProfile:', coupleProfile);
     if (coupleProfile?.id) {
+      console.log('Loading data for couple profile ID:', coupleProfile.id);
       loadCheckIns();
       loadBoundaries();
+      loadEroticStories();
+    } else {
+      console.log('No couple profile ID available');
     }
   }, [coupleProfile]);
 
   const loadCheckIns = async () => {
-    if (!coupleProfile?.id) return;
+    if (!coupleProfile?.id) {
+      console.log('No couple profile ID available for loading check-ins');
+      return;
+    }
+    console.log('Loading check-ins for couple profile:', coupleProfile.id);
     try {
       const response = await apiService.getCheckIns(coupleProfile.id);
+      console.log('Check-ins response:', response);
       if (response.success) {
         setCheckIns(response.checkIns || []);
+        console.log('Loaded check-ins:', response.checkIns);
       }
     } catch (error) {
       console.error('Error loading check-ins:', error);
@@ -68,8 +92,26 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
     }
   };
 
-  const handleCheckIn = async () => {
+  const loadEroticStories = async () => {
     if (!coupleProfile?.id) return;
+    try {
+      const response = await apiService.getEroticStories(coupleProfile.id);
+      if (response.success) {
+        setEroticStories(response.stories || []);
+      }
+    } catch (error) {
+      console.error('Error loading erotic stories:', error);
+    }
+  };
+
+  const handleCheckIn = async () => {
+    if (!coupleProfile?.id) {
+      console.log('No couple profile ID available for saving check-in');
+      alert('Please select a couple profile first');
+      return;
+    }
+    
+    console.log('Saving check-in for couple profile:', coupleProfile.id, checkInForm);
     
     try {
       const response = await apiService.createCheckIn(
@@ -81,6 +123,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
         checkInForm.notes
       );
       
+      console.log('Check-in save response:', response);
+      
       if (response.success) {
         await loadCheckIns(); // Reload from database
         setCheckInForm({
@@ -91,6 +135,7 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           notes: ''
         });
         setShowCheckInForm(false);
+        alert('Check-in saved successfully!');
       }
     } catch (error) {
       console.error('Error creating check-in:', error);
@@ -137,6 +182,9 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
         } else if (type === 'boundary') {
           await apiService.deleteBoundary(id);
           await loadBoundaries(); // Reload from database
+        } else if (type === 'story') {
+          await apiService.deleteEroticStory(id);
+          await loadEroticStories(); // Reload from database
         }
       } catch (error) {
         console.error('Error deleting item:', error);
@@ -185,6 +233,91 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
     return <CheckCircle className="w-5 h-5 text-green-400" />;
   };
 
+  const handleStorySubmit = async () => {
+    if (!coupleProfile?.id) return;
+    
+    try {
+      if (editingStory) {
+        // Update existing story
+        const response = await apiService.updateEroticStory(
+          editingStory.id,
+          storyForm.title,
+          storyForm.content,
+          storyForm.mood,
+          storyForm.tags,
+          storyForm.isPrivate
+        );
+        
+        if (response.success) {
+          await loadEroticStories();
+          setEditingStory(null);
+        }
+      } else {
+        // Create new story
+        const response = await apiService.createEroticStory(
+          coupleProfile.id,
+          coupleProfile.partner_ids[0], // Use first partner as author for now
+          storyForm.title,
+          storyForm.content,
+          storyForm.mood,
+          storyForm.tags,
+          storyForm.isPrivate
+        );
+        
+        if (response.success) {
+          await loadEroticStories();
+        }
+      }
+      
+      // Reset form
+      setStoryForm({
+        title: '',
+        content: '',
+        mood: 'romantic',
+        tags: [],
+        isPrivate: true
+      });
+      setShowStoryForm(false);
+    } catch (error) {
+      console.error('Error saving story:', error);
+      alert('Failed to save story. Please try again.');
+    }
+  };
+
+  const startEditingStory = (story) => {
+    setEditingStory(story);
+    setStoryForm({
+      title: story.title,
+      content: story.content,
+      mood: story.mood,
+      tags: story.tags || [],
+      isPrivate: story.is_private
+    });
+    setShowStoryForm(true);
+  };
+
+  const cancelStoryEdit = () => {
+    setEditingStory(null);
+    setStoryForm({
+      title: '',
+      content: '',
+      mood: 'romantic',
+      tags: [],
+      isPrivate: true
+    });
+    setShowStoryForm(false);
+  };
+
+  const addTag = (tag) => {
+    if (tag && !storyForm.tags.includes(tag)) {
+      setStoryForm({ ...storyForm, tags: [...storyForm.tags, tag] });
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setStoryForm({ ...storyForm, tags: storyForm.tags.filter(tag => tag !== tagToRemove) });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -221,7 +354,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {[
                   { id: 'checkins', label: 'Check-ins', icon: Calendar, count: checkIns.length },
-                  { id: 'boundaries', label: 'Boundaries', icon: Shield, count: boundaries.length }
+                  { id: 'boundaries', label: 'Boundaries', icon: Shield, count: boundaries.length },
+                  { id: 'stories', label: 'Erotic Stories', icon: BookOpen, count: eroticStories.length }
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -573,6 +707,333 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                             {boundary.hard_limit && <span className="text-red-400 font-medium">Hard Limit</span>}
                             {boundary.soft_limit && <span className="text-orange-400 font-medium">Soft Limit</span>}
                             {!boundary.hard_limit && !boundary.soft_limit && <span className="text-green-400 font-medium">Guideline</span>}
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {selectedTab === 'stories' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">Erotic Stories</h2>
+                    <button
+                      onClick={() => setShowStoryForm(true)}
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      New Story
+                    </button>
+                  </div>
+
+                  {showStoryForm && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 mb-8"
+                    >
+                      <h3 className="text-xl font-bold mb-4">
+                        {editingStory ? 'Edit Story' : 'Write New Story'}
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium text-purple-200 mb-2">Title</label>
+                          <input
+                            type="text"
+                            value={storyForm.title}
+                            onChange={(e) => setStoryForm({...storyForm, title: e.target.value})}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            placeholder="Story title..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-purple-200 mb-2">Mood</label>
+                          <select
+                            value={storyForm.mood}
+                            onChange={(e) => setStoryForm({...storyForm, mood: e.target.value})}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            style={{ colorScheme: 'dark' }}
+                          >
+                            <option value="romantic" className="bg-purple-900 text-white">Romantic 💕</option>
+                            <option value="passionate" className="bg-purple-900 text-white">Passionate 🔥</option>
+                            <option value="playful" className="bg-purple-900 text-white">Playful 😏</option>
+                            <option value="intimate" className="bg-purple-900 text-white">Intimate 💋</option>
+                            <option value="fantasy" className="bg-purple-900 text-white">Fantasy ✨</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-purple-200 mb-2">Content</label>
+                        <textarea
+                          value={storyForm.content}
+                          onChange={(e) => setStoryForm({...storyForm, content: e.target.value})}
+                          onPaste={(e) => {
+                            // Prevent default paste to handle formatting
+                            e.preventDefault();
+                            const pastedText = e.clipboardData.getData('text/plain');
+                            // Insert at cursor position
+                            const textarea = e.target;
+                            const start = textarea.selectionStart;
+                            const end = textarea.selectionEnd;
+                            const newContent = storyForm.content.substring(0, start) + pastedText + storyForm.content.substring(end);
+                            setStoryForm({...storyForm, content: newContent});
+                            
+                            // Set cursor position after pasted text
+                            setTimeout(() => {
+                              textarea.setSelectionRange(start + pastedText.length, start + pastedText.length);
+                              textarea.focus();
+                            }, 0);
+                          }}
+                          rows={8}
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-pink-500 font-mono text-sm leading-relaxed resize-y"
+                          placeholder="Write your erotic story here...
+
+Tips for better formatting:
+• Use line breaks for paragraphs
+• Add spaces after punctuation
+• Use dashes for dialogue
+• Keep sentences clear and readable"
+                          style={{
+                            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                            lineHeight: '1.6',
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word'
+                          }}
+                        />
+                        <div className="mt-2 flex justify-between items-center text-xs text-purple-300">
+                          <span className="text-pink-300">💡 Tip:</span> Use line breaks and proper spacing for better readability
+                          <span className="text-purple-200">
+                            {storyForm.content.length} characters
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-purple-200 mb-2">Quick Formatting</label>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.querySelector('textarea[placeholder*="Tips for better formatting"]');
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = storyForm.content.substring(start, end);
+                                const newText = `"${selectedText}"`;
+                                const newContent = storyForm.content.substring(0, start) + newText + storyForm.content.substring(end);
+                                setStoryForm({...storyForm, content: newContent});
+                              }
+                            }}
+                            className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 px-3 py-1 rounded text-xs border border-pink-500/30"
+                          >
+                            Quote Text
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.querySelector('textarea[placeholder*="Tips for better formatting"]');
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = storyForm.content.substring(start, end);
+                                const newText = `— ${selectedText}`;
+                                const newContent = storyForm.content.substring(0, start) + newText + storyForm.content.substring(end);
+                                setStoryForm({...storyForm, content: newContent});
+                              }
+                            }}
+                            className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 px-3 py-1 rounded text-xs border border-purple-500/30"
+                          >
+                            Add Dialogue
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.querySelector('textarea[placeholder*="Tips for better formatting"]');
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const newText = '\n\n';
+                                const newContent = storyForm.content.substring(0, start) + newText + storyForm.content.substring(start);
+                                setStoryForm({...storyForm, content: newContent});
+                              }
+                            }}
+                            className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 px-3 py-1 rounded text-xs border border-blue-500/30"
+                          >
+                            Add Paragraph
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-purple-200 mb-2">Tags</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {storyForm.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-pink-500/20 text-pink-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                            >
+                              {tag}
+                              <button
+                                type="button"
+                                onClick={() => removeTag(tag)}
+                                className="text-pink-300 hover:text-pink-100"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Add tag..."
+                            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addTag(e.target.value.trim());
+                                e.target.value = '';
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.querySelector('input[placeholder="Add tag..."]');
+                              if (input && input.value.trim()) {
+                                addTag(input.value.trim());
+                                input.value = '';
+                              }
+                            }}
+                            className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 rounded-lg"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={storyForm.isPrivate}
+                            onChange={(e) => setStoryForm({...storyForm, isPrivate: e.target.checked})}
+                            className="rounded"
+                          />
+                          <span className="text-purple-200">Private (only visible to couple)</span>
+                        </label>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <button
+                          onClick={handleStorySubmit}
+                          className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all"
+                        >
+                          {editingStory ? 'Update Story' : 'Save Story'}
+                        </button>
+                        <button
+                          onClick={cancelStoryEdit}
+                          className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-medium transition-all"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div className="space-y-4">
+                    {eroticStories.length === 0 ? (
+                      <div className="text-center py-12">
+                        <BookOpen className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+                        <h3 className="text-xl font-bold mb-2">No Stories Yet</h3>
+                        <p className="text-purple-200 mb-4">
+                          Start sharing intimate stories with your partner
+                        </p>
+                        <button
+                          onClick={() => setShowStoryForm(true)}
+                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-medium transition-all"
+                        >
+                          Write Your First Story
+                        </button>
+                      </div>
+                    ) : (
+                      eroticStories.map((story, index) => (
+                        <motion.div
+                          key={story.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="text-2xl">
+                                {story.mood === 'romantic' && '💕'}
+                                {story.mood === 'passionate' && '🔥'}
+                                {story.mood === 'playful' && '😏'}
+                                {story.mood === 'intimate' && '💋'}
+                                {story.mood === 'fantasy' && '✨'}
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-semibold">{story.title}</h4>
+                                <p className="text-sm text-purple-200">
+                                  {new Date(story.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => startEditingStory(story)}
+                                className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteItem('story', story.id)}
+                                className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <div 
+                              className="text-purple-200 leading-relaxed whitespace-pre-wrap font-mono text-sm bg-white/5 rounded-lg p-4 border border-white/10"
+                              style={{
+                                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                                lineHeight: '1.7',
+                                wordWrap: 'break-word'
+                              }}
+                            >
+                              {story.content}
+                            </div>
+                          </div>
+
+                          {story.tags && story.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {story.tags.map((tag, tagIndex) => (
+                                <span
+                                  key={tagIndex}
+                                  className="bg-pink-500/20 text-pink-200 px-2 py-1 rounded-full text-sm"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-purple-200">Privacy:</span>
+                            {story.is_private ? (
+                              <span className="text-green-400 font-medium">Private</span>
+                            ) : (
+                              <span className="text-blue-400 font-medium">Public</span>
+                            )}
                           </div>
                         </motion.div>
                       ))

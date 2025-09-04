@@ -283,6 +283,22 @@ const CoupleProfileManager = ({ onProfileUpdate, currentProfile: externalCurrent
           <p className="text-purple-200 text-lg">
             Create couple relationships between existing user profiles to analyze compatibility and track growth
           </p>
+          
+          {externalCurrentProfile && (
+            <div className="mt-6 bg-pink-500/20 border border-pink-500/30 rounded-xl p-4 max-w-md mx-auto">
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-pink-400" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Currently Selected: {externalCurrentProfile.couple_name}
+                  </h3>
+                  <p className="text-sm text-pink-200">
+                    This profile is active for Communication Hub and Enhanced Analysis
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Create Profile Button */}
@@ -512,14 +528,26 @@ const CoupleProfileManager = ({ onProfileUpdate, currentProfile: externalCurrent
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all cursor-pointer"
-                onClick={() => setCurrentProfile(profile)}
+                className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all cursor-pointer ${
+                  externalCurrentProfile?.id === profile.id ? 'ring-2 ring-pink-500 bg-white/20' : ''
+                }`}
+                onClick={() => {
+                  setCurrentProfile(profile);
+                  if (onProfileUpdate) {
+                    onProfileUpdate(profile);
+                  }
+                }}
               >
                 {/* Profile Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-pink-400" />
                     <h3 className="text-xl font-bold">{profile.couple_name}</h3>
+                    {externalCurrentProfile?.id === profile.id && (
+                      <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                        Selected
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -578,6 +606,30 @@ const CoupleProfileManager = ({ onProfileUpdate, currentProfile: externalCurrent
                 {/* Last Updated */}
                 <div className="mt-4 text-xs text-gray-400">
                   Updated: {new Date(profile.updated_at).toLocaleDateString()}
+                </div>
+
+                {/* Select Profile Button */}
+                <div className="mt-4">
+                  {externalCurrentProfile?.id === profile.id ? (
+                    <button
+                      className="w-full bg-green-500/20 text-green-400 px-3 py-2 rounded-lg text-sm border border-green-500/30 cursor-default"
+                      disabled
+                    >
+                      ✓ Currently Selected
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onProfileUpdate) {
+                          onProfileUpdate(profile);
+                        }
+                      }}
+                      className="w-full bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 px-3 py-2 rounded-lg text-sm border border-pink-500/30 transition-all"
+                    >
+                      Select This Profile
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}

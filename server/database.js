@@ -173,6 +173,23 @@ class Database {
       )
     `)
 
+    // Erotic Stories table
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS erotic_stories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        couple_id INTEGER,
+        author_id TEXT NOT NULL, -- BDSM test ID of the author
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        mood TEXT DEFAULT 'romantic',
+        tags TEXT, -- JSON array of tags
+        is_private BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (couple_id) REFERENCES couple_profiles (id)
+      )
+    `)
+
     // Community Scenarios table
     await this.db.exec(`
       CREATE TABLE IF NOT EXISTS community_scenarios (
@@ -1165,6 +1182,75 @@ class Database {
       return true
     } catch (error) {
       console.error('Error deleting boundary:', error)
+      throw error
+    }
+  }
+
+  // Erotic Stories Methods
+  async createEroticStory(coupleId, authorId, title, content, mood, tags, isPrivate) {
+    try {
+      const result = await this.db.run(
+        'INSERT INTO erotic_stories (couple_id, author_id, title, content, mood, tags, is_private) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [coupleId, authorId, title, content, mood, JSON.stringify(tags || []), isPrivate ? 1 : 0]
+      )
+      return { id: result.lastID, coupleId, authorId, title, content, mood, tags, isPrivate }
+    } catch (error) {
+      console.error('Error creating erotic story:', error)
+      throw error
+    }
+  }
+
+  async getEroticStories(coupleId) {
+    try {
+      const stories = await this.db.all(
+        'SELECT * FROM erotic_stories WHERE couple_id = ? ORDER BY created_at DESC',
+        [coupleId]
+      )
+      return stories.map(story => ({
+        ...story,
+        tags: story.tags ? JSON.parse(story.tags) : []
+      }))
+    } catch (error) {
+      console.error('Error getting erotic stories:', error)
+      throw error
+    }
+  }
+
+  async getEroticStory(id) {
+    try {
+      const story = await this.db.get('SELECT * FROM erotic_stories WHERE id = ?', [id])
+      if (story) {
+        return {
+          ...story,
+          tags: story.tags ? JSON.parse(story.tags) : []
+        }
+      }
+      return null
+    } catch (error) {
+      console.error('Error getting erotic story:', error)
+      throw error
+    }
+  }
+
+  async updateEroticStory(id, title, content, mood, tags, isPrivate) {
+    try {
+      await this.db.run(
+        'UPDATE erotic_stories SET title = ?, content = ?, mood = ?, tags = ?, is_private = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [title, content, mood, JSON.stringify(tags || []), isPrivate ? 1 : 0, id]
+      )
+      return await this.getEroticStory(id)
+    } catch (error) {
+      console.error('Error updating erotic story:', error)
+      throw error
+    }
+  }
+
+  async deleteEroticStory(id) {
+    try {
+      await this.db.run('DELETE FROM erotic_stories WHERE id = ?', [id])
+      return true
+    } catch (error) {
+      console.error('Error deleting erotic story:', error)
       throw error
     }
   }
