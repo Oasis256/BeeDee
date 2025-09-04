@@ -143,6 +143,36 @@ class Database {
       )
     `)
 
+    // Check-ins table
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS check_ins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        couple_id INTEGER,
+        date TEXT NOT NULL,
+        mood TEXT NOT NULL,
+        relationship_satisfaction INTEGER NOT NULL,
+        bdsm_satisfaction INTEGER NOT NULL,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (couple_id) REFERENCES couple_profiles (id)
+      )
+    `)
+
+    // Boundaries table
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS boundaries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        couple_id INTEGER,
+        category TEXT NOT NULL,
+        description TEXT NOT NULL,
+        hard_limit BOOLEAN DEFAULT 0,
+        soft_limit BOOLEAN DEFAULT 0,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (couple_id) REFERENCES couple_profiles (id)
+      )
+    `)
+
     // Community Scenarios table
     await this.db.exec(`
       CREATE TABLE IF NOT EXISTS community_scenarios (
@@ -1063,6 +1093,78 @@ class Database {
       return true
     } catch (error) {
       console.error('Error deleting couple profile:', error)
+      throw error
+    }
+  }
+
+  // Check-ins Methods
+  async createCheckIn(coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes) {
+    try {
+      const result = await this.db.run(
+        'INSERT INTO check_ins (couple_id, date, mood, relationship_satisfaction, bdsm_satisfaction, notes) VALUES (?, ?, ?, ?, ?, ?)',
+        [coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes]
+      )
+      return { id: result.lastID, coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes }
+    } catch (error) {
+      console.error('Error creating check-in:', error)
+      throw error
+    }
+  }
+
+  async getCheckIns(coupleId) {
+    try {
+      return await this.db.all(
+        'SELECT * FROM check_ins WHERE couple_id = ? ORDER BY date DESC, created_at DESC',
+        [coupleId]
+      )
+    } catch (error) {
+      console.error('Error getting check-ins:', error)
+      throw error
+    }
+  }
+
+  async deleteCheckIn(id) {
+    try {
+      await this.db.run('DELETE FROM check_ins WHERE id = ?', [id])
+      return true
+    } catch (error) {
+      console.error('Error deleting check-in:', error)
+      throw error
+    }
+  }
+
+  // Boundaries Methods
+  async createBoundary(coupleId, category, description, hardLimit, softLimit, notes) {
+    try {
+      const result = await this.db.run(
+        'INSERT INTO boundaries (couple_id, category, description, hard_limit, soft_limit, notes) VALUES (?, ?, ?, ?, ?, ?)',
+        [coupleId, category, description, hardLimit ? 1 : 0, softLimit ? 1 : 0, notes]
+      )
+      return { id: result.lastID, coupleId, category, description, hardLimit, softLimit, notes }
+    } catch (error) {
+      console.error('Error creating boundary:', error)
+      throw error
+    }
+  }
+
+  async getBoundaries(coupleId) {
+    try {
+      return await this.db.all(
+        'SELECT * FROM boundaries WHERE couple_id = ? ORDER BY created_at DESC',
+        [coupleId]
+      )
+    } catch (error) {
+      console.error('Error getting boundaries:', error)
+      throw error
+    }
+  }
+
+  async deleteBoundary(id) {
+    try {
+      await this.db.run('DELETE FROM boundaries WHERE id = ?', [id])
+      return true
+    } catch (error) {
+      console.error('Error deleting boundary:', error)
       throw error
     }
   }

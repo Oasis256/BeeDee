@@ -471,6 +471,64 @@ app.delete('/api/couple-profiles/:id', async (req, res) => {
   }
 });
 
+// Check-ins endpoints
+app.post('/api/check-ins', async (req, res) => {
+  try {
+    const { coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes } = req.body;
+    const checkIn = await db.createCheckIn(coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes);
+    res.json({ success: true, checkIn });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/check-ins/:coupleId', async (req, res) => {
+  try {
+    const checkIns = await db.getCheckIns(parseInt(req.params.coupleId));
+    res.json({ success: true, checkIns });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/check-ins/:id', async (req, res) => {
+  try {
+    await db.deleteCheckIn(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Boundaries endpoints
+app.post('/api/boundaries', async (req, res) => {
+  try {
+    const { coupleId, category, description, hardLimit, softLimit, notes } = req.body;
+    const boundary = await db.createBoundary(coupleId, category, description, hardLimit, softLimit, notes);
+    res.json({ success: true, boundary });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/boundaries/:coupleId', async (req, res) => {
+  try {
+    const boundaries = await db.getBoundaries(parseInt(req.params.coupleId));
+    res.json({ success: true, boundaries });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/boundaries/:id', async (req, res) => {
+  try {
+    await db.deleteBoundary(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Favorites endpoints
 app.post('/api/favorites', async (req, res) => {
   try {

@@ -667,6 +667,88 @@ class ApiService {
       throw error
     }
   }
+
+  // Check-ins API methods
+  async createCheckIn(coupleId, date, mood, relationshipSatisfaction, bdsmSatisfaction, notes) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/check-ins`, {
+        coupleId,
+        date,
+        mood,
+        relationshipSatisfaction,
+        bdsmSatisfaction,
+        notes
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error creating check-in:', error)
+      throw error
+    }
+  }
+
+  async getCheckIns(coupleId) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/check-ins/${coupleId}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching check-ins:', error)
+      throw error
+    }
+  }
+
+  async deleteCheckIn(id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.delete(`${baseURL}/check-ins/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error deleting check-in:', error)
+      throw error
+    }
+  }
+
+  // Boundaries API methods
+  async createBoundary(coupleId, category, description, hardLimit, softLimit, notes) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/boundaries`, {
+        coupleId,
+        category,
+        description,
+        hardLimit,
+        softLimit,
+        notes
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error creating boundary:', error)
+      throw error
+    }
+  }
+
+  async getBoundaries(coupleId) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/boundaries/${coupleId}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching boundaries:', error)
+      throw error
+    }
+  }
+
+  async deleteBoundary(id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.delete(`${baseURL}/boundaries/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error deleting boundary:', error)
+      throw error
+    }
+  }
 }
 
 const apiService = new ApiService()

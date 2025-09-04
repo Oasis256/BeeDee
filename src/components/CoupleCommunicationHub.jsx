@@ -12,6 +12,7 @@ import {
   Users,
   Star
 } from 'lucide-react';
+import apiService from '../utils/api';
 
 const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [checkIns, setCheckIns] = useState([]);
@@ -37,62 +38,109 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   });
 
   useEffect(() => {
-    const savedCheckIns = localStorage.getItem('bdsmCheckIns');
-    const savedBoundaries = localStorage.getItem('bdsmBoundaries');
-    if (savedCheckIns) setCheckIns(JSON.parse(savedCheckIns));
-    if (savedBoundaries) setBoundaries(JSON.parse(savedBoundaries));
-  }, []);
+    if (coupleProfile?.id) {
+      loadCheckIns();
+      loadBoundaries();
+    }
+  }, [coupleProfile]);
 
-  useEffect(() => {
-    localStorage.setItem('bdsmCheckIns', JSON.stringify(checkIns));
-  }, [checkIns]);
-
-  useEffect(() => {
-    localStorage.setItem('bdsmBoundaries', JSON.stringify(boundaries));
-  }, [boundaries]);
-
-  const handleCheckIn = () => {
-    const newCheckIn = {
-      id: Date.now().toString(),
-      ...checkInForm,
-      createdAt: new Date().toISOString(),
-      coupleId: coupleProfile?.id || 'general'
-    };
-    setCheckIns([newCheckIn, ...checkIns]);
-    setCheckInForm({
-      date: new Date().toISOString().split('T')[0],
-      mood: 'good',
-      relationshipSatisfaction: 8,
-      bdsmSatisfaction: 8,
-      notes: ''
-    });
-    setShowCheckInForm(false);
+  const loadCheckIns = async () => {
+    if (!coupleProfile?.id) return;
+    try {
+      const response = await apiService.getCheckIns(coupleProfile.id);
+      if (response.success) {
+        setCheckIns(response.checkIns || []);
+      }
+    } catch (error) {
+      console.error('Error loading check-ins:', error);
+    }
   };
 
-  const handleBoundary = () => {
-    const newBoundary = {
-      id: Date.now().toString(),
-      ...boundaryForm,
-      createdAt: new Date().toISOString(),
-      coupleId: coupleProfile?.id || 'general'
-    };
-    setBoundaries([newBoundary, ...boundaries]);
-    setBoundaryForm({
-      category: 'physical',
-      description: '',
-      hardLimit: false,
-      softLimit: false,
-      notes: ''
-    });
-    setShowBoundaryForm(false);
+  const loadBoundaries = async () => {
+    if (!coupleProfile?.id) return;
+    try {
+      const response = await apiService.getBoundaries(coupleProfile.id);
+      if (response.success) {
+        setBoundaries(response.boundaries || []);
+      }
+    } catch (error) {
+      console.error('Error loading boundaries:', error);
+    }
   };
 
-  const deleteItem = (type, id) => {
+  const handleCheckIn = async () => {
+    if (!coupleProfile?.id) return;
+    
+    try {
+      const response = await apiService.createCheckIn(
+        coupleProfile.id,
+        checkInForm.date,
+        checkInForm.mood,
+        checkInForm.relationshipSatisfaction,
+        checkInForm.bdsmSatisfaction,
+        checkInForm.notes
+      );
+      
+      if (response.success) {
+        await loadCheckIns(); // Reload from database
+        setCheckInForm({
+          date: new Date().toISOString().split('T')[0],
+          mood: 'good',
+          relationshipSatisfaction: 8,
+          bdsmSatisfaction: 8,
+          notes: ''
+        });
+        setShowCheckInForm(false);
+      }
+    } catch (error) {
+      console.error('Error creating check-in:', error);
+      alert('Failed to save check-in. Please try again.');
+    }
+  };
+
+  const handleBoundary = async () => {
+    if (!coupleProfile?.id) return;
+    
+    try {
+      const response = await apiService.createBoundary(
+        coupleProfile.id,
+        boundaryForm.category,
+        boundaryForm.description,
+        boundaryForm.hardLimit,
+        boundaryForm.softLimit,
+        boundaryForm.notes
+      );
+      
+      if (response.success) {
+        await loadBoundaries(); // Reload from database
+        setBoundaryForm({
+          category: 'physical',
+          description: '',
+          hardLimit: false,
+          softLimit: false,
+          notes: ''
+        });
+        setShowBoundaryForm(false);
+      }
+    } catch (error) {
+      console.error('Error creating boundary:', error);
+      alert('Failed to save boundary. Please try again.');
+    }
+  };
+
+  const deleteItem = async (type, id) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
-      if (type === 'checkin') {
-        setCheckIns(checkIns.filter(item => item.id !== id));
-      } else if (type === 'boundary') {
-        setBoundaries(boundaries.filter(item => item.id !== id));
+      try {
+        if (type === 'checkin') {
+          await apiService.deleteCheckIn(id);
+          await loadCheckIns(); // Reload from database
+        } else if (type === 'boundary') {
+          await apiService.deleteBoundary(id);
+          await loadBoundaries(); // Reload from database
+        }
+      } catch (error) {
+        console.error('Error deleting item:', error);
+        alert('Failed to delete item. Please try again.');
       }
     }
   };
@@ -126,14 +174,14 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   };
 
   const getBoundaryColor = (boundary) => {
-    if (boundary.hardLimit) return 'border-red-500/30 bg-red-500/10';
-    if (boundary.softLimit) return 'border-orange-500/30 bg-orange-500/10';
+    if (boundary.hard_limit) return 'border-red-500/30 bg-red-500/10';
+    if (boundary.soft_limit) return 'border-orange-500/30 bg-orange-500/10';
     return 'border-green-500/30 bg-green-500/10';
   };
 
   const getBoundaryIcon = (boundary) => {
-    if (boundary.hardLimit) return <Shield className="w-5 h-5 text-red-400" />;
-    if (boundary.softLimit) return <AlertTriangle className="w-5 h-5 text-orange-400" />;
+    if (boundary.hard_limit) return <Shield className="w-5 h-5 text-red-400" />;
+    if (boundary.soft_limit) return <AlertTriangle className="w-5 h-5 text-orange-400" />;
     return <CheckCircle className="w-5 h-5 text-green-400" />;
   };
 
@@ -340,11 +388,11 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                             <div>
                               <span className="text-purple-200">Relationship:</span>
-                              <span className="ml-2">{checkIn.relationshipSatisfaction}/10</span>
+                              <span className="ml-2">{checkIn.relationship_satisfaction}/10</span>
                             </div>
                             <div>
                               <span className="text-purple-200">BDSM:</span>
-                              <span className="ml-2">{checkIn.bdsmSatisfaction}/10</span>
+                              <span className="ml-2">{checkIn.bdsm_satisfaction}/10</span>
                             </div>
                           </div>
 
@@ -500,7 +548,7 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                                   {boundary.category} Boundary
                                 </h4>
                                 <p className="text-sm text-purple-200">
-                                  {new Date(boundary.createdAt).toLocaleDateString()}
+                                  {new Date(boundary.created_at).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>
@@ -522,9 +570,9 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
 
                           <div className="flex items-center gap-2 text-sm">
                             <span className="text-purple-200">Type:</span>
-                            {boundary.hardLimit && <span className="text-red-400 font-medium">Hard Limit</span>}
-                            {boundary.softLimit && <span className="text-orange-400 font-medium">Soft Limit</span>}
-                            {!boundary.hardLimit && !boundary.softLimit && <span className="text-green-400 font-medium">Guideline</span>}
+                            {boundary.hard_limit && <span className="text-red-400 font-medium">Hard Limit</span>}
+                            {boundary.soft_limit && <span className="text-orange-400 font-medium">Soft Limit</span>}
+                            {!boundary.hard_limit && !boundary.soft_limit && <span className="text-green-400 font-medium">Guideline</span>}
                           </div>
                         </motion.div>
                       ))
