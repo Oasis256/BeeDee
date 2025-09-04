@@ -12,7 +12,9 @@ import {
   Users,
   Star,
   BookOpen,
-  Edit3
+  Edit3,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import apiService from '../utils/api';
 
@@ -25,6 +27,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
   const [showStoryForm, setShowStoryForm] = useState(false);
   const [editingStory, setEditingStory] = useState(null);
+  const [isReading, setIsReading] = useState(false);
+  const [currentReadingId, setCurrentReadingId] = useState(null);
 
   const [checkInForm, setCheckInForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -318,6 +322,72 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
     setStoryForm({ ...storyForm, tags: storyForm.tags.filter(tag => tag !== tagToRemove) });
   };
 
+  // Read Aloud Functions
+  const speak = (text, id) => {
+    if ('speechSynthesis' in window) {
+      // Stop any current reading
+      if (isReading) {
+        window.speechSynthesis.cancel();
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Configure speech settings
+      utterance.rate = 0.9; // Slightly slower for better comprehension
+      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
+      
+      // Try to use a pleasant voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(voice => 
+        voice.name.includes('Google') || 
+        voice.name.includes('Samantha') || 
+        voice.name.includes('Alex') ||
+        voice.name.includes('Microsoft')
+      );
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      utterance.onstart = () => {
+        setIsReading(true);
+        setCurrentReadingId(id);
+      };
+
+      utterance.onend = () => {
+        setIsReading(false);
+        setCurrentReadingId(null);
+      };
+
+      utterance.onerror = () => {
+        setIsReading(false);
+        setCurrentReadingId(null);
+        alert('Error reading text aloud. Please try again.');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Speech synthesis is not supported in your browser.');
+    }
+  };
+
+  const stopReading = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsReading(false);
+      setCurrentReadingId(null);
+    }
+  };
+
+  // Stop reading when component unmounts
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -329,6 +399,28 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           <p className="text-purple-200 text-lg">
             Tools for regular check-ins and boundary setting
           </p>
+          
+          {isReading && (
+            <div className="mt-6 bg-pink-500/20 border border-pink-500/30 rounded-xl p-4 max-w-md mx-auto">
+              <div className="flex items-center justify-center gap-3">
+                <Volume2 className="w-5 h-5 text-pink-400 animate-pulse" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Reading Aloud
+                  </h3>
+                  <p className="text-sm text-pink-200">
+                    Click the stop button to pause reading
+                  </p>
+                </div>
+                <button
+                  onClick={stopReading}
+                  className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-all"
+                >
+                  Stop Reading
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {!coupleProfile && (
@@ -511,12 +603,32 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                                 </p>
                               </div>
                             </div>
-                            <button
-                              onClick={() => deleteItem('checkin', checkIn.id)}
-                              className="p-2 text-red-400 hover:text-red-300 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  const textToRead = `Check-in for ${new Date(checkIn.date).toLocaleDateString()}. Mood: ${checkIn.mood}. Relationship satisfaction: ${checkIn.relationship_satisfaction} out of 10. BDSM satisfaction: ${checkIn.bdsm_satisfaction} out of 10. ${checkIn.notes ? `Notes: ${checkIn.notes}` : ''}`;
+                                  speak(textToRead, `checkin-${checkIn.id}`);
+                                }}
+                                className={`p-2 transition-colors ${
+                                  currentReadingId === `checkin-${checkIn.id}` 
+                                    ? 'text-pink-400' 
+                                    : 'text-blue-400 hover:text-blue-300'
+                                }`}
+                                title="Read aloud"
+                              >
+                                {currentReadingId === `checkin-${checkIn.id}` ? (
+                                  <VolumeX className="w-4 h-4" />
+                                ) : (
+                                  <Volume2 className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => deleteItem('checkin', checkIn.id)}
+                                className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
@@ -686,12 +798,33 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                                 </p>
                               </div>
                             </div>
-                            <button
-                              onClick={() => deleteItem('boundary', boundary.id)}
-                              className="p-2 text-red-400 hover:text-red-300 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  const limitType = boundary.hard_limit ? 'hard limit' : boundary.soft_limit ? 'soft limit' : 'guideline';
+                                  const textToRead = `${boundary.category} boundary set on ${new Date(boundary.created_at).toLocaleDateString()}. Type: ${limitType}. Description: ${boundary.description}. ${boundary.notes ? `Notes: ${boundary.notes}` : ''}`;
+                                  speak(textToRead, `boundary-${boundary.id}`);
+                                }}
+                                className={`p-2 transition-colors ${
+                                  currentReadingId === `boundary-${boundary.id}` 
+                                    ? 'text-pink-400' 
+                                    : 'text-blue-400 hover:text-blue-300'
+                                }`}
+                                title="Read aloud"
+                              >
+                                {currentReadingId === `boundary-${boundary.id}` ? (
+                                  <VolumeX className="w-4 h-4" />
+                                ) : (
+                                  <Volume2 className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => deleteItem('boundary', boundary.id)}
+                                className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
 
                           <p className="text-purple-200 mb-3">{boundary.description}</p>
@@ -936,6 +1069,20 @@ Tips for better formatting:
                           {editingStory ? 'Update Story' : 'Save Story'}
                         </button>
                         <button
+                          onClick={() => {
+                            if (storyForm.title && storyForm.content) {
+                              const textToRead = `Story preview: ${storyForm.title}. Mood: ${storyForm.mood}. ${storyForm.content}. ${storyForm.tags && storyForm.tags.length > 0 ? `Tags: ${storyForm.tags.join(', ')}.` : ''}`;
+                              speak(textToRead, 'story-preview');
+                            } else {
+                              alert('Please add a title and content to preview your story.');
+                            }
+                          }}
+                          className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 px-4 py-2 rounded-lg font-medium transition-all border border-purple-500/30"
+                        >
+                          <Volume2 className="w-4 h-4 inline mr-2" />
+                          Preview
+                        </button>
+                        <button
                           onClick={cancelStoryEdit}
                           className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-medium transition-all"
                         >
@@ -986,6 +1133,24 @@ Tips for better formatting:
                               </div>
                             </div>
                             <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  const textToRead = `Story: ${story.title}. Mood: ${story.mood}. ${story.content}. ${story.tags && story.tags.length > 0 ? `Tags: ${story.tags.join(', ')}.` : ''} Created on ${new Date(story.created_at).toLocaleDateString()}.`;
+                                  speak(textToRead, `story-${story.id}`);
+                                }}
+                                className={`p-2 transition-colors ${
+                                  currentReadingId === `story-${story.id}` 
+                                    ? 'text-pink-400' 
+                                    : 'text-blue-400 hover:text-blue-300'
+                                }`}
+                                title="Read aloud"
+                              >
+                                {currentReadingId === `story-${story.id}` ? (
+                                  <VolumeX className="w-4 h-4" />
+                                ) : (
+                                  <Volume2 className="w-4 h-4" />
+                                )}
+                              </button>
                               <button
                                 onClick={() => startEditingStory(story)}
                                 className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
