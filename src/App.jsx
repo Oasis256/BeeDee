@@ -30,7 +30,7 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('sex-positions') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
+  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
   const [currentCoupleProfile, setCurrentCoupleProfile] = useState(null)
 
