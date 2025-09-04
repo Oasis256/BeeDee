@@ -233,7 +233,7 @@ const SimpleSexPositions = () => {
                   const isFavorited = favorites.includes(positionId)
                   
                   return (
-                    <div key={position.number} className={`p-3 rounded-lg ${
+                    <div key={`${category.originalUrl}-${position.number}-${position.title}`} className={`p-3 rounded-lg ${
                       darkMode ? 'bg-white/5' : 'bg-gray-50'
                     }`}>
                       <div className="flex items-start justify-between mb-2">
@@ -311,7 +311,7 @@ const SimpleSexPositions = () => {
                 const isFavorited = favorites.includes(positionId)
                 
                 return (
-                  <div key={position.number} className={`p-4 rounded-lg ${
+                  <div key={`${selectedPosition.originalUrl}-${position.number}-${position.title}`} className={`p-4 rounded-lg ${
                     darkMode ? 'bg-gray-700' : 'bg-gray-50'
                   }`}>
                     <div className="flex items-start justify-between mb-3">

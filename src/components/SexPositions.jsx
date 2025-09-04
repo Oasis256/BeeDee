@@ -676,7 +676,7 @@ const SexPositions = ({ results }) => {
                     const partnerCount = getPartnerCount(position.title, position.description)
                     
                     return (
-                      <div key={position.number} className={`${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} rounded-lg p-3 border`}>
+                      <div key={`${category.originalUrl}-${position.number}-${position.title}`} className={`${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} rounded-lg p-3 border`}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <span className="text-pink-400 font-bold text-sm">{position.number}.</span>
@@ -934,7 +934,7 @@ const SexPositions = ({ results }) => {
                     const isCompleted = completedPositions.includes(positionId)
                     
                     return (
-                    <div key={position.number} className="bg-white/10 rounded-lg p-4 border border-white/20">
+                    <div key={`${selectedPosition.originalUrl}-${position.number}-${position.title}`} className="bg-white/10 rounded-lg p-4 border border-white/20">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-start gap-3">
                           <span className="text-2xl font-bold text-pink-400 bg-pink-400/20 rounded-full w-8 h-8 flex items-center justify-center">

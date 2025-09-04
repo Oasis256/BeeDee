@@ -9,37 +9,156 @@ async function scrapePositionsWithLazyLoading() {
 
   const allDetailedPositions = [];
   const progressFile = 'scraping-progress.json';
+  const resultsFile = 'all-positions-with-lazy-loading.json';
+
+  // Load existing results if available
+  let existingResults = [];
+  if (fs.existsSync(resultsFile)) {
+    try {
+      existingResults = JSON.parse(fs.readFileSync(resultsFile, 'utf8'));
+      console.log(`📂 Loaded existing results: ${existingResults.length} articles already scraped`);
+    } catch (error) {
+      console.log('⚠️ Could not load existing results file, starting fresh');
+    }
+  }
 
   // Load progress if exists
-  let progress = { completed: [], failed: [] };
+  let progress = { completed: [], failed: [], partial: [] };
   if (fs.existsSync(progressFile)) {
     try {
       progress = JSON.parse(fs.readFileSync(progressFile, 'utf8'));
-      console.log(`📂 Resuming from progress: ${progress.completed.length} completed, ${progress.failed.length} failed`);
+      console.log(`📂 Resuming from progress: ${progress.completed.length} completed, ${progress.failed.length} failed, ${progress.partial.length} partial`);
     } catch (error) {
       console.log('⚠️ Could not load progress file, starting fresh');
     }
+    // Initialize partial from existing results if not in progress
+    if (progress.partial.length === 0 && existingResults.length > 0) {
+      existingResults.forEach(article => {
+        if (article.scrapedCount > 0 && article.scrapedCount < 5) { // Consider < 5 positions as partial
+          progress.partial.push({ 
+            url: article.originalUrl, 
+            title: article.title, 
+            positions: article.scrapedCount,
+            reason: 'Low position count'
+          });
+        }
+      });
+    }
   }
+
+  // Add specific shower sex position URLs
+  const specificUrls = [
+    'https://www.cosmopolitan.com/sex-love/a5015/shower-sex-positions/',
+    'https://www.cosmopolitan.com/sex-love/positions/g36729324/standing-69-positions/'
+  ];
 
   // Step 1: Discover all article URLs from the main index pages
   console.log(`\n🎯 STEP 1: Discovering all article URLs from index pages...`);
   const discoveredArticles = await discoverArticles(browser);
   console.log(`📊 Discovered ${discoveredArticles.length} articles from index pages`);
 
-  // Filter out already completed articles
-  const remainingArticles = discoveredArticles.filter(article => 
-    !progress.completed.some(completed => completed.url === article.url)
-  );
-  console.log(`📋 ${remainingArticles.length} articles remaining to scrape`);
-
-  // Step 2: Scrape each discovered article with parallel processing
-  console.log(`\n🎯 STEP 2: Scraping articles with parallel processing...`);
+  // Add specific URLs to discovered articles with proper titles
+  specificUrls.forEach(url => {
+    if (!discoveredArticles.some(article => article.url === url)) {
+      let title = 'Sex Positions';
+      let category = 'Sex Positions';
+      
+      // Set specific titles for known URLs
+      if (url.includes('shower-sex-positions')) {
+        title = 'Shower Sex Positions';
+      } else if (url.includes('standing-69-positions')) {
+        title = 'Standing 69 Positions';
+      }
+      
+      discoveredArticles.push({
+        url: url,
+        title: title,
+        category: category
+      });
+    }
+  });
   
-  // Process articles in parallel batches of 5 (increased from 3)
+  // Force re-scraping of specific articles that may have wrong content
+  const forceRescrapeUrls = [
+    'https://www.cosmopolitan.com/sex-love/a5015/shower-sex-positions/',
+    'https://www.cosmopolitan.com/sex-love/positions/g36729324/standing-69-positions/'
+  ];
+  
+  // Remove these from completed progress to force re-scraping
+  progress.completed = progress.completed.filter(completed => 
+    !forceRescrapeUrls.includes(completed.url)
+  );
+  
+  // Also remove from existing results to force complete re-scraping
+  existingResults = existingResults.filter(result => 
+    !forceRescrapeUrls.includes(result.originalUrl)
+  );
+  
+  console.log('🔄 Forcing re-scrape of shower sex positions and standing 69 positions articles');
+
+  // Step 2: Identify articles that need scraping (failed, partial, or new)
+  console.log(`\n🎯 STEP 2: Identifying articles that need scraping...`);
+  
+  const articlesToScrape = [];
+  
+  // Add failed articles
+  progress.failed.forEach(failed => {
+    const article = discoveredArticles.find(a => a.url === failed.url) || {
+      url: failed.url,
+      title: failed.title,
+      category: 'Sex Positions'
+    };
+    articlesToScrape.push({ ...article, reason: 'Failed', originalError: failed.error });
+  });
+  
+  // Add partial success articles
+  progress.partial.forEach(partial => {
+    const article = discoveredArticles.find(a => a.url === partial.url) || {
+      url: partial.url,
+      title: partial.title,
+      category: 'Sex Positions'
+    };
+    articlesToScrape.push({ ...article, reason: 'Partial', originalCount: partial.positions });
+  });
+  
+  // Add new articles not in any progress category
+  discoveredArticles.forEach(article => {
+    const isCompleted = progress.completed.some(c => c.url === article.url);
+    const isFailed = progress.failed.some(f => f.url === article.url);
+    const isPartial = progress.partial.some(p => p.url === article.url);
+    const isInQueue = articlesToScrape.some(q => q.url === article.url);
+    
+    if (!isCompleted && !isFailed && !isPartial && !isInQueue) {
+      articlesToScrape.push({ ...article, reason: 'New' });
+    }
+  });
+
+  console.log(`📋 Articles to scrape: ${articlesToScrape.length}`);
+  console.log(`   - Failed: ${articlesToScrape.filter(a => a.reason === 'Failed').length}`);
+  console.log(`   - Partial: ${articlesToScrape.filter(a => a.reason === 'Partial').length}`);
+  console.log(`   - New: ${articlesToScrape.filter(a => a.reason === 'New').length}`);
+
+  if (articlesToScrape.length === 0) {
+    console.log(`\n🎉 All articles are already successfully scraped! No work needed.`);
+    
+    // Merge existing results with any new data
+    const finalResults = [...existingResults];
+    fs.writeFileSync(resultsFile, JSON.stringify(finalResults, null, 2));
+    fs.copyFileSync(resultsFile, 'public/all-sex-positions.json');
+    console.log(`📁 Updated public/all-sex-positions.json with existing data`);
+    
+    await browser.close();
+    return;
+  }
+
+  // Step 3: Scrape articles that need work with parallel processing
+  console.log(`\n🎯 STEP 3: Scraping articles that need work...`);
+  
+  // Process articles in parallel batches of 5
   const batchSize = 5;
-  for (let i = 0; i < remainingArticles.length; i += batchSize) {
-    const batch = remainingArticles.slice(i, i + batchSize);
-    console.log(`\n📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(remainingArticles.length/batchSize)} (${batch.length} articles)`);
+  for (let i = 0; i < articlesToScrape.length; i += batchSize) {
+    const batch = articlesToScrape.slice(i, i + batchSize);
+    console.log(`\n📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(articlesToScrape.length/batchSize)} (${batch.length} articles)`);
     
     const batchPromises = batch.map(article => scrapeArticle(browser, article));
     
@@ -48,40 +167,74 @@ async function scrapePositionsWithLazyLoading() {
     batchResults.forEach((result, index) => {
       const article = batch[index];
       if (result.status === 'fulfilled' && result.value) {
-        allDetailedPositions.push(result.value);
+        // Check if this is a retry of a failed/partial article
+        const existingIndex = existingResults.findIndex(existing => existing.originalUrl === article.url);
+        if (existingIndex >= 0) {
+          // Update existing result
+          existingResults[existingIndex] = result.value;
+          console.log(`🔄 Updated: ${result.value.category} (${result.value.scrapedCount} positions) - was ${article.reason}`);
+        } else {
+          // Add new result
+          existingResults.push(result.value);
+          console.log(`✅ New: ${result.value.category} (${result.value.scrapedCount} positions)`);
+        }
+        
+        // Update progress
         progress.completed.push({ url: article.url, title: article.title, positions: result.value.scrapedCount });
-        console.log(`✅ Scraped: ${result.value.category} (${result.value.scrapedCount} positions)`);
+        
+        // Remove from failed/partial if it was there
+        progress.failed = progress.failed.filter(f => f.url !== article.url);
+        progress.partial = progress.partial.filter(p => p.url !== article.url);
+        
       } else {
-        progress.failed.push({ url: article.url, title: article.title, error: result.reason?.message || 'Unknown error' });
-        console.log(`❌ Failed to scrape: ${article.title}`);
+        const error = result.reason?.message || 'Unknown error';
+        console.log(`❌ Failed to scrape: ${article.title} - ${error}`);
+        
+        // Update progress
+        if (article.reason === 'Failed') {
+          // Update existing failed entry
+          const failedIndex = progress.failed.findIndex(f => f.url === article.url);
+          if (failedIndex >= 0) {
+            progress.failed[failedIndex].error = error;
+            progress.failed[failedIndex].retryCount = (progress.failed[failedIndex].retryCount || 0) + 1;
+          }
+        } else {
+          // Add new failed entry
+          progress.failed.push({ 
+            url: article.url, 
+            title: article.title, 
+            error: error,
+            retryCount: 1
+          });
+        }
       }
     });
     
     // Save progress after each batch
     fs.writeFileSync(progressFile, JSON.stringify(progress, null, 2));
     
+    // Save results after each batch
+    fs.writeFileSync(resultsFile, JSON.stringify(existingResults, null, 2));
+    
     // Reduced delay between batches
-    if (i + batchSize < remainingArticles.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Reduced from 2000ms
+    if (i + batchSize < articlesToScrape.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
-  // Save the comprehensive scraped data
-  fs.writeFileSync('all-positions-with-lazy-loading.json', JSON.stringify(allDetailedPositions, null, 2));
-  console.log(`\n🎉 Successfully scraped ${allDetailedPositions.length} articles with comprehensive sex positions!`);
+  // Final save and copy
+  fs.writeFileSync(resultsFile, JSON.stringify(existingResults, null, 2));
+  console.log(`\n🎉 Successfully processed ${articlesToScrape.length} articles!`);
   
-  // Print comprehensive summary
-  printSummary(allDetailedPositions);
+  // Print summary
+  printSummary(existingResults);
 
   // Copy to public folder for the frontend
-  fs.copyFileSync('all-positions-with-lazy-loading.json', 'public/all-sex-positions.json');
+  fs.copyFileSync(resultsFile, 'public/all-sex-positions.json');
   console.log(`\n📁 Copied to public/all-sex-positions.json for frontend use`);
 
-  // Clean up progress file
-  if (fs.existsSync(progressFile)) {
-    fs.unlinkSync(progressFile);
-    console.log(`🧹 Cleaned up progress file`);
-  }
+  // Keep progress file for future runs (don't delete it)
+  console.log(`📁 Progress saved for future runs`);
 
   await browser.close();
 }
@@ -336,10 +489,18 @@ async function scrapeArticle(browser, article) {
           };
 
           // Find all slide sections - this is where positions are located
-          const slideSections = Array.from(document.querySelectorAll('section[id^="slide-"]'));
+          // Updated to handle both old slide format and new listicle format
+          let slideSections = Array.from(document.querySelectorAll('section[id^="slide-"]'));
+          
+          // If no old format found, try new listicle format
+          if (slideSections.length === 0) {
+            slideSections = Array.from(document.querySelectorAll('div[data-theme-key="listicle-slide-inner-container"]'));
+            console.log(`Found ${slideSections.length} listicle slide sections on page ${currentPageNumber}`);
+          } else {
+            console.log(`Found ${slideSections.length} slide sections on page ${currentPageNumber}`);
+          }
+          
           data.lazyLoadInfo.totalSlideSections = slideSections.length;
-
-          console.log(`Found ${slideSections.length} slide sections on page ${currentPageNumber}`);
 
           // Process each slide section with enhanced extraction
           slideSections.forEach((section, index) => {
@@ -348,8 +509,12 @@ async function scrapeArticle(browser, article) {
             let howToDoIt = '';
             let foundImages = [];
 
-            // Enhanced title extraction with better filtering
-            const titleElements = section.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
+                         // Enhanced title extraction with better filtering
+             // Try new listicle format first, then fall back to old format
+             let titleElements = section.querySelectorAll('h2[data-theme-key="listicle-slide-item-title"]');
+             if (titleElements.length === 0) {
+               titleElements = section.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
+             }
             for (const titleEl of titleElements) {
               const text = titleEl.textContent.trim();
               if (text && 
@@ -381,32 +546,63 @@ async function scrapeArticle(browser, article) {
               }
             }
 
-            // Enhanced numbered pattern detection
-            if (!positionTitle) {
-              const allText = section.textContent;
-              const numberMatches = allText.match(/\d+\.\s+([A-Z][^.!?]+)/g);
-              if (numberMatches && numberMatches.length > 0) {
-                const potentialTitle = numberMatches[0].replace(/^\d+\.\s*/, '').trim();
-                if (isValidContent(potentialTitle)) {
-                  positionTitle = potentialTitle;
-                }
-              }
-            }
+                         // Enhanced numbered pattern detection
+             if (!positionTitle) {
+               // Try to get position number from listicle format first
+               const numberSpan = section.querySelector('span.css-n8n0ey');
+               if (numberSpan) {
+                 const numberText = numberSpan.textContent.trim();
+                 const numberMatch = numberText.match(/(\d+)/);
+                 if (numberMatch) {
+                   // Look for title in the same section
+                   const titleH2 = section.querySelector('h2[data-theme-key="listicle-slide-item-title"]');
+                   if (titleH2) {
+                     positionTitle = titleH2.textContent.trim();
+                   }
+                 }
+               }
+               
+               // Fall back to old pattern detection
+               if (!positionTitle) {
+                 const allText = section.textContent;
+                 const numberMatches = allText.match(/\d+\.\s+([A-Z][^.!?]+)/g);
+                 if (numberMatches && numberMatches.length > 0) {
+                   const potentialTitle = numberMatches[0].replace(/^\d+\.\s*/, '').trim();
+                   if (isValidContent(potentialTitle)) {
+                     positionTitle = potentialTitle;
+                   }
+                 }
+               }
+             }
 
-            // Enhanced image extraction with better filtering
-            const images = Array.from(section.querySelectorAll('img'))
-              .map(img => ({
-                src: img.src,
-                alt: img.alt || '',
-                width: img.width,
-                height: img.height
-              }))
-              .filter(img => isValidImage(img));
+                         // Enhanced image extraction with better filtering
+             const images = Array.from(section.querySelectorAll('img'))
+               .map(img => {
+                 // Try to get photo credit from listicle format
+                 let photoCredit = '';
+                 const figcaption = img.closest('div').querySelector('figcaption span.css-170cidh');
+                 if (figcaption) {
+                   photoCredit = figcaption.textContent.trim();
+                 }
+                 
+                 return {
+                   src: img.src,
+                   alt: img.alt || '',
+                   width: img.width,
+                   height: img.height,
+                   photoCredit: photoCredit
+                 };
+               })
+               .filter(img => isValidImage(img));
 
             foundImages = images;
 
-            // Enhanced text extraction with better validation
-            const paragraphs = Array.from(section.querySelectorAll('p'));
+                         // Enhanced text extraction with better validation
+             // Try new listicle format first, then fall back to old format
+             let paragraphs = section.querySelectorAll('div[data-theme-key="listicle-slide-item-meta"] p');
+             if (paragraphs.length === 0) {
+               paragraphs = section.querySelectorAll('p');
+             }
             const allText = [];
             
             paragraphs.forEach(p => {
@@ -416,8 +612,12 @@ async function scrapeArticle(browser, article) {
               }
             });
 
-            // Also look in div elements with validation
-            const divs = Array.from(section.querySelectorAll('div'));
+                         // Also look in div elements with validation
+             // For listicle format, look in the specific content areas
+             let divs = section.querySelectorAll('div[data-theme-key="listicle-slide-item-meta"] div');
+             if (divs.length === 0) {
+               divs = section.querySelectorAll('div');
+             }
             divs.forEach(div => {
               const text = div.textContent.trim();
               if (isValidContent(text) && !allText.includes(text)) {
@@ -465,21 +665,32 @@ async function scrapeArticle(browser, article) {
               }
             }
 
-            // Enhanced validation before adding position
-            if (positionTitle && (description || foundImages.length > 0) && isValidContent(positionTitle)) {
-              data.positions.push({
-                number: data.positions.length + 1,
-                title: positionTitle,
-                description: description.trim(),
-                howToDoIt: howToDoIt.trim(),
-                images: foundImages,
-                slideId: section.id,
-                pageNumber: currentPageNumber
-              });
-              data.lazyLoadInfo.slideSectionsWithContent++;
-            } else {
-              data.lazyLoadInfo.slideSectionsWithoutContent++;
-            }
+                         // Enhanced validation before adding position
+             if (positionTitle && (description || foundImages.length > 0) && isValidContent(positionTitle)) {
+               // Try to get the actual position number from listicle format
+               let positionNumber = data.positions.length + 1;
+               const numberSpan = section.querySelector('span.css-n8n0ey');
+               if (numberSpan) {
+                 const numberText = numberSpan.textContent.trim();
+                 const numberMatch = numberText.match(/(\d+)/);
+                 if (numberMatch) {
+                   positionNumber = parseInt(numberMatch[1]);
+                 }
+               }
+               
+               data.positions.push({
+                 number: positionNumber,
+                 title: positionTitle,
+                 description: description.trim(),
+                 howToDoIt: howToDoIt.trim(),
+                 images: foundImages,
+                 slideId: section.id,
+                 pageNumber: currentPageNumber
+               });
+               data.lazyLoadInfo.slideSectionsWithContent++;
+             } else {
+               data.lazyLoadInfo.slideSectionsWithoutContent++;
+             }
           });
 
           // Enhanced image collection with better filtering
@@ -494,13 +705,115 @@ async function scrapeArticle(browser, article) {
 
           data.allImages = allImages;
 
-          // Enhanced alternative method for missing positions
-          if (data.positions.length === 0) {
-            console.log(`No positions found in slide sections, trying alternative method...`);
-            
-            // Find sections with data-embed="body-image" that contain images
-            const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
-            console.log(`Found ${bodyImageSections.length} body-image sections`);
+                     // Enhanced alternative method for missing positions
+           if (data.positions.length === 0) {
+             console.log(`No positions found in slide sections, trying alternative method...`);
+             
+             // First try listicle format as alternative
+             const listicleSections = Array.from(document.querySelectorAll('div[data-theme-key="listicle-slide-inner-container"]'));
+             if (listicleSections.length > 0) {
+               console.log(`Found ${listicleSections.length} listicle sections, trying to extract positions...`);
+               
+               listicleSections.forEach((section, index) => {
+                 let positionTitle = '';
+                 let description = '';
+                 let howToDoIt = '';
+                 let foundImages = [];
+                 
+                 // Extract title from listicle format
+                 const titleH2 = section.querySelector('h2[data-theme-key="listicle-slide-item-title"]');
+                 if (titleH2) {
+                   positionTitle = titleH2.textContent.trim();
+                 }
+                 
+                 // Extract position number
+                 let positionNumber = index + 1;
+                 const numberSpan = section.querySelector('span.css-n8n0ey');
+                 if (numberSpan) {
+                   const numberText = numberSpan.textContent.trim();
+                   const numberMatch = numberText.match(/(\d+)/);
+                   if (numberMatch) {
+                     positionNumber = parseInt(numberMatch[1]);
+                   }
+                 }
+                 
+                 // Extract images with photo credits
+                 const images = Array.from(section.querySelectorAll('img'))
+                   .map(img => {
+                     let photoCredit = '';
+                     const figcaption = img.closest('div').querySelector('figcaption span.css-170cidh');
+                     if (figcaption) {
+                       photoCredit = figcaption.textContent.trim();
+                     }
+                     
+                     return {
+                       src: img.src,
+                       alt: img.alt || '',
+                       width: img.width,
+                       height: img.height,
+                       photoCredit: photoCredit
+                     };
+                   })
+                   .filter(img => isValidImage(img));
+                 
+                 foundImages = images;
+                 
+                 // Extract description from listicle meta
+                 const metaDiv = section.querySelector('div[data-theme-key="listicle-slide-item-meta"]');
+                 if (metaDiv) {
+                   const paragraphs = metaDiv.querySelectorAll('p');
+                   const allText = [];
+                   
+                   paragraphs.forEach(p => {
+                     const text = p.textContent.trim();
+                     if (isValidContent(text)) {
+                       allText.push(text);
+                     }
+                   });
+                   
+                   if (allText.length > 0) {
+                     const cleanTexts = allText.map(text => {
+                       let cleanText = text.replace(/@[A-Z0-9_]+/g, '').trim();
+                       cleanText = cleanText.replace(/\s+/g, ' ').trim();
+                       cleanText = cleanText.replace(/SHOP NOW.*$/i, '').trim();
+                       cleanText = cleanText.replace(/Buy Now.*$/i, '').trim();
+                       return cleanText;
+                     }).filter(text => text.length > 10 && isValidContent(text));
+                     
+                     if (cleanTexts.length > 0) {
+                       description = cleanTexts[0];
+                       
+                       if (cleanTexts.length > 1) {
+                         howToDoIt = cleanTexts[1];
+                       }
+                     }
+                   }
+                 }
+                 
+                 // Add position if valid
+                 if (positionTitle && (description || foundImages.length > 0) && isValidContent(positionTitle)) {
+                   data.positions.push({
+                     number: positionNumber,
+                     title: positionTitle,
+                     description: description.trim(),
+                     howToDoIt: howToDoIt.trim(),
+                     images: foundImages,
+                     slideId: section.id || `listicle-${index}`,
+                     pageNumber: currentPageNumber
+                   });
+                   data.lazyLoadInfo.slideSectionsWithContent++;
+                 }
+               });
+               
+               if (data.positions.length > 0) {
+                 console.log(`Successfully extracted ${data.positions.length} positions from listicle format`);
+                 return;
+               }
+             }
+             
+             // Fall back to old body-image method
+             const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
+             console.log(`Found ${bodyImageSections.length} body-image sections`);
             
             bodyImageSections.forEach((section, index) => {
               const images = section.querySelectorAll('img');
