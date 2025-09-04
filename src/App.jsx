@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -18,6 +18,9 @@ import CommunityScenarios from './components/CommunityScenarios'
 import PositionPreferences from './components/PositionPreferences'
 import SexPositions from './components/SexPositions'
 import DebugApp from './components/DebugApp'
+import CoupleProfileManager from './components/CoupleProfileManager'
+import EnhancedCompatibilityAnalysis from './components/EnhancedCompatibilityAnalysis'
+import CoupleCommunicationHub from './components/CoupleCommunicationHub'
 import apiService from './utils/api'
 
 function App() {
@@ -29,6 +32,7 @@ function App() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('sex-positions') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
+  const [currentCoupleProfile, setCurrentCoupleProfile] = useState(null)
 
   const addTestId = () => {
     setTestIds([...testIds, ''])
@@ -64,6 +68,10 @@ function App() {
     const newTestNames = [...testNames]
     newTestNames[index] = name
     setTestNames(newTestNames)
+  }
+
+  const handleCoupleProfileUpdate = (profile) => {
+    setCurrentCoupleProfile(profile)
   }
 
   const loadFavorites = async () => {
@@ -510,6 +518,39 @@ function App() {
                   Community
                 </button>
                 <button
+                  onClick={() => setActiveTab('couple-profiles')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'couple-profiles'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Heart className="w-5 h-5" />
+                  Couple Profiles
+                </button>
+                <button
+                  onClick={() => setActiveTab('enhanced-analysis')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'enhanced-analysis'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  Enhanced Analysis
+                </button>
+                <button
+                  onClick={() => setActiveTab('communication-hub')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'communication-hub'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Communication Hub
+                </button>
+                <button
                   onClick={() => setActiveTab('debug')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'debug'
@@ -553,6 +594,22 @@ function App() {
               <SexPositions results={results} />
             ) : activeTab === 'community' ? (
               <CommunityScenarios results={results} />
+            ) : activeTab === 'couple-profiles' ? (
+              <CoupleProfileManager 
+                onProfileUpdate={handleCoupleProfileUpdate}
+                currentProfile={currentCoupleProfile}
+              />
+            ) : activeTab === 'enhanced-analysis' ? (
+              <EnhancedCompatibilityAnalysis 
+                coupleProfile={currentCoupleProfile} 
+                partner1Results={results[0]} 
+                partner2Results={results[1]} 
+              />
+            ) : activeTab === 'communication-hub' ? (
+              <CoupleCommunicationHub 
+                coupleProfile={currentCoupleProfile}
+                onProfileUpdate={handleCoupleProfileUpdate}
+              />
             ) : activeTab === 'debug' ? (
               <DebugApp />
             ) : null}

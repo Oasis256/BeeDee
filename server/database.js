@@ -127,6 +127,22 @@ class Database {
       )
     `)
 
+    // Couple Profiles table
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS couple_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        couple_name TEXT NOT NULL,
+        partner_ids TEXT NOT NULL, -- JSON array of test IDs
+        partner_names TEXT NOT NULL, -- JSON array of names
+        relationship_duration TEXT,
+        bdsm_experience TEXT DEFAULT 'beginner',
+        privacy_level TEXT DEFAULT 'private',
+        description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Community Scenarios table
     await this.db.exec(`
       CREATE TABLE IF NOT EXISTS community_scenarios (
@@ -962,6 +978,91 @@ class Database {
       console.log('✅ Seeded community scenarios successfully')
     } catch (error) {
       console.error('Error seeding community scenarios:', error)
+      throw error
+    }
+  }
+
+  // Couple Profile Methods
+  async createCoupleProfile(coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description) {
+    try {
+      const result = await this.db.run(
+        'INSERT INTO couple_profiles (couple_name, partner_ids, partner_names, relationship_duration, bdsm_experience, privacy_level, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [
+          coupleName,
+          JSON.stringify(partnerIds),
+          JSON.stringify(partnerNames),
+          relationshipDuration,
+          bdsmExperience,
+          privacyLevel,
+          description
+        ]
+      )
+      return await this.getCoupleProfile(result.lastID)
+    } catch (error) {
+      console.error('Error creating couple profile:', error)
+      throw error
+    }
+  }
+
+  async getAllCoupleProfiles() {
+    try {
+      const profiles = await this.db.all('SELECT * FROM couple_profiles ORDER BY created_at DESC')
+      return profiles.map(profile => ({
+        ...profile,
+        partner_ids: JSON.parse(profile.partner_ids),
+        partner_names: JSON.parse(profile.partner_names)
+      }))
+    } catch (error) {
+      console.error('Error getting all couple profiles:', error)
+      throw error
+    }
+  }
+
+  async getCoupleProfile(id) {
+    try {
+      const profile = await this.db.get('SELECT * FROM couple_profiles WHERE id = ?', [id])
+      if (profile) {
+        return {
+          ...profile,
+          partner_ids: JSON.parse(profile.partner_ids),
+          partner_names: JSON.parse(profile.partner_names)
+        }
+      }
+      return null
+    } catch (error) {
+      console.error('Error getting couple profile:', error)
+      throw error
+    }
+  }
+
+  async updateCoupleProfile(id, coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description) {
+    try {
+      await this.db.run(
+        'UPDATE couple_profiles SET couple_name = ?, partner_ids = ?, partner_names = ?, relationship_duration = ?, bdsm_experience = ?, privacy_level = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [
+          coupleName,
+          JSON.stringify(partnerIds),
+          JSON.stringify(partnerNames),
+          relationshipDuration,
+          bdsmExperience,
+          privacyLevel,
+          description,
+          id
+        ]
+      )
+      return await this.getCoupleProfile(id)
+    } catch (error) {
+      console.error('Error updating couple profile:', error)
+      throw error
+    }
+  }
+
+  async deleteCoupleProfile(id) {
+    try {
+      await this.db.run('DELETE FROM couple_profiles WHERE id = ?', [id])
+      return true
+    } catch (error) {
+      console.error('Error deleting couple profile:', error)
       throw error
     }
   }

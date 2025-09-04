@@ -419,6 +419,58 @@ app.delete('/api/profiles/:testId', async (req, res) => {
   }
 });
 
+// Couple Profiles endpoints
+app.post('/api/couple-profiles', async (req, res) => {
+  try {
+    const { coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description } = req.body;
+    const profile = await db.createCoupleProfile(coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description);
+    res.json({ success: true, profile });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/couple-profiles', async (req, res) => {
+  try {
+    const profiles = await db.getAllCoupleProfiles();
+    res.json({ success: true, profiles });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/couple-profiles/:id', async (req, res) => {
+  try {
+    const profile = await db.getCoupleProfile(parseInt(req.params.id));
+    if (profile) {
+      res.json({ success: true, profile });
+    } else {
+      res.status(404).json({ error: 'Couple profile not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/couple-profiles/:id', async (req, res) => {
+  try {
+    const { coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description } = req.body;
+    const profile = await db.updateCoupleProfile(parseInt(req.params.id), coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description);
+    res.json({ success: true, profile });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/couple-profiles/:id', async (req, res) => {
+  try {
+    await db.deleteCoupleProfile(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Favorites endpoints
 app.post('/api/favorites', async (req, res) => {
   try {

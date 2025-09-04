@@ -587,7 +587,7 @@ const PositionPreferences = ({ results }) => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <style jsx>{`
+              <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           display: none;
         }

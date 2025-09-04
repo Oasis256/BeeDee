@@ -595,6 +595,78 @@ class ApiService {
       throw error
     }
   }
+
+  // Couple Profiles API methods
+  async createCoupleProfile(coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/couple-profiles`, {
+        coupleName,
+        partnerIds,
+        partnerNames,
+        relationshipDuration,
+        bdsmExperience,
+        privacyLevel,
+        description
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error creating couple profile:', error)
+      throw error
+    }
+  }
+
+  async getAllCoupleProfiles() {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/couple-profiles`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching couple profiles:', error)
+      throw error
+    }
+  }
+
+  async getCoupleProfile(id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.get(`${baseURL}/couple-profiles/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error fetching couple profile:', error)
+      throw error
+    }
+  }
+
+  async updateCoupleProfile(id, coupleName, partnerIds, partnerNames, relationshipDuration, bdsmExperience, privacyLevel, description) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.put(`${baseURL}/couple-profiles/${id}`, {
+        coupleName,
+        partnerIds,
+        partnerNames,
+        relationshipDuration,
+        bdsmExperience,
+        privacyLevel,
+        description
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error updating couple profile:', error)
+      throw error
+    }
+  }
+
+  async deleteCoupleProfile(id) {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.delete(`${baseURL}/couple-profiles/${id}`)
+      return response.data
+    } catch (error) {
+      logger.error('Error deleting couple profile:', error)
+      throw error
+    }
+  }
 }
 
 const apiService = new ApiService()

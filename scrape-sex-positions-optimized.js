@@ -491,13 +491,13 @@ async function scrapeArticle(browser, article) {
           // Find all slide sections - this is where positions are located
           // Updated to handle both old slide format and new listicle format
           let slideSections = Array.from(document.querySelectorAll('section[id^="slide-"]'));
-          
+
           // If no old format found, try new listicle format
           if (slideSections.length === 0) {
             slideSections = Array.from(document.querySelectorAll('div[data-theme-key="listicle-slide-inner-container"]'));
             console.log(`Found ${slideSections.length} listicle slide sections on page ${currentPageNumber}`);
           } else {
-            console.log(`Found ${slideSections.length} slide sections on page ${currentPageNumber}`);
+          console.log(`Found ${slideSections.length} slide sections on page ${currentPageNumber}`);
           }
           
           data.lazyLoadInfo.totalSlideSections = slideSections.length;
@@ -509,7 +509,7 @@ async function scrapeArticle(browser, article) {
             let howToDoIt = '';
             let foundImages = [];
 
-                         // Enhanced title extraction with better filtering
+            // Enhanced title extraction with better filtering
              // Try new listicle format first, then fall back to old format
              let titleElements = section.querySelectorAll('h2[data-theme-key="listicle-slide-item-title"]');
              if (titleElements.length === 0) {
@@ -546,7 +546,7 @@ async function scrapeArticle(browser, article) {
               }
             }
 
-                         // Enhanced numbered pattern detection
+            // Enhanced numbered pattern detection
              if (!positionTitle) {
                // Try to get position number from listicle format first
                const numberSpan = section.querySelector('span.css-n8n0ey');
@@ -563,20 +563,20 @@ async function scrapeArticle(browser, article) {
                }
                
                // Fall back to old pattern detection
-               if (!positionTitle) {
-                 const allText = section.textContent;
-                 const numberMatches = allText.match(/\d+\.\s+([A-Z][^.!?]+)/g);
-                 if (numberMatches && numberMatches.length > 0) {
-                   const potentialTitle = numberMatches[0].replace(/^\d+\.\s*/, '').trim();
-                   if (isValidContent(potentialTitle)) {
-                     positionTitle = potentialTitle;
+            if (!positionTitle) {
+              const allText = section.textContent;
+              const numberMatches = allText.match(/\d+\.\s+([A-Z][^.!?]+)/g);
+              if (numberMatches && numberMatches.length > 0) {
+                const potentialTitle = numberMatches[0].replace(/^\d+\.\s*/, '').trim();
+                if (isValidContent(potentialTitle)) {
+                  positionTitle = potentialTitle;
                    }
-                 }
-               }
-             }
+                }
+              }
+            }
 
-                         // Enhanced image extraction with better filtering
-             const images = Array.from(section.querySelectorAll('img'))
+            // Enhanced image extraction with better filtering
+            const images = Array.from(section.querySelectorAll('img'))
                .map(img => {
                  // Try to get photo credit from listicle format
                  let photoCredit = '';
@@ -586,18 +586,18 @@ async function scrapeArticle(browser, article) {
                  }
                  
                  return {
-                   src: img.src,
-                   alt: img.alt || '',
-                   width: img.width,
+                src: img.src,
+                alt: img.alt || '',
+                width: img.width,
                    height: img.height,
                    photoCredit: photoCredit
                  };
                })
-               .filter(img => isValidImage(img));
+              .filter(img => isValidImage(img));
 
             foundImages = images;
 
-                         // Enhanced text extraction with better validation
+            // Enhanced text extraction with better validation
              // Try new listicle format first, then fall back to old format
              let paragraphs = section.querySelectorAll('div[data-theme-key="listicle-slide-item-meta"] p');
              if (paragraphs.length === 0) {
@@ -612,7 +612,7 @@ async function scrapeArticle(browser, article) {
               }
             });
 
-                         // Also look in div elements with validation
+            // Also look in div elements with validation
              // For listicle format, look in the specific content areas
              let divs = section.querySelectorAll('div[data-theme-key="listicle-slide-item-meta"] div');
              if (divs.length === 0) {
@@ -665,8 +665,8 @@ async function scrapeArticle(browser, article) {
               }
             }
 
-                         // Enhanced validation before adding position
-             if (positionTitle && (description || foundImages.length > 0) && isValidContent(positionTitle)) {
+            // Enhanced validation before adding position
+            if (positionTitle && (description || foundImages.length > 0) && isValidContent(positionTitle)) {
                // Try to get the actual position number from listicle format
                let positionNumber = data.positions.length + 1;
                const numberSpan = section.querySelector('span.css-n8n0ey');
@@ -678,19 +678,19 @@ async function scrapeArticle(browser, article) {
                  }
                }
                
-               data.positions.push({
+              data.positions.push({
                  number: positionNumber,
-                 title: positionTitle,
-                 description: description.trim(),
-                 howToDoIt: howToDoIt.trim(),
-                 images: foundImages,
-                 slideId: section.id,
-                 pageNumber: currentPageNumber
-               });
-               data.lazyLoadInfo.slideSectionsWithContent++;
-             } else {
-               data.lazyLoadInfo.slideSectionsWithoutContent++;
-             }
+                title: positionTitle,
+                description: description.trim(),
+                howToDoIt: howToDoIt.trim(),
+                images: foundImages,
+                slideId: section.id,
+                pageNumber: currentPageNumber
+              });
+              data.lazyLoadInfo.slideSectionsWithContent++;
+            } else {
+              data.lazyLoadInfo.slideSectionsWithoutContent++;
+            }
           });
 
           // Enhanced image collection with better filtering
@@ -705,10 +705,10 @@ async function scrapeArticle(browser, article) {
 
           data.allImages = allImages;
 
-                     // Enhanced alternative method for missing positions
-           if (data.positions.length === 0) {
-             console.log(`No positions found in slide sections, trying alternative method...`);
-             
+          // Enhanced alternative method for missing positions
+          if (data.positions.length === 0) {
+            console.log(`No positions found in slide sections, trying alternative method...`);
+            
              // First try listicle format as alternative
              const listicleSections = Array.from(document.querySelectorAll('div[data-theme-key="listicle-slide-inner-container"]'));
              if (listicleSections.length > 0) {
@@ -812,8 +812,8 @@ async function scrapeArticle(browser, article) {
              }
              
              // Fall back to old body-image method
-             const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
-             console.log(`Found ${bodyImageSections.length} body-image sections`);
+            const bodyImageSections = Array.from(document.querySelectorAll('section[data-embed="body-image"]'));
+            console.log(`Found ${bodyImageSections.length} body-image sections`);
             
             bodyImageSections.forEach((section, index) => {
               const images = section.querySelectorAll('img');

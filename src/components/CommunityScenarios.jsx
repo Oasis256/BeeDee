@@ -177,7 +177,7 @@ const CommunityScenarios = ({ results }) => {
         msOverflowStyle: 'none'
       }}
     >
-      <style jsx>{`
+              <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           display: none;
         }
