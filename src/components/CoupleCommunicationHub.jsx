@@ -30,6 +30,7 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [isReading, setIsReading] = useState(false);
   const [currentReadingId, setCurrentReadingId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [speechError, setSpeechError] = useState(null);
 
   const [checkInForm, setCheckInForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -112,7 +113,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const handleCheckIn = async () => {
     if (!coupleProfile?.id) {
       console.log('No couple profile ID available for saving check-in');
-      alert('Please select a couple profile first');
+      setSpeechError('Please select a couple profile first');
+      setTimeout(() => setSpeechError(null), 5000);
       return;
     }
     
@@ -140,16 +142,20 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           notes: ''
         });
         setShowCheckInForm(false);
-        alert('Check-in saved successfully!');
       }
     } catch (error) {
       console.error('Error creating check-in:', error);
-      alert('Failed to save check-in. Please try again.');
+      setSpeechError('Failed to save check-in. Please try again.');
+      setTimeout(() => setSpeechError(null), 5000);
     }
   };
 
   const handleBoundary = async () => {
-    if (!coupleProfile?.id) return;
+    if (!coupleProfile?.id) {
+      setSpeechError('Please select a couple profile first');
+      setTimeout(() => setSpeechError(null), 5000);
+      return;
+    }
     
     try {
       const response = await apiService.createBoundary(
@@ -174,7 +180,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
       }
     } catch (error) {
       console.error('Error creating boundary:', error);
-      alert('Failed to save boundary. Please try again.');
+      setSpeechError('Failed to save boundary. Please try again.');
+      setTimeout(() => setSpeechError(null), 5000);
     }
   };
 
@@ -193,7 +200,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
         }
       } catch (error) {
         console.error('Error deleting item:', error);
-        alert('Failed to delete item. Please try again.');
+        setSpeechError('Failed to delete item. Please try again.');
+        setTimeout(() => setSpeechError(null), 5000);
       }
     }
   };
@@ -239,7 +247,11 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   };
 
   const handleStorySubmit = async () => {
-    if (!coupleProfile?.id) return;
+    if (!coupleProfile?.id) {
+      setSpeechError('Please select a couple profile first');
+      setTimeout(() => setSpeechError(null), 5000);
+      return;
+    }
     
     try {
       if (editingStory) {
@@ -285,7 +297,8 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
       setShowStoryForm(false);
     } catch (error) {
       console.error('Error saving story:', error);
-      alert('Failed to save story. Please try again.');
+      setSpeechError('Failed to save story. Please try again.');
+      setTimeout(() => setSpeechError(null), 5000);
     }
   };
 
@@ -333,6 +346,9 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           window.speechSynthesis.cancel();
         }
 
+        // Clear any previous errors
+        setSpeechError(null);
+
         const utterance = new SpeechSynthesisUtterance(text);
         
         // Configure speech settings
@@ -340,35 +356,25 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
         utterance.pitch = 1.0;
         utterance.volume = 0.8;
         
-        // Wait for voices to load (important for mobile)
-        const loadVoices = () => {
-          const voices = window.speechSynthesis.getVoices();
-          if (voices.length > 0) {
-            // Try to use a pleasant voice
-            const preferredVoice = voices.find(voice => 
-              voice.name.includes('Google') || 
-              voice.name.includes('Samantha') || 
-              voice.name.includes('Alex') ||
-              voice.name.includes('Microsoft') ||
-              voice.name.includes('Siri') ||
-              voice.name.includes('Cortana')
-            );
-            if (preferredVoice) {
-              utterance.voice = preferredVoice;
-            }
+        // For mobile, try to get voices immediately or use default
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          // Try to use a pleasant voice
+          const preferredVoice = voices.find(voice => 
+            voice.name.includes('Google') || 
+            voice.name.includes('Samantha') || 
+            voice.name.includes('Alex') ||
+            voice.name.includes('Microsoft') ||
+            voice.name.includes('Siri') ||
+            voice.name.includes('Cortana')
+          );
+          if (preferredVoice) {
+            utterance.voice = preferredVoice;
           }
-          
-          // Start speaking
-          window.speechSynthesis.speak(utterance);
-        };
-
-        // Handle voice loading
-        if (window.speechSynthesis.getVoices().length > 0) {
-          loadVoices();
-        } else {
-          // Wait for voices to load (common on mobile)
-          window.speechSynthesis.onvoiceschanged = loadVoices;
         }
+        
+        // Start speaking immediately (mobile browsers often require immediate execution)
+        window.speechSynthesis.speak(utterance);
 
         utterance.onstart = () => {
           setIsReading(true);
@@ -385,19 +391,25 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           setIsReading(false);
           setCurrentReadingId(null);
           
-          // Provide helpful error messages for mobile
+          // Set error message for inline display
           if (event.error === 'not-allowed') {
-            alert('Speech synthesis blocked. Please allow microphone access or try again.');
+            setSpeechError('Speech synthesis blocked. Please allow microphone access or try again.');
           } else if (event.error === 'network') {
-            alert('Network error. Please check your connection and try again.');
+            setSpeechError('Network error. Please check your connection and try again.');
+          } else if (event.error === 'synthesis-failed') {
+            setSpeechError('Speech synthesis failed. Please try again or use device TTS.');
           } else {
-            alert('Error reading text aloud. Please try again.');
+            setSpeechError('Error reading text aloud. Please try again.');
           }
+          
+          // Auto-clear error after 5 seconds
+          setTimeout(() => setSpeechError(null), 5000);
         };
 
       } catch (error) {
         console.error('Speech synthesis error:', error);
-        alert('Speech synthesis failed. Please try again.');
+        setSpeechError('Speech synthesis failed. Please try again or use device TTS.');
+        setTimeout(() => setSpeechError(null), 5000);
       }
     } else {
       // Fallback for unsupported browsers
@@ -501,6 +513,28 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                   className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-all"
                 >
                   Stop Reading
+                </button>
+              </div>
+            </div>
+          )}
+
+          {speechError && (
+            <div className="mt-4 bg-red-500/20 border border-red-500/30 rounded-xl p-4 max-w-md mx-auto">
+              <div className="flex items-center gap-3">
+                <VolumeX className="w-5 h-5 text-red-400" />
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-white">
+                    Speech Error
+                  </h3>
+                  <p className="text-xs text-red-200">
+                    {speechError}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSpeechError(null)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ×
                 </button>
               </div>
             </div>
@@ -1180,7 +1214,8 @@ Tips for better formatting:
                               const textToRead = `Story preview: ${storyForm.title}. Mood: ${storyForm.mood}. ${storyForm.content}. ${storyForm.tags && storyForm.tags.length > 0 ? `Tags: ${storyForm.tags.join(', ')}.` : ''}`;
                               speak(textToRead, 'story-preview');
                             } else {
-                              alert('Please add a title and content to preview your story.');
+                              setSpeechError('Please add a title and content to preview your story.');
+                              setTimeout(() => setSpeechError(null), 3000);
                             }
                           }}
                           className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 px-4 py-2 rounded-lg font-medium transition-all border border-purple-500/30"
