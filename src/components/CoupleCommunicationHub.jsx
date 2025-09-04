@@ -29,6 +29,7 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [editingStory, setEditingStory] = useState(null);
   const [isReading, setIsReading] = useState(false);
   const [currentReadingId, setCurrentReadingId] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [checkInForm, setCheckInForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -324,51 +325,117 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
 
   // Read Aloud Functions
   const speak = (text, id) => {
-    if ('speechSynthesis' in window) {
-      // Stop any current reading
-      if (isReading) {
-        window.speechSynthesis.cancel();
+    // Check if speech synthesis is available
+    if ('speechSynthesis' in window && window.speechSynthesis) {
+      try {
+        // Stop any current reading
+        if (isReading) {
+          window.speechSynthesis.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Configure speech settings
+        utterance.rate = 0.9; // Slightly slower for better comprehension
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        // Wait for voices to load (important for mobile)
+        const loadVoices = () => {
+          const voices = window.speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            // Try to use a pleasant voice
+            const preferredVoice = voices.find(voice => 
+              voice.name.includes('Google') || 
+              voice.name.includes('Samantha') || 
+              voice.name.includes('Alex') ||
+              voice.name.includes('Microsoft') ||
+              voice.name.includes('Siri') ||
+              voice.name.includes('Cortana')
+            );
+            if (preferredVoice) {
+              utterance.voice = preferredVoice;
+            }
+          }
+          
+          // Start speaking
+          window.speechSynthesis.speak(utterance);
+        };
+
+        // Handle voice loading
+        if (window.speechSynthesis.getVoices().length > 0) {
+          loadVoices();
+        } else {
+          // Wait for voices to load (common on mobile)
+          window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        utterance.onstart = () => {
+          setIsReading(true);
+          setCurrentReadingId(id);
+        };
+
+        utterance.onend = () => {
+          setIsReading(false);
+          setCurrentReadingId(null);
+        };
+
+        utterance.onerror = (event) => {
+          console.error('Speech synthesis error:', event);
+          setIsReading(false);
+          setCurrentReadingId(null);
+          
+          // Provide helpful error messages for mobile
+          if (event.error === 'not-allowed') {
+            alert('Speech synthesis blocked. Please allow microphone access or try again.');
+          } else if (event.error === 'network') {
+            alert('Network error. Please check your connection and try again.');
+          } else {
+            alert('Error reading text aloud. Please try again.');
+          }
+        };
+
+      } catch (error) {
+        console.error('Speech synthesis error:', error);
+        alert('Speech synthesis failed. Please try again.');
       }
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Configure speech settings
-      utterance.rate = 0.9; // Slightly slower for better comprehension
-      utterance.pitch = 1.0;
-      utterance.volume = 0.8;
-      
-      // Try to use a pleasant voice
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Google') || 
-        voice.name.includes('Samantha') || 
-        voice.name.includes('Alex') ||
-        voice.name.includes('Microsoft')
-      );
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-
-      utterance.onstart = () => {
-        setIsReading(true);
-        setCurrentReadingId(id);
-      };
-
-      utterance.onend = () => {
-        setIsReading(false);
-        setCurrentReadingId(null);
-      };
-
-      utterance.onerror = () => {
-        setIsReading(false);
-        setCurrentReadingId(null);
-        alert('Error reading text aloud. Please try again.');
-      };
-
-      window.speechSynthesis.speak(utterance);
     } else {
-      alert('Speech synthesis is not supported in your browser.');
+      // Fallback for unsupported browsers
+      showMobileFallback(text);
     }
+  };
+
+  const showMobileFallback = (text) => {
+    // Create a modal with the text for mobile users
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg p-6 max-w-md w-full max-h-96 overflow-y-auto">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Text to Read</h3>
+        <p class="text-gray-700 text-sm leading-relaxed mb-4">${text}</p>
+        <div class="text-xs text-gray-500 mb-4">
+          <p>💡 Mobile tip: Copy this text and use your device's built-in text-to-speech feature:</p>
+          <p>• iOS: Select text → Speak</p>
+          <p>• Android: Select text → Read aloud</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}').then(() => this.textContent = 'Copied!').catch(() => this.textContent = 'Failed')" class="flex-1 bg-blue-500 text-white py-2 rounded-lg">
+            Copy Text
+          </button>
+          <button onclick="this.parentElement.parentElement.parentElement.remove()" class="flex-1 bg-pink-500 text-white py-2 rounded-lg">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Auto-remove after 15 seconds
+    setTimeout(() => {
+      if (modal.parentElement) {
+        modal.remove();
+      }
+    }, 15000);
   };
 
   const stopReading = () => {
@@ -386,6 +453,23 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
         window.speechSynthesis.cancel();
       }
     };
+  }, []);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.userAgentData?.platform || navigator.vendor || window.opera;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase()) || 
+                            window.innerWidth <= 768 || 
+                            'ontouchstart' in window;
+      setIsMobile(isMobileDevice);
+    };
+    
+    checkMobile();
+    
+    // Also check on resize
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   return (
@@ -418,6 +502,28 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                 >
                   Stop Reading
                 </button>
+              </div>
+            </div>
+          )}
+
+          {isMobile && (
+            <div className="mt-4 bg-blue-500/20 border border-blue-500/30 rounded-xl p-4 max-w-md mx-auto">
+              <div className="flex items-center gap-3">
+                <Volume2 className="w-5 h-5 text-blue-400" />
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-white">
+                    Mobile Read Aloud
+                  </h3>
+                  <p className="text-xs text-blue-200 mb-2">
+                    If speech doesn't work, use your device's built-in text-to-speech: Select text → Speak/Read aloud
+                  </p>
+                  <button
+                    onClick={() => speak('Hello! This is a test of the read aloud feature. If you can hear this, speech synthesis is working on your device.', 'mobile-test')}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-all"
+                  >
+                    Test Speech
+                  </button>
+                </div>
               </div>
             </div>
           )}
