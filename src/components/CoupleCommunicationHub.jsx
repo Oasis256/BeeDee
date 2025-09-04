@@ -14,7 +14,10 @@ import {
   BookOpen,
   Edit3,
   Volume2,
-  VolumeX
+  VolumeX,
+  Eye,
+  EyeOff,
+  X
 } from 'lucide-react';
 import apiService from '../utils/api';
 
@@ -31,6 +34,32 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [currentReadingId, setCurrentReadingId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [speechError, setSpeechError] = useState(null);
+  const [showSpeechSettings, setShowSpeechSettings] = useState(false);
+  const [speechSettings, setSpeechSettings] = useState(() => {
+    // Load settings from localStorage
+    const saved = localStorage.getItem('speechSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          rate: parsed.rate || 0.9,
+          pitch: parsed.pitch || 1.0,
+          volume: parsed.volume || 0.8,
+          voice: null // Will be set when voices load
+        };
+      } catch (e) {
+        console.error('Error loading speech settings:', e);
+      }
+    }
+    return {
+      rate: 0.9,
+      pitch: 1.0,
+      volume: 0.8,
+      voice: null
+    };
+  });
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [immersionMode, setImmersionMode] = useState(false);
 
   const [checkInForm, setCheckInForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -351,26 +380,14 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
 
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // Configure speech settings
-        utterance.rate = 0.9; // Slightly slower for better comprehension
-        utterance.pitch = 1.0;
-        utterance.volume = 0.8;
+        // Configure speech settings from user preferences
+        utterance.rate = speechSettings.rate;
+        utterance.pitch = speechSettings.pitch;
+        utterance.volume = speechSettings.volume;
         
-        // For mobile, try to get voices immediately or use default
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          // Try to use a pleasant voice
-          const preferredVoice = voices.find(voice => 
-            voice.name.includes('Google') || 
-            voice.name.includes('Samantha') || 
-            voice.name.includes('Alex') ||
-            voice.name.includes('Microsoft') ||
-            voice.name.includes('Siri') ||
-            voice.name.includes('Cortana')
-          );
-          if (preferredVoice) {
-            utterance.voice = preferredVoice;
-          }
+        // Use selected voice
+        if (speechSettings.voice) {
+          utterance.voice = speechSettings.voice;
         }
         
         // Start speaking immediately (mobile browsers often require immediate execution)
@@ -484,6 +501,99 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Load available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        setAvailableVoices(voices);
+        
+        // Set default voice if none selected
+        if (!speechSettings.voice && voices.length > 0) {
+          // Try to restore saved voice first
+          const savedSettings = localStorage.getItem('speechSettings');
+          let savedVoiceName = null;
+          if (savedSettings) {
+            try {
+              const parsed = JSON.parse(savedSettings);
+              savedVoiceName = parsed.voiceName;
+            } catch (e) {
+              console.error('Error parsing saved voice:', e);
+            }
+          }
+          
+          let selectedVoice = null;
+          if (savedVoiceName) {
+            selectedVoice = voices.find(voice => voice.name === savedVoiceName);
+          }
+          
+          if (!selectedVoice) {
+            // Fallback to preferred voice
+            selectedVoice = voices.find(voice => 
+              voice.name.includes('Google') || 
+              voice.name.includes('Samantha') || 
+              voice.name.includes('Alex') ||
+              voice.name.includes('Microsoft') ||
+              voice.name.includes('Siri') ||
+              voice.name.includes('Cortana')
+            ) || voices[0];
+          }
+          
+          setSpeechSettings(prev => ({
+            ...prev,
+            voice: selectedVoice
+          }));
+        }
+      }
+    };
+
+    // Load voices immediately if available
+    loadVoices();
+    
+    // Also listen for voice changes
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
+
+  // Save speech settings to localStorage
+  useEffect(() => {
+    localStorage.setItem('speechSettings', JSON.stringify({
+      rate: speechSettings.rate,
+      pitch: speechSettings.pitch,
+      volume: speechSettings.volume,
+      voiceName: speechSettings.voice?.name
+    }));
+  }, [speechSettings]);
+
+  // Handle Escape key for immersion mode
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && immersionMode) {
+        setImmersionMode(false);
+      }
+    };
+
+    if (immersionMode) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Prevent body scroll when in immersion mode
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [immersionMode]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -495,6 +605,38 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
           <p className="text-purple-200 text-lg">
             Tools for regular check-ins and boundary setting
           </p>
+          
+          <div className="mt-4 flex gap-3 justify-center">
+            <button
+              onClick={() => setShowSpeechSettings(!showSpeechSettings)}
+              className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 px-4 py-2 rounded-lg border border-purple-500/30 transition-all flex items-center gap-2"
+            >
+              <Volume2 className="w-4 h-4" />
+              Speech Settings
+            </button>
+            {eroticStories.length > 0 && (
+              <button
+                onClick={() => setImmersionMode(!immersionMode)}
+                className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                  immersionMode 
+                    ? 'bg-pink-500/30 text-pink-200 border-pink-500/50' 
+                    : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border-blue-500/30'
+                }`}
+              >
+                {immersionMode ? (
+                  <>
+                    <Eye className="w-4 h-4" />
+                    Exit Immersion
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="w-4 h-4" />
+                    Immersion Mode
+                  </>
+                )}
+              </button>
+            )}
+          </div>
           
           {isReading && (
             <div className="mt-6 bg-pink-500/20 border border-pink-500/30 rounded-xl p-4 max-w-md mx-auto">
@@ -560,6 +702,140 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                 </div>
               </div>
             </div>
+          )}
+
+          {showSpeechSettings && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 max-w-2xl mx-auto"
+            >
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Volume2 className="w-5 h-5 text-pink-400" />
+                Speech Settings
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Voice Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">Voice</label>
+                  <select
+                    value={speechSettings.voice?.name || ''}
+                    onChange={(e) => {
+                      const selectedVoice = availableVoices.find(voice => voice.name === e.target.value);
+                      setSpeechSettings(prev => ({ ...prev, voice: selectedVoice }));
+                    }}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    style={{ colorScheme: 'dark' }}
+                  >
+                    {availableVoices.map((voice, index) => (
+                      <option key={index} value={voice.name} className="bg-purple-900 text-white">
+                        {voice.name} ({voice.lang})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Speed/Rate */}
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Speed: {speechSettings.rate.toFixed(1)}x
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2.0"
+                    step="0.1"
+                    value={speechSettings.rate}
+                    onChange={(e) => setSpeechSettings(prev => ({ ...prev, rate: parseFloat(e.target.value) }))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-purple-300 mt-1">
+                    <span>Slow</span>
+                    <span>Fast</span>
+                  </div>
+                </div>
+
+                {/* Pitch */}
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Pitch: {speechSettings.pitch.toFixed(1)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2.0"
+                    step="0.1"
+                    value={speechSettings.pitch}
+                    onChange={(e) => setSpeechSettings(prev => ({ ...prev, pitch: parseFloat(e.target.value) }))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-purple-300 mt-1">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                </div>
+
+                {/* Volume */}
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">
+                    Volume: {Math.round(speechSettings.volume * 100)}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1.0"
+                    step="0.1"
+                    value={speechSettings.volume}
+                    onChange={(e) => setSpeechSettings(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-purple-300 mt-1">
+                    <span>Quiet</span>
+                    <span>Loud</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Test Button */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => speak('This is a test of your speech settings. You can adjust the voice, speed, pitch, and volume to your preference.', 'settings-test')}
+                  className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 mx-auto"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  Test Settings
+                </button>
+              </div>
+
+              {/* Preset Buttons */}
+              <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={() => setSpeechSettings({ rate: 0.8, pitch: 1.0, volume: 0.8, voice: speechSettings.voice })}
+                  className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 px-3 py-1 rounded text-sm border border-blue-500/30"
+                >
+                  Slow & Clear
+                </button>
+                <button
+                  onClick={() => setSpeechSettings({ rate: 1.0, pitch: 1.0, volume: 0.8, voice: speechSettings.voice })}
+                  className="bg-green-500/20 hover:bg-green-500/30 text-green-200 px-3 py-1 rounded text-sm border border-green-500/30"
+                >
+                  Normal
+                </button>
+                <button
+                  onClick={() => setSpeechSettings({ rate: 1.2, pitch: 1.1, volume: 0.8, voice: speechSettings.voice })}
+                  className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 px-3 py-1 rounded text-sm border border-orange-500/30"
+                >
+                  Fast & Energetic
+                </button>
+                <button
+                  onClick={() => setSpeechSettings({ rate: 0.9, pitch: 0.8, volume: 0.8, voice: speechSettings.voice })}
+                  className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 px-3 py-1 rounded text-sm border border-purple-500/30"
+                >
+                  Deep & Calm
+                </button>
+              </div>
+            </motion.div>
           )}
         </div>
 
@@ -1275,6 +1551,21 @@ Tips for better formatting:
                             </div>
                             <div className="flex gap-2">
                               <button
+                                onClick={() => setImmersionMode(!immersionMode)}
+                                className={`p-2 transition-colors ${
+                                  immersionMode 
+                                    ? 'text-pink-400' 
+                                    : 'text-purple-400 hover:text-purple-300'
+                                }`}
+                                title={immersionMode ? "Exit immersion mode" : "Enter immersion mode"}
+                              >
+                                {immersionMode ? (
+                                  <Eye className="w-4 h-4" />
+                                ) : (
+                                  <EyeOff className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
                                 onClick={() => {
                                   const textToRead = `Story: ${story.title}. Mood: ${story.mood}. ${story.content}. ${story.tags && story.tags.length > 0 ? `Tags: ${story.tags.join(', ')}.` : ''} Created on ${new Date(story.created_at).toLocaleDateString()}.`;
                                   speak(textToRead, `story-${story.id}`);
@@ -1349,6 +1640,125 @@ Tips for better formatting:
               )}
             </motion.div>
           </>
+        )}
+
+        {/* Immersion Mode Overlay */}
+        {immersionMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            onClick={() => setImmersionMode(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <BookOpen className="w-6 h-6 text-pink-400" />
+                  Immersion Mode
+                </h2>
+                <button
+                  onClick={() => setImmersionMode(false)}
+                  className="text-white/60 hover:text-white transition-colors p-2"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {eroticStories.map((story, index) => (
+                  <div key={story.id} className="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="text-3xl">
+                        {story.mood === 'romantic' && '💕'}
+                        {story.mood === 'passionate' && '🔥'}
+                        {story.mood === 'playful' && '😏'}
+                        {story.mood === 'intimate' && '💋'}
+                        {story.mood === 'fantasy' && '✨'}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">{story.title}</h3>
+                        <p className="text-purple-200 text-sm">
+                          {new Date(story.created_at).toLocaleDateString()} • {story.mood}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div 
+                      className="text-white leading-relaxed whitespace-pre-wrap font-mono text-base bg-white/5 rounded-lg p-6 border border-white/10 mb-4"
+                      style={{
+                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                        lineHeight: '1.8',
+                        wordWrap: 'break-word'
+                      }}
+                    >
+                      {story.content}
+                    </div>
+
+                    {story.tags && story.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {story.tags.map((tag, tagIndex) => (
+                          <span
+                            key={tagIndex}
+                            className="bg-pink-500/20 text-pink-200 px-3 py-1 rounded-full text-sm"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-purple-200">Privacy:</span>
+                        {story.is_private ? (
+                          <span className="text-green-400 font-medium">Private</span>
+                        ) : (
+                          <span className="text-blue-400 font-medium">Public</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const textToRead = `Story: ${story.title}. Mood: ${story.mood}. ${story.content}. ${story.tags && story.tags.length > 0 ? `Tags: ${story.tags.join(', ')}.` : ''}`;
+                          speak(textToRead, `immersion-story-${story.id}`);
+                        }}
+                        className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
+                          currentReadingId === `immersion-story-${story.id}` 
+                            ? 'bg-pink-500 text-white' 
+                            : 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30 border border-purple-500/30'
+                        }`}
+                      >
+                        {currentReadingId === `immersion-story-${story.id}` ? (
+                          <VolumeX className="w-4 h-4" />
+                        ) : (
+                          <Volume2 className="w-4 h-4" />
+                        )}
+                        {currentReadingId === `immersion-story-${story.id}` ? 'Stop' : 'Read Aloud'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 text-center">
+                <p className="text-purple-200 text-sm mb-4">
+                  Click outside or press Escape to exit immersion mode
+                </p>
+                <button
+                  onClick={() => setImmersionMode(false)}
+                  className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-all border border-white/20"
+                >
+                  Exit Immersion Mode
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </div>
