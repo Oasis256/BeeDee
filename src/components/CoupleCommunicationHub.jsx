@@ -725,11 +725,21 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                       const selectedVoice = availableVoices.find(voice => voice.name === e.target.value);
                       setSpeechSettings(prev => ({ ...prev, voice: selectedVoice }));
                     }}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    style={{ colorScheme: 'dark' }}
+                    className="w-full bg-purple-900/50 border border-purple-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                    style={{ 
+                      colorScheme: 'dark',
+                      backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                      color: 'white',
+                      appearance: 'none',
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.5em 1.5em',
+                      paddingRight: '2.5rem'
+                    }}
                   >
                     {availableVoices.map((voice, index) => (
-                      <option key={index} value={voice.name} className="bg-purple-900 text-white">
+                      <option key={index} value={voice.name} style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>
                         {voice.name} ({voice.lang})
                       </option>
                     ))}
@@ -748,7 +758,10 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                     step="0.1"
                     value={speechSettings.rate}
                     onChange={(e) => setSpeechSettings(prev => ({ ...prev, rate: parseFloat(e.target.value) }))}
-                    className="w-full"
+                    className="w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${((speechSettings.rate - 0.5) / 1.5) * 100}%, #581c87 ${((speechSettings.rate - 0.5) / 1.5) * 100}%, #581c87 100%)`
+                    }}
                   />
                   <div className="flex justify-between text-xs text-purple-300 mt-1">
                     <span>Slow</span>
@@ -768,7 +781,10 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                     step="0.1"
                     value={speechSettings.pitch}
                     onChange={(e) => setSpeechSettings(prev => ({ ...prev, pitch: parseFloat(e.target.value) }))}
-                    className="w-full"
+                    className="w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${((speechSettings.pitch - 0.5) / 1.5) * 100}%, #581c87 ${((speechSettings.pitch - 0.5) / 1.5) * 100}%, #581c87 100%)`
+                    }}
                   />
                   <div className="flex justify-between text-xs text-purple-300 mt-1">
                     <span>Low</span>
@@ -788,7 +804,10 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                     step="0.1"
                     value={speechSettings.volume}
                     onChange={(e) => setSpeechSettings(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
-                    className="w-full"
+                    className="w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${((speechSettings.volume - 0.1) / 0.9) * 100}%, #581c87 ${((speechSettings.volume - 0.1) / 0.9) * 100}%, #581c87 100%)`
+                    }}
                   />
                   <div className="flex justify-between text-xs text-purple-300 mt-1">
                     <span>Quiet</span>
@@ -927,13 +946,24 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                           <select
                             value={checkInForm.mood}
                             onChange={(e) => setCheckInForm({...checkInForm, mood: e.target.value})}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full bg-purple-900/50 border border-purple-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                            style={{ 
+                              colorScheme: 'dark',
+                              backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                              color: 'white',
+                              appearance: 'none',
+                              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                              backgroundPosition: 'right 0.5rem center',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundSize: '1.5em 1.5em',
+                              paddingRight: '2.5rem'
+                            }}
                           >
-                            <option value="excellent">Excellent 😍</option>
-                            <option value="good">Good 😊</option>
-                            <option value="okay">Okay 😐</option>
-                            <option value="bad">Bad 😔</option>
-                            <option value="terrible">Terrible 😢</option>
+                            <option value="excellent" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Excellent 😍</option>
+                            <option value="good" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Good 😊</option>
+                            <option value="okay" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Okay 😐</option>
+                            <option value="bad" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Bad 😔</option>
+                            <option value="terrible" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Terrible 😢</option>
                           </select>
                         </div>
 
@@ -947,10 +977,33 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                             max="10"
                             value={checkInForm.relationshipSatisfaction}
                             onChange={(e) => setCheckInForm({...checkInForm, relationshipSatisfaction: parseInt(e.target.value)})}
-                            className="w-full"
+                            className="w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer slider"
+                            style={{
+                              background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${((checkInForm.relationshipSatisfaction - 1) / 9) * 100}%, #581c87 ${((checkInForm.relationshipSatisfaction - 1) / 9) * 100}%, #581c87 100%)`
+                            }}
                           />
                           <div className="text-center text-sm text-purple-200">
                             {checkInForm.relationshipSatisfaction}/10
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-purple-200 mb-2">
+                            BDSM Satisfaction (1-10)
+                          </label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={checkInForm.bdsmSatisfaction}
+                            onChange={(e) => setCheckInForm({...checkInForm, bdsmSatisfaction: parseInt(e.target.value)})}
+                            className="w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer slider"
+                            style={{
+                              background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${((checkInForm.bdsmSatisfaction - 1) / 9) * 100}%, #581c87 ${((checkInForm.bdsmSatisfaction - 1) / 9) * 100}%, #581c87 100%)`
+                            }}
+                          />
+                          <div className="text-center text-sm text-purple-200">
+                            {checkInForm.bdsmSatisfaction}/10
                           </div>
                         </div>
                       </div>
@@ -1097,12 +1150,23 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                           <select
                             value={boundaryForm.category}
                             onChange={(e) => setBoundaryForm({...boundaryForm, category: e.target.value})}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            className="w-full bg-purple-900/50 border border-purple-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                            style={{ 
+                              colorScheme: 'dark',
+                              backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                              color: 'white',
+                              appearance: 'none',
+                              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                              backgroundPosition: 'right 0.5rem center',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundSize: '1.5em 1.5em',
+                              paddingRight: '2.5rem'
+                            }}
                           >
-                            <option value="physical">Physical</option>
-                            <option value="emotional">Emotional</option>
-                            <option value="mental">Mental</option>
-                            <option value="communication">Communication</option>
+                            <option value="physical" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Physical</option>
+                            <option value="emotional" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Emotional</option>
+                            <option value="mental" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Mental</option>
+                            <option value="communication" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Communication</option>
                           </select>
                         </div>
 
@@ -1304,14 +1368,24 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                           <select
                             value={storyForm.mood}
                             onChange={(e) => setStoryForm({...storyForm, mood: e.target.value})}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-                            style={{ colorScheme: 'dark' }}
+                            className="w-full bg-purple-900/50 border border-purple-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                            style={{ 
+                              colorScheme: 'dark',
+                              backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                              color: 'white',
+                              appearance: 'none',
+                              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                              backgroundPosition: 'right 0.5rem center',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundSize: '1.5em 1.5em',
+                              paddingRight: '2.5rem'
+                            }}
                           >
-                            <option value="romantic" className="bg-purple-900 text-white">Romantic 💕</option>
-                            <option value="passionate" className="bg-purple-900 text-white">Passionate 🔥</option>
-                            <option value="playful" className="bg-purple-900 text-white">Playful 😏</option>
-                            <option value="intimate" className="bg-purple-900 text-white">Intimate 💋</option>
-                            <option value="fantasy" className="bg-purple-900 text-white">Fantasy ✨</option>
+                            <option value="romantic" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Romantic 💕</option>
+                            <option value="passionate" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Passionate 🔥</option>
+                            <option value="playful" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Playful 😏</option>
+                            <option value="intimate" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Intimate 💋</option>
+                            <option value="fantasy" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>Fantasy ✨</option>
                           </select>
                         </div>
                       </div>

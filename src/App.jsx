@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -21,6 +21,7 @@ import DebugApp from './components/DebugApp'
 import CoupleProfileManager from './components/CoupleProfileManager'
 import EnhancedCompatibilityAnalysis from './components/EnhancedCompatibilityAnalysis'
 import CoupleCommunicationHub from './components/CoupleCommunicationHub'
+import AftercareGuides from './components/AftercareGuides'
 import apiService from './utils/api'
 
 function App() {
@@ -551,6 +552,17 @@ function App() {
                   Communication Hub
                 </button>
                 <button
+                  onClick={() => setActiveTab('aftercare-guides')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'aftercare-guides'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  Aftercare Guides
+                </button>
+                <button
                   onClick={() => setActiveTab('debug')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'debug'
@@ -610,6 +622,8 @@ function App() {
                 coupleProfile={currentCoupleProfile}
                 onProfileUpdate={handleCoupleProfileUpdate}
               />
+            ) : activeTab === 'aftercare-guides' ? (
+              <AftercareGuides />
             ) : activeTab === 'debug' ? (
               <DebugApp />
             ) : null}
