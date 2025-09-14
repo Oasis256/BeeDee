@@ -5,7 +5,7 @@ import apiService from '../utils/api'
 import { getAllScenarios, getScenariosByCategory, getScenariosByDifficulty, searchScenarios } from '../utils/scenarioDatabase'
 import SafetyChecklist from './SafetyChecklist'
 
-const ScenarioBuilder = ({ results }) => {
+const ScenarioBuilder = ({ results, beginnerMode = false }) => {
   const [selectedScenario, setSelectedScenario] = useState(null)
   const [savedScenarios, setSavedScenarios] = useState([])
   const [loading, setLoading] = useState(false)
@@ -40,6 +40,96 @@ const ScenarioBuilder = ({ results }) => {
 
   // Get scenarios from database
   const scenarioTemplates = getAllScenarios()
+  
+  // Beginner-friendly scenario templates
+  const beginnerTemplates = [
+    {
+      id: 'first-power-exchange',
+      name: 'First Power Exchange',
+      description: 'A gentle introduction to power dynamics with clear communication and safety.',
+      difficulty: 'beginner',
+      intensity: 'low',
+      duration: 'short',
+      safetyLevel: 'low',
+      roles: ['Dominant', 'Submissive'],
+      steps: [
+        '1. Discuss the scene together beforehand - what will happen, what won\'t',
+        '2. Choose and practice safe words (like "red" for stop, "yellow" for slow down)',
+        '3. Set a 15-minute timer',
+        '4. One partner gives simple, respectful commands (like "please sit down")',
+        '5. Other partner follows commands (within their comfort zone)',
+        '6. When timer goes off, immediately switch to aftercare',
+        '7. Discuss how it felt for both partners - what worked, what didn\'t'
+      ],
+      safety: ['Safe words established', 'Timer set', 'Clear boundaries discussed', 'Aftercare planned'],
+      equipment: ['Timer or phone', 'Comfortable space', 'Water for aftercare']
+    },
+    {
+      id: 'sensation-exploration',
+      name: 'Sensation Exploration',
+      description: 'Discover what types of touch and sensation you both enjoy.',
+      difficulty: 'beginner',
+      intensity: 'low',
+      duration: 'medium',
+      safetyLevel: 'low',
+      roles: ['Giver', 'Receiver'],
+      steps: [
+        '1. Receiver sits comfortably and closes eyes (or uses blindfold)',
+        '2. Giver uses different textures (feather, silk, ice cube, warm water)',
+        '3. Receiver rates each sensation 1-10 and says what it feels like',
+        '4. Switch roles after 15 minutes',
+        '5. Discuss what felt good and what didn\'t',
+        '6. Plan future scenes based on discoveries'
+      ],
+      safety: ['All sensations are gentle', 'Receiver can stop anytime', 'No surprises', 'Check in regularly'],
+      equipment: ['Various textures (feather, silk, ice, warm water)', 'Blindfold (optional)', 'Timer']
+    },
+    {
+      id: 'communication-practice',
+      name: 'Communication Practice',
+      description: 'Practice talking about desires, boundaries, and fantasies in a safe space.',
+      difficulty: 'beginner',
+      intensity: 'low',
+      duration: 'long',
+      safetyLevel: 'low',
+      roles: ['Both partners'],
+      steps: [
+        '1. Create a comfortable, private space',
+        '2. Take turns sharing one fantasy or desire',
+        '3. Partner listens without judgment and asks clarifying questions',
+        '4. Discuss what about it appeals to you',
+        '5. Talk about any concerns or boundaries',
+        '6. Make a "Yes/No/Maybe" list together',
+        '7. Plan to try one "Yes" item in the future'
+      ],
+      safety: ['No pressure to share everything', 'Respect boundaries', 'No judgment', 'Take breaks if needed'],
+      equipment: ['Comfortable seating', 'Paper and pen for lists', 'Water and snacks']
+    },
+    {
+      id: 'light-bondage-intro',
+      name: 'Light Bondage Introduction',
+      description: 'Gentle introduction to restraint using soft materials.',
+      difficulty: 'beginner',
+      intensity: 'low',
+      duration: 'short',
+      safetyLevel: 'moderate',
+      roles: ['Rigger', 'Rope bunny'],
+      steps: [
+        '1. Discuss what bondage means to both of you',
+        '2. Practice with soft scarves or ties (never around neck)',
+        '3. Start with hands only, keep it loose',
+        '4. Set a 10-minute timer',
+        '5. Check in every 2-3 minutes',
+        '6. Have scissors nearby for quick release',
+        '7. End with aftercare and discussion'
+      ],
+      safety: ['Never around neck', 'Keep restraints loose', 'Scissors nearby', 'Check circulation', 'Timer set'],
+      equipment: ['Soft scarves or ties', 'Scissors', 'Timer', 'Comfortable surface']
+    }
+  ]
+  
+  // Combine regular templates with beginner templates if in beginner mode
+  const allTemplates = beginnerMode ? [...beginnerTemplates, ...scenarioTemplates] : scenarioTemplates
 
   useEffect(() => {
     if (results.length > 0) {
@@ -304,6 +394,19 @@ const ScenarioBuilder = ({ results }) => {
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Scenario Builder</h2>
           <p className="text-purple-200">Create and manage BDSM scenarios for your compatibility results</p>
+          
+          {/* Beginner Mode Info */}
+          {beginnerMode && (
+            <div className="mt-3 p-3 bg-green-500/20 border border-green-400/30 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Shield className="w-4 h-4 text-green-400" />
+                <span className="text-green-200 font-medium text-sm">Beginner Mode Active</span>
+              </div>
+              <p className="text-green-100 text-xs">
+                You'll see beginner-friendly scenario templates with extra safety information and step-by-step guidance.
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex gap-3">
           <button
@@ -604,13 +707,18 @@ const ScenarioBuilder = ({ results }) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {scenarioTemplates.map((template) => (
+              {allTemplates.map((template) => (
                 <div
                   key={template.id}
                   className="bg-gray-700/50 border border-purple-400/20 rounded-lg p-4 cursor-pointer hover:bg-gray-700/70 transition-colors"
                   onClick={() => applyTemplate(template)}
                 >
-                  <h4 className="font-semibold text-white mb-2">{template.name}</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-semibold text-white">{template.name}</h4>
+                    {template.difficulty === 'beginner' && (
+                      <Shield className="w-4 h-4 text-green-400" title="Beginner Friendly" />
+                    )}
+                  </div>
                   <p className="text-sm text-purple-200 mb-3 line-clamp-3">{template.description}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-3">
@@ -623,6 +731,11 @@ const ScenarioBuilder = ({ results }) => {
                     <span className={`px-2 py-1 rounded text-xs ${difficultyLevels.find(l => l.value === template.difficulty)?.bg} ${difficultyLevels.find(l => l.value === template.difficulty)?.color}`}>
                       {difficultyLevels.find(l => l.value === template.difficulty)?.label}
                     </span>
+                    {template.difficulty === 'beginner' && (
+                      <span className="px-2 py-1 rounded text-xs bg-green-500/30 text-green-200">
+                        🛡️ Safe Start
+                      </span>
+                    )}
                   </div>
                   
                   <div className="text-xs text-purple-300">

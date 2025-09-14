@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield, FileText } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield, FileText, GraduationCap, Moon, Sun } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -35,6 +35,26 @@ function App() {
   const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
   const [loadingProfiles, setLoadingProfiles] = useState(false)
   const [currentCoupleProfile, setCurrentCoupleProfile] = useState(null)
+  const [beginnerMode, setBeginnerMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
+
+  // Load user preferences from localStorage
+  useEffect(() => {
+    const savedBeginnerMode = localStorage.getItem('beginnerMode')
+    const savedDarkMode = localStorage.getItem('darkMode')
+    
+    if (savedBeginnerMode !== null) setBeginnerMode(JSON.parse(savedBeginnerMode))
+    if (savedDarkMode !== null) setDarkMode(JSON.parse(savedDarkMode))
+  }, [])
+
+  // Save preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem('beginnerMode', JSON.stringify(beginnerMode))
+  }, [beginnerMode])
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
+  }, [darkMode])
 
   const addTestId = () => {
     setTestIds([...testIds, ''])
@@ -218,6 +238,32 @@ function App() {
         className="text-center py-8"
       >
         <div className="container mx-auto px-4">
+          {/* Mode Toggles */}
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              onClick={() => setBeginnerMode(!beginnerMode)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                beginnerMode 
+                  ? 'bg-green-500/30 text-green-200 border-2 border-green-400' 
+                  : 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              {beginnerMode ? 'Beginner Mode ON' : 'Beginner Mode'}
+            </button>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                darkMode 
+                  ? 'bg-purple-500/30 text-purple-200 border-2 border-purple-400' 
+                  : 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+              }`}
+            >
+              {darkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {darkMode ? 'Dark Mode' : 'Light Mode'}
+            </button>
+          </div>
+
           <motion.h1 
             className="text-5xl md:text-7xl font-bold text-white mb-4 sparkle"
             animate={{ scale: [1, 1.05, 1] }}
@@ -229,6 +275,24 @@ function App() {
             Compare your results with friends and partners in a fun, playful way! 
             <span className="inline-block ml-2 animate-bounce-slow">💕</span>
           </p>
+          
+          {/* Beginner Mode Info */}
+          {beginnerMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 max-w-3xl mx-auto bg-green-500/20 border border-green-400/30 rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <GraduationCap className="w-5 h-5 text-green-400" />
+                <h3 className="text-green-200 font-semibold">Beginner Mode Active</h3>
+              </div>
+              <p className="text-green-100 text-sm">
+                You're in beginner mode! This means you'll see extra explanations, safety tips, and beginner-friendly content throughout the app. 
+                Perfect for those new to BDSM exploration.
+              </p>
+            </motion.div>
+          )}
         </div>
       </motion.header>
 
@@ -590,54 +654,58 @@ function App() {
 
             {/* Tab Content */}
             {activeTab === 'detailed' ? (
-              <BDSMResults results={results} />
+              <BDSMResults results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'comparison' ? (
-              <ComparisonGraph results={results} />
+              <ComparisonGraph results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'breakdown' ? (
-              <PercentageBreakdown results={results} />
+              <PercentageBreakdown results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'shared' ? (
               <>
-                <CompatibilityScore results={results} />
-                <RoleCompatibilityMatrix results={results} />
-                <SmartRecommendations results={results} />
-                <RadarChart results={results} />
-                <ScenarioBuilder results={results} />
-                <SharedInterests results={results} />
+                <CompatibilityScore results={results} beginnerMode={beginnerMode} />
+                <RoleCompatibilityMatrix results={results} beginnerMode={beginnerMode} />
+                <SmartRecommendations results={results} beginnerMode={beginnerMode} />
+                <RadarChart results={results} beginnerMode={beginnerMode} />
+                <ScenarioBuilder results={results} beginnerMode={beginnerMode} />
+                <SharedInterests results={results} beginnerMode={beginnerMode} />
               </>
             ) : activeTab === 'advanced' ? (
-              <AdvancedAnalysis results={results} />
+              <AdvancedAnalysis results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'export' ? (
-              <ExportResults results={results} />
+              <ExportResults results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'profiles' ? (
-              <UserProfiles results={results} />
+              <UserProfiles results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'analytics' ? (
-              <SessionAnalytics results={results} />
+              <SessionAnalytics results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'positions' ? (
-              <PositionPreferences results={results} />
+              <PositionPreferences results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'sex-positions' ? (
-              <SexPositions results={results} />
+              <SexPositions results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'community' ? (
-              <CommunityScenarios results={results} />
+              <CommunityScenarios results={results} beginnerMode={beginnerMode} />
             ) : activeTab === 'couple-profiles' ? (
               <CoupleProfileManager 
                 onProfileUpdate={handleCoupleProfileUpdate}
                 currentProfile={currentCoupleProfile}
+                beginnerMode={beginnerMode}
               />
             ) : activeTab === 'enhanced-analysis' ? (
               <EnhancedCompatibilityAnalysis 
                 coupleProfile={currentCoupleProfile} 
                 partner1Results={results[0]} 
                 partner2Results={results[1]} 
+                beginnerMode={beginnerMode}
               />
             ) : activeTab === 'communication-hub' ? (
               <CoupleCommunicationHub 
                 coupleProfile={currentCoupleProfile}
                 onProfileUpdate={handleCoupleProfileUpdate}
+                beginnerMode={beginnerMode}
               />
             ) : activeTab === 'aftercare-guides' ? (
-              <AftercareGuides />
+              <AftercareGuides beginnerMode={beginnerMode} />
             ) : activeTab === 'bdsm-test' ? (
               <BDSMTestEmbed 
+                beginnerMode={beginnerMode}
                 onTestComplete={(testResults) => {
                   // Add the test results to the existing results
                   const newResults = [...results, {
@@ -658,7 +726,7 @@ function App() {
                 }}
               />
             ) : activeTab === 'debug' ? (
-              <DebugApp />
+              <DebugApp beginnerMode={beginnerMode} />
             ) : null}
           </motion.div>
         )}

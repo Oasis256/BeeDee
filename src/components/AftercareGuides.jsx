@@ -15,7 +15,7 @@ import {
   Check
 } from 'lucide-react';
 
-const AftercareGuides = () => {
+const AftercareGuides = ({ beginnerMode = false }) => {
   const [guides, setGuides] = useState([]);
   const [filteredGuides, setFilteredGuides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,6 +140,38 @@ const AftercareGuides = () => {
           <p className="text-purple-200 text-lg max-w-3xl mx-auto">
             Essential resources for post-scene care, emotional support, and maintaining healthy BDSM relationships
           </p>
+          
+          {/* Beginner Mode Info */}
+          {beginnerMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 max-w-4xl mx-auto bg-green-500/20 border border-green-400/30 rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-5 h-5 text-green-400" />
+                <h3 className="text-green-200 font-semibold">Beginner Safety Tips</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  <p className="text-green-100 font-medium">🛡️ Always Start Small:</p>
+                  <p className="text-green-100">Begin with gentle activities and gradually explore more intense experiences as you both become comfortable.</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-green-100 font-medium">💬 Communication is Key:</p>
+                  <p className="text-green-100">Talk openly about desires, boundaries, and concerns before, during, and after any BDSM activity.</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-green-100 font-medium">🚨 Safe Words Matter:</p>
+                  <p className="text-green-100">Establish clear safe words (like "red" for stop, "yellow" for slow down) and respect them immediately.</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-green-100 font-medium">❤️ Aftercare is Essential:</p>
+                  <p className="text-green-100">Always plan time for emotional and physical care after any BDSM activity, no matter how mild.</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Search and Filter */}

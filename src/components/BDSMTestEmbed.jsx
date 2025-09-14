@@ -18,7 +18,7 @@ import {
 import { bdsmTestQuestions, calculateBDSMResults, generateTestId } from '../utils/bdsmTestQuestions';
 import apiService from '../utils/api';
 
-const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
+const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated, beginnerMode = false }) => {
   const [testMode, setTestMode] = useState('custom'); // 'iframe', 'custom', 'hybrid'
   const [testId, setTestId] = useState('');
   const [isTestActive, setIsTestActive] = useState(false);
@@ -29,7 +29,34 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
   const [customQuestions, setCustomQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [showExplanations, setShowExplanations] = useState(true);
   const iframeRef = useRef(null);
+
+  // Beginner-friendly explanations for BDSM concepts
+  const getQuestionExplanation = (question) => {
+    const explanations = {
+      'dominance': 'This refers to taking control in a consensual way. Think of it like being the leader in a dance - you guide the movements, but both partners are participating willingly.',
+      'submission': 'This means willingly giving control to your partner. It\'s about trust, letting go, and finding pleasure in following someone else\'s lead.',
+      'sadism': 'This is about enjoying giving sensations (not necessarily pain). It\'s about control, power, and seeing your partner\'s reactions to what you do.',
+      'masochism': 'This is about enjoying receiving sensations. It\'s about surrender, trust, and finding pleasure in the sensations your partner provides.',
+      'switch': 'This means you enjoy both taking control and giving control. You can be dominant in some situations and submissive in others.',
+      'vanilla': 'This refers to "regular" or "traditional" sexual activities without BDSM elements. There\'s nothing wrong with enjoying vanilla activities!',
+      'bondage': 'This involves restraining someone (or being restrained) using ropes, cuffs, or other tools. It\'s about restriction and the feeling of being controlled.',
+      'impact': 'This involves hitting or striking someone (or being hit) in a consensual way. It can range from light spanking to more intense play.',
+      'roleplay': 'This involves acting out different roles or scenarios. It could be teacher/student, boss/employee, or any other dynamic that interests you.',
+      'fetish': 'This is a strong attraction to a specific object, body part, or activity. It could be feet, leather, latex, or many other things.'
+    }
+    
+    // Try to match based on question text
+    const questionText = question.question.toLowerCase()
+    for (const [key, explanation] of Object.entries(explanations)) {
+      if (questionText.includes(key)) {
+        return explanation
+      }
+    }
+    
+    return 'This question helps us understand your preferences and interests. There are no right or wrong answers - just be honest about what appeals to you.'
+  }
 
   useEffect(() => {
     setCustomQuestions(bdsmTestQuestions);
@@ -154,6 +181,24 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
           <p className="text-purple-200 text-lg max-w-2xl mx-auto">
             Discover your BDSM preferences and find compatible partners
           </p>
+          
+          {/* Beginner Mode Info */}
+          {beginnerMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 max-w-3xl mx-auto bg-green-500/20 border border-green-400/30 rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-5 h-5 text-green-400" />
+                <h3 className="text-green-200 font-semibold">Beginner-Friendly Test</h3>
+              </div>
+              <p className="text-green-100 text-sm">
+                You're in beginner mode! This test includes helpful explanations for BDSM terms and concepts. 
+                Take your time, and remember - there are no wrong answers. This is about discovering what you enjoy.
+              </p>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Test Mode Selector */}
@@ -379,6 +424,22 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
                 <h3 className="text-lg text-white mb-2">
                   {customQuestions[currentQuestion]?.question}
                 </h3>
+                
+                {/* Beginner Mode Explanation */}
+                {beginnerMode && showExplanations && (
+                  <div className="mb-4 p-3 bg-blue-500/20 border border-blue-400/30 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Shield className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-blue-200 text-sm font-medium mb-1">💡 Beginner Tip:</p>
+                        <p className="text-blue-100 text-sm">
+                          {getQuestionExplanation(customQuestions[currentQuestion])}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <p className="text-sm text-purple-300 mb-6">
                   Click any answer to automatically continue to the next question
                 </p>
@@ -405,7 +466,7 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
                 </div>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-between items-center">
                 <button
                   onClick={prevQuestion}
                   disabled={currentQuestion === 0}
@@ -413,7 +474,36 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated }) => {
                 >
                   ← Previous Question
                 </button>
+                
+                {/* Beginner Mode Controls */}
+                {beginnerMode && (
+                  <button
+                    onClick={() => setShowExplanations(!showExplanations)}
+                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                      showExplanations 
+                        ? 'bg-blue-500/30 text-blue-200 border border-blue-400/50' 
+                        : 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+                    }`}
+                  >
+                    <Shield className="w-4 h-4" />
+                    {showExplanations ? 'Hide Tips' : 'Show Tips'}
+                  </button>
+                )}
               </div>
+              
+              {/* Beginner Safety Reminder */}
+              {beginnerMode && (
+                <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-400/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield className="w-4 h-4 text-yellow-400" />
+                    <span className="text-yellow-200 font-medium text-sm">Safety Reminder</span>
+                  </div>
+                  <p className="text-yellow-100 text-xs">
+                    Remember: BDSM is about consent, communication, and mutual pleasure. 
+                    Only engage in activities that both partners are comfortable with and excited about.
+                  </p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

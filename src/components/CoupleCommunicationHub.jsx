@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import apiService from '../utils/api';
 
-const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
+const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate, beginnerMode = false }) => {
   const [checkIns, setCheckIns] = useState([]);
   const [boundaries, setBoundaries] = useState([]);
   const [eroticStories, setEroticStories] = useState([]);
@@ -654,6 +654,20 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
             Tools for regular check-ins and boundary setting
           </p>
           
+          {/* Beginner Mode Info */}
+          {beginnerMode && (
+            <div className="mt-6 max-w-3xl mx-auto bg-green-500/20 border border-green-400/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-5 h-5 text-green-400" />
+                <h3 className="text-green-200 font-semibold">Beginner Mode Active</h3>
+              </div>
+              <p className="text-green-100 text-sm">
+                You'll see extra check-in questions designed for couples new to BDSM exploration, 
+                plus additional safety reminders and communication tips.
+              </p>
+            </div>
+          )}
+          
           <div className="mt-4 flex gap-3 justify-center">
             <button
               onClick={() => setShowSpeechSettings(!showSpeechSettings)}
@@ -1054,6 +1068,69 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                             {checkInForm.bdsmSatisfaction}/10
                           </div>
                         </div>
+
+                        {/* Beginner Mode Check-in Questions */}
+                        {beginnerMode && (
+                          <div className="space-y-4 p-4 bg-blue-500/20 border border-blue-400/30 rounded-lg">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Shield className="w-5 h-5 text-blue-400" />
+                              <h4 className="text-blue-200 font-semibold">Beginner Check-in Questions</h4>
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-blue-200 mb-2">
+                                How comfortable do you feel communicating about desires? (1-10)
+                              </label>
+                              <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                value={checkInForm.communicationComfort || 5}
+                                onChange={(e) => setCheckInForm({...checkInForm, communicationComfort: parseInt(e.target.value)})}
+                                className="w-full h-2 bg-blue-900/50 rounded-lg appearance-none cursor-pointer slider"
+                                style={{
+                                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(((checkInForm.communicationComfort || 5) - 1) / 9) * 100}%, #1e40af ${(((checkInForm.communicationComfort || 5) - 1) / 9) * 100}%, #1e40af 100%)`
+                                }}
+                              />
+                              <div className="text-center text-sm text-blue-200">
+                                {checkInForm.communicationComfort || 5}/10
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-blue-200 mb-2">
+                                How safe do you feel exploring new things together? (1-10)
+                              </label>
+                              <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                value={checkInForm.explorationSafety || 5}
+                                onChange={(e) => setCheckInForm({...checkInForm, explorationSafety: parseInt(e.target.value)})}
+                                className="w-full h-2 bg-blue-900/50 rounded-lg appearance-none cursor-pointer slider"
+                                style={{
+                                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(((checkInForm.explorationSafety || 5) - 1) / 9) * 100}%, #1e40af ${(((checkInForm.explorationSafety || 5) - 1) / 9) * 100}%, #1e40af 100%)`
+                                }}
+                              />
+                              <div className="text-center text-sm text-blue-200">
+                                {checkInForm.explorationSafety || 5}/10
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-blue-200 mb-2">
+                                What would you like to try next? (optional)
+                              </label>
+                              <textarea
+                                value={checkInForm.nextSteps || ''}
+                                onChange={(e) => setCheckInForm({...checkInForm, nextSteps: e.target.value})}
+                                rows={2}
+                                className="w-full bg-blue-900/20 border border-blue-400/30 rounded-lg px-3 py-2 text-blue-100 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Share any new things you'd like to explore together..."
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="mb-4">
