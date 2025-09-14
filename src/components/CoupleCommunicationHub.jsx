@@ -39,16 +39,18 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate, beginnerMode =
     setStoriesPage(1);
   }, [storiesFilter, storiesSearch]);
 
-  // Toggle story expansion
+  // Toggle story expansion with accordion behavior
   const toggleStoryExpansion = (storyId) => {
     setExpandedStories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(storyId)) {
-        newSet.delete(storyId);
+      const newSet = new Set();
+      // If clicking on an already expanded story, collapse it
+      if (prev.has(storyId)) {
+        return newSet; // Return empty set to collapse
       } else {
+        // If clicking on a collapsed story, expand only this one (accordion behavior)
         newSet.add(storyId);
+        return newSet;
       }
-      return newSet;
     });
   };
 
@@ -1789,7 +1791,14 @@ Tips for better formatting:
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6"
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 cursor-pointer transition-all duration-300 ${
+                            expandedStories.has(story.id) 
+                              ? 'ring-2 ring-purple-400/50 bg-white/15 shadow-lg shadow-purple-500/20' 
+                              : 'hover:bg-white/15 hover:border-white/30 hover:shadow-md'
+                          }`}
+                          onClick={() => toggleStoryExpansion(story.id)}
                         >
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
@@ -1803,13 +1812,18 @@ Tips for better formatting:
                               <div>
                                 <div className="flex items-center gap-2">
                                   <h4 className="text-lg font-semibold">{story.title}</h4>
+                                  {expandedStories.has(story.id) && (
+                                    <span className="text-xs bg-purple-500/30 text-purple-200 px-2 py-1 rounded-full">
+                                      Expanded
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="text-sm text-purple-200">
                                   {new Date(story.created_at).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                               <button
                                 onClick={() => setImmersionMode(!immersionMode)}
                                 className={`p-2 transition-colors ${
@@ -1860,32 +1874,52 @@ Tips for better formatting:
                             </div>
                           </div>
 
-                          <div className="mb-4">
-                            <div 
+                          <motion.div 
+                            className="mb-4"
+                            initial={false}
+                            animate={{ 
+                              height: expandedStories.has(story.id) ? 'auto' : 'auto'
+                            }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                          >
+                            <motion.div 
                               className="text-purple-200 leading-relaxed whitespace-pre-wrap font-mono text-sm bg-white/5 rounded-lg p-4 border border-white/10"
                               style={{
                                 fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
                                 lineHeight: '1.7',
                                 wordWrap: 'break-word'
                               }}
+                              initial={false}
+                              animate={{ 
+                                opacity: 1,
+                                scale: expandedStories.has(story.id) ? 1.02 : 1
+                              }}
+                              transition={{ duration: 0.2 }}
                             >
                               {story.content.length > 300 && !expandedStories.has(story.id)
                                 ? `${story.content.substring(0, 300)}...` 
                                 : story.content
                               }
-                              {story.content.length > 300 && (
-                                <button
-                                  onClick={() => toggleStoryExpansion(story.id)}
-                                  className="text-pink-400 hover:text-pink-300 ml-2 underline"
-                                >
-                                  {expandedStories.has(story.id) ? 'Read less' : 'Read more'}
-                                </button>
-                              )}
-                            </div>
-                          </div>
+                            </motion.div>
+                            {story.content.length > 300 && (
+                              <motion.div 
+                                className="mt-2 text-center"
+                                initial={false}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.1 }}
+                              >
+                                <span className="text-xs text-purple-300">
+                                  {expandedStories.has(story.id) 
+                                    ? 'Click to collapse' 
+                                    : 'Click anywhere to expand'
+                                  }
+                                </span>
+                              </motion.div>
+                            )}
+                          </motion.div>
 
                           {story.tags && story.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-3">
+                            <div className="flex flex-wrap gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
                               {story.tags.map((tag, tagIndex) => (
                                 <span
                                   key={tagIndex}
@@ -1897,7 +1931,7 @@ Tips for better formatting:
                             </div>
                           )}
 
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2 text-sm" onClick={(e) => e.stopPropagation()}>
                             <span className="text-purple-200">Privacy:</span>
                             {story.is_private ? (
                               <span className="text-green-400 font-medium">Private</span>

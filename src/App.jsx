@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield, FileText, GraduationCap, Moon, Sun } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield, FileText, GraduationCap, Moon, Sun, BookOpen, Eye } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -23,6 +23,15 @@ import EnhancedCompatibilityAnalysis from './components/EnhancedCompatibilityAna
 import CoupleCommunicationHub from './components/CoupleCommunicationHub'
 import AftercareGuides from './components/AftercareGuides'
 import BDSMTestEmbed from './components/BDSMTestEmbed'
+import WelcomeTour from './components/WelcomeTour'
+import QuickAccess from './components/QuickAccess'
+import Breadcrumb from './components/Breadcrumb'
+import LoadingSkeleton from './components/LoadingSkeleton'
+import { FeatureHighlightManager } from './components/FeatureHighlight'
+import MobileNavigation from './components/MobileNavigation'
+import SmartSuggestions from './components/SmartSuggestions'
+import { useHighContrast, SkipLinks } from './components/AccessibilityEnhancer'
+import './styles/accessibility.css'
 import apiService from './utils/api'
 
 function App() {
@@ -32,19 +41,42 @@ function App() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('detailed') // 'detailed', 'comparison', 'breakdown', 'shared', 'advanced', 'export', 'profiles', 'analytics', 'community', 'positions', 'sex-positions', 'debug'
+  const [activeTab, setActiveTab] = useState('results') // 'results', 'exploration', 'couple', 'safety'
+  const [activeSubTab, setActiveSubTab] = useState('overview') // Sub-tab within each main tab
   const [loadingProfiles, setLoadingProfiles] = useState(false)
   const [currentCoupleProfile, setCurrentCoupleProfile] = useState(null)
   const [beginnerMode, setBeginnerMode] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [lastUsedTabs, setLastUsedTabs] = useState({})
+  const [userActivity, setUserActivity] = useState({})
+  const { isHighContrast, setIsHighContrast } = useHighContrast()
 
   // Load user preferences from localStorage
   useEffect(() => {
     const savedBeginnerMode = localStorage.getItem('beginnerMode')
     const savedDarkMode = localStorage.getItem('darkMode')
+    const tourCompleted = localStorage.getItem('welcomeTourCompleted')
+    const savedLastUsedTabs = localStorage.getItem('lastUsedTabs')
     
     if (savedBeginnerMode !== null) setBeginnerMode(JSON.parse(savedBeginnerMode))
     if (savedDarkMode !== null) setDarkMode(JSON.parse(savedDarkMode))
+    if (savedLastUsedTabs !== null) setLastUsedTabs(JSON.parse(savedLastUsedTabs))
+    
+    // Mobile detection
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    // Show welcome tour for new users or when beginner mode is first enabled
+    if (!tourCompleted && beginnerMode) {
+      setShowWelcomeTour(true)
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   // Save preferences to localStorage
@@ -55,6 +87,107 @@ function App() {
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])
+
+  useEffect(() => {
+    localStorage.setItem('lastUsedTabs', JSON.stringify(lastUsedTabs))
+  }, [lastUsedTabs])
+
+  // Handle beginner mode toggle
+  const handleBeginnerModeToggle = () => {
+    const newBeginnerMode = !beginnerMode
+    setBeginnerMode(newBeginnerMode)
+    
+    // Show welcome tour when beginner mode is first enabled
+    if (newBeginnerMode && !localStorage.getItem('welcomeTourCompleted')) {
+      setShowWelcomeTour(true)
+    }
+  }
+
+  // Tab group configuration
+  const tabGroups = {
+    results: {
+      name: 'Results Dashboard',
+      icon: <BarChart3 className="w-5 h-5" />,
+      color: 'from-blue-500 to-cyan-500',
+      subTabs: {
+        overview: { name: 'Overview', icon: <PieChart className="w-4 h-4" /> },
+        comparison: { name: 'Comparison', icon: <BarChart3 className="w-4 h-4" /> },
+        analytics: { name: 'Analytics', icon: <Brain className="w-4 h-4" /> },
+        export: { name: 'Export', icon: <Download className="w-4 h-4" /> }
+      }
+    },
+    exploration: {
+      name: 'Exploration Hub',
+      icon: <Users className="w-5 h-5" />,
+      color: 'from-purple-500 to-pink-500',
+      subTabs: {
+        scenarios: { name: 'Scenarios', icon: <Zap className="w-4 h-4" /> },
+        positions: { name: 'Positions', icon: <ArrowUpDown className="w-4 h-4" /> },
+        community: { name: 'Community', icon: <Users className="w-4 h-4" /> }
+      }
+    },
+    couple: {
+      name: 'Couple Hub',
+      icon: <Heart className="w-5 h-5" />,
+      color: 'from-pink-500 to-rose-500',
+      subTabs: {
+        profiles: { name: 'Profiles', icon: <User className="w-4 h-4" /> },
+        communication: { name: 'Communication', icon: <MessageCircle className="w-4 h-4" /> },
+        tracking: { name: 'Tracking', icon: <Activity className="w-4 h-4" /> }
+      }
+    },
+    safety: {
+      name: 'Safety Center',
+      icon: <Shield className="w-5 h-5" />,
+      color: 'from-green-500 to-emerald-500',
+      subTabs: {
+        test: { name: 'BDSM Test', icon: <FileText className="w-4 h-4" /> },
+        aftercare: { name: 'Aftercare', icon: <Shield className="w-4 h-4" /> },
+        education: { name: 'Education', icon: <BookOpen className="w-4 h-4" /> }
+      }
+    }
+  }
+
+  // Handle main tab change with smart defaults
+  const handleMainTabChange = (tab) => {
+    setActiveTab(tab)
+    
+    // Use last used sub-tab if available, otherwise use first sub-tab
+    const lastUsedSubTab = lastUsedTabs[tab]
+    const firstSubTab = Object.keys(tabGroups[tab].subTabs)[0]
+    const targetSubTab = lastUsedSubTab || firstSubTab
+    
+    setActiveSubTab(targetSubTab)
+    
+    // Remember this tab usage
+    setLastUsedTabs(prev => ({
+      ...prev,
+      [tab]: targetSubTab
+    }))
+  }
+
+  // Handle sub-tab change with memory
+  const handleSubTabChange = (subTab) => {
+    setActiveSubTab(subTab)
+    
+    // Remember this sub-tab usage
+    setLastUsedTabs(prev => ({
+      ...prev,
+      [activeTab]: subTab
+    }))
+  }
+
+  // Navigation handler for quick access
+  const handleNavigate = (tab, subTab) => {
+    setActiveTab(tab)
+    setActiveSubTab(subTab)
+    
+    // Remember this navigation
+    setLastUsedTabs(prev => ({
+      ...prev,
+      [tab]: subTab
+    }))
+  }
 
   const addTestId = () => {
     setTestIds([...testIds, ''])
@@ -203,7 +336,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900">
+    <div className={`min-h-screen ${darkMode ? 'dark' : 'light-mode'} ${isHighContrast ? 'high-contrast' : ''}`}>
+      <SkipLinks />
+      <div className={`min-h-screen ${darkMode 
+        ? 'bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900' 
+        : 'bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 text-gray-900'
+      }`}>
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           display: none;
@@ -241,11 +379,13 @@ function App() {
           {/* Mode Toggles */}
           <div className="flex justify-center gap-4 mb-6">
             <button
-              onClick={() => setBeginnerMode(!beginnerMode)}
+              onClick={handleBeginnerModeToggle}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                 beginnerMode 
                   ? 'bg-green-500/30 text-green-200 border-2 border-green-400' 
-                  : 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+                  : darkMode 
+                    ? 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+                    : 'bg-gray-200/50 text-gray-700 border border-gray-300 hover:bg-gray-300/50'
               }`}
             >
               <GraduationCap className="w-4 h-4" />
@@ -256,22 +396,35 @@ function App() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                 darkMode 
                   ? 'bg-purple-500/30 text-purple-200 border-2 border-purple-400' 
-                  : 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+                  : 'bg-gray-200/50 text-gray-700 border border-gray-300 hover:bg-gray-300/50'
               }`}
             >
               {darkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               {darkMode ? 'Dark Mode' : 'Light Mode'}
             </button>
+            <button
+              onClick={() => setIsHighContrast(!isHighContrast)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                isHighContrast 
+                  ? 'bg-yellow-500/30 text-yellow-200 border-2 border-yellow-400' 
+                  : darkMode 
+                    ? 'bg-white/10 text-purple-200 border border-purple-300/30 hover:bg-white/20'
+                    : 'bg-gray-200/50 text-gray-700 border border-gray-300 hover:bg-gray-300/50'
+              }`}
+            >
+              <Eye className="w-4 h-4" />
+              {isHighContrast ? 'High Contrast ON' : 'High Contrast'}
+            </button>
           </div>
 
           <motion.h1 
-            className="text-5xl md:text-7xl font-bold text-white mb-4 sparkle"
+            className={`text-5xl md:text-7xl font-bold mb-4 sparkle ${darkMode ? 'text-white' : 'text-gray-900'}`}
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
             🔥 Compatibility Checker 🔥
           </motion.h1>
-          <p className="text-xl text-purple-200 max-w-2xl mx-auto">
+          <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-purple-200' : 'text-gray-600'}`}>
             Compare your results with friends and partners in a fun, playful way! 
             <span className="inline-block ml-2 animate-bounce-slow">💕</span>
           </p>
@@ -291,6 +444,12 @@ function App() {
                 You're in beginner mode! This means you'll see extra explanations, safety tips, and beginner-friendly content throughout the app. 
                 Perfect for those new to BDSM exploration.
               </p>
+              <button
+                onClick={() => setShowWelcomeTour(true)}
+                className="mt-3 px-4 py-2 bg-green-500/30 hover:bg-green-500/40 text-green-200 rounded-lg transition-colors text-sm font-medium"
+              >
+                🎯 Take a Quick Tour
+              </button>
             </motion.div>
           )}
         </div>
@@ -459,275 +618,180 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            {/* Tab Navigation */}
+            {/* Main Tab Navigation */}
             <div className="glass-effect rounded-2xl p-2 mb-6">
               <div className="flex gap-2 overflow-x-auto custom-scrollbar">
+                {Object.entries(tabGroups).map(([tabKey, tabConfig]) => (
                 <button
-                  onClick={() => setActiveTab('detailed')}
+                    key={tabKey}
+                    onClick={() => handleMainTabChange(tabKey)}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'detailed'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      activeTab === tabKey
+                        ? `bg-gradient-to-r ${tabConfig.color} text-white shadow-lg`
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <PieChart className="w-5 h-5" />
-                  Detailed Results
+                    {tabConfig.icon}
+                    {tabConfig.name}
                 </button>
-                <button
-                  onClick={() => setActiveTab('comparison')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'comparison'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <BarChart3 className="w-5 h-5" />
-                  Side-by-Side Graph
-                </button>
-                <button
-                  onClick={() => setActiveTab('breakdown')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'breakdown'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <TrendingUp className="w-5 h-5" />
-                  Percentage Breakdown
-                </button>
-                <button
-                  onClick={() => setActiveTab('shared')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'shared'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Heart className="w-5 h-5" />
-                  Shared Interests
-                </button>
-                <button
-                  onClick={() => setActiveTab('advanced')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'advanced'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Brain className="w-5 h-5" />
-                  Advanced Analysis
-                </button>
-                <button
-                  onClick={() => setActiveTab('export')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'export'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Download className="w-5 h-5" />
-                  Export Results
-                </button>
-                <button
-                  onClick={() => setActiveTab('profiles')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'profiles'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <User className="w-5 h-5" />
-                  User Profiles
-                </button>
-                <button
-                  onClick={() => setActiveTab('analytics')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'analytics'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <BarChart className="w-5 h-5" />
-                  Session Analytics
-                </button>
-                <button
-                  onClick={() => setActiveTab('positions')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'positions'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <ArrowUpDown className="w-5 h-5" />
-                  Positions
-                </button>
-                <button
-                  onClick={() => setActiveTab('sex-positions')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'sex-positions'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Heart className="w-5 h-5" />
-                  Sex Positions
-                </button>
-                <button
-                  onClick={() => setActiveTab('community')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'community'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Users className="w-5 h-5" />
-                  Community
-                </button>
-                <button
-                  onClick={() => setActiveTab('couple-profiles')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'couple-profiles'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Heart className="w-5 h-5" />
-                  Couple Profiles
-                </button>
-                <button
-                  onClick={() => setActiveTab('enhanced-analysis')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'enhanced-analysis'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <BarChart3 className="w-5 h-5" />
-                  Enhanced Analysis
-                </button>
-                <button
-                  onClick={() => setActiveTab('communication-hub')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'communication-hub'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Communication Hub
-                </button>
-                <button
-                  onClick={() => setActiveTab('aftercare-guides')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'aftercare-guides'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Shield className="w-5 h-5" />
-                  Aftercare Guides
-                </button>
-                <button
-                  onClick={() => setActiveTab('bdsm-test')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'bdsm-test'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <FileText className="w-5 h-5" />
-                  BDSM Test
-                </button>
-                <button
-                  onClick={() => setActiveTab('debug')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
-                    activeTab === 'debug'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-purple-200 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Activity className="w-5 h-5" />
-                  Debug
-                </button>
+                ))}
               </div>
             </div>
 
+            {/* Breadcrumb Navigation */}
+            <Breadcrumb
+              currentTab={activeTab}
+              currentSubTab={activeSubTab}
+              tabGroups={tabGroups}
+              onNavigate={handleNavigate}
+              beginnerMode={beginnerMode}
+            />
+
+            {/* Sub Tab Navigation */}
+            {results.length > 0 && (
+              <div className="glass-effect rounded-xl p-2 mb-6">
+                <div className="flex gap-1 overflow-x-auto custom-scrollbar">
+                  {Object.entries(tabGroups[activeTab].subTabs).map(([subTabKey, subTabConfig]) => (
+                <button
+                      key={subTabKey}
+                      onClick={() => handleSubTabChange(subTabKey)}
+                      className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                        activeSubTab === subTabKey
+                          ? `bg-gradient-to-r ${tabGroups[activeTab].color} text-white shadow-md`
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                      {subTabConfig.icon}
+                      {subTabConfig.name}
+                </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Smart Suggestions */}
+            <SmartSuggestions
+              results={results}
+              currentTab={activeTab}
+              currentSubTab={activeSubTab}
+              beginnerMode={beginnerMode}
+              onNavigate={handleNavigate}
+              userActivity={userActivity}
+            />
+
             {/* Tab Content */}
-            {activeTab === 'detailed' ? (
-              <BDSMResults results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'comparison' ? (
-              <ComparisonGraph results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'breakdown' ? (
-              <PercentageBreakdown results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'shared' ? (
+            {activeTab === 'results' && (
               <>
-                <CompatibilityScore results={results} beginnerMode={beginnerMode} />
-                <RoleCompatibilityMatrix results={results} beginnerMode={beginnerMode} />
-                <SmartRecommendations results={results} beginnerMode={beginnerMode} />
-                <RadarChart results={results} beginnerMode={beginnerMode} />
-                <ScenarioBuilder results={results} beginnerMode={beginnerMode} />
-                <SharedInterests results={results} beginnerMode={beginnerMode} />
+                {activeSubTab === 'overview' && (
+                  <>
+                    <BDSMResults results={results} beginnerMode={beginnerMode} />
+                    <PercentageBreakdown results={results} beginnerMode={beginnerMode} />
+                  </>
+                )}
+                {activeSubTab === 'comparison' && (
+                  <ComparisonGraph results={results} beginnerMode={beginnerMode} />
+                )}
+                {activeSubTab === 'analytics' && (
+                  <>
+                    <AdvancedAnalysis results={results} beginnerMode={beginnerMode} />
+                    <EnhancedCompatibilityAnalysis 
+                      coupleProfile={currentCoupleProfile} 
+                      partner1Results={results[0]} 
+                      partner2Results={results[1]} 
+                      beginnerMode={beginnerMode}
+                    />
+                    <SessionAnalytics results={results} beginnerMode={beginnerMode} />
+                  </>
+                )}
+                {activeSubTab === 'export' && (
+                  <ExportResults results={results} beginnerMode={beginnerMode} />
+                )}
               </>
-            ) : activeTab === 'advanced' ? (
-              <AdvancedAnalysis results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'export' ? (
-              <ExportResults results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'profiles' ? (
-              <UserProfiles results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'analytics' ? (
-              <SessionAnalytics results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'positions' ? (
-              <PositionPreferences results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'sex-positions' ? (
-              <SexPositions results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'community' ? (
-              <CommunityScenarios results={results} beginnerMode={beginnerMode} />
-            ) : activeTab === 'couple-profiles' ? (
-              <CoupleProfileManager 
-                onProfileUpdate={handleCoupleProfileUpdate}
-                currentProfile={currentCoupleProfile}
-                beginnerMode={beginnerMode}
-              />
-            ) : activeTab === 'enhanced-analysis' ? (
-              <EnhancedCompatibilityAnalysis 
-                coupleProfile={currentCoupleProfile} 
-                partner1Results={results[0]} 
-                partner2Results={results[1]} 
-                beginnerMode={beginnerMode}
-              />
-            ) : activeTab === 'communication-hub' ? (
-              <CoupleCommunicationHub 
-                coupleProfile={currentCoupleProfile}
-                onProfileUpdate={handleCoupleProfileUpdate}
-                beginnerMode={beginnerMode}
-              />
-            ) : activeTab === 'aftercare-guides' ? (
-              <AftercareGuides beginnerMode={beginnerMode} />
-            ) : activeTab === 'bdsm-test' ? (
-              <BDSMTestEmbed 
-                beginnerMode={beginnerMode}
-                onTestComplete={(testResults) => {
-                  // Add the test results to the existing results
-                  const newResults = [...results, {
-                    id: testResults[0]?.role || 'Custom Test',
-                    results: testResults,
-                    success: true,
-                    timestamp: new Date().toISOString(),
-                    dataSource: 'custom'
-                  }];
-                  setResults(newResults);
-                  // Switch to detailed results tab to show the new results
-                  setActiveTab('detailed');
-                }}
-                onTestIdGenerated={(testId) => {
-                  // Add the test ID to the existing test IDs
-                  const newTestIds = [...testIds, testId];
-                  setTestIds(newTestIds);
-                }}
-              />
-            ) : activeTab === 'debug' ? (
-              <DebugApp beginnerMode={beginnerMode} />
-            ) : null}
+            )}
+
+            {activeTab === 'exploration' && (
+              <>
+                {activeSubTab === 'scenarios' && (
+                  <>
+                    <ScenarioBuilder results={results} beginnerMode={beginnerMode} />
+                    <CompatibilityScore results={results} beginnerMode={beginnerMode} />
+                    <RoleCompatibilityMatrix results={results} beginnerMode={beginnerMode} />
+                    <SmartRecommendations results={results} beginnerMode={beginnerMode} />
+                    <RadarChart results={results} beginnerMode={beginnerMode} />
+                    <SharedInterests results={results} beginnerMode={beginnerMode} />
+                  </>
+                )}
+                {activeSubTab === 'positions' && (
+                  <>
+                    <PositionPreferences results={results} beginnerMode={beginnerMode} />
+                    <SexPositions results={results} beginnerMode={beginnerMode} />
+                  </>
+                )}
+                {activeSubTab === 'community' && (
+                  <CommunityScenarios results={results} beginnerMode={beginnerMode} />
+                )}
+              </>
+            )}
+
+            {activeTab === 'couple' && (
+              <>
+                {activeSubTab === 'profiles' && (
+                  <>
+                    <CoupleProfileManager 
+                      onProfileUpdate={handleCoupleProfileUpdate}
+                      currentProfile={currentCoupleProfile}
+                      beginnerMode={beginnerMode}
+                    />
+                    <UserProfiles results={results} beginnerMode={beginnerMode} />
+                  </>
+                )}
+                {activeSubTab === 'communication' && (
+                  <CoupleCommunicationHub 
+                    coupleProfile={currentCoupleProfile}
+                    onProfileUpdate={handleCoupleProfileUpdate}
+                    beginnerMode={beginnerMode}
+                  />
+                )}
+                {activeSubTab === 'tracking' && (
+                  <SessionAnalytics results={results} beginnerMode={beginnerMode} />
+                )}
+              </>
+            )}
+
+            {activeTab === 'safety' && (
+              <>
+                {activeSubTab === 'test' && (
+                  <BDSMTestEmbed 
+                    beginnerMode={beginnerMode}
+                    onTestComplete={(testResults) => {
+                      // Add the test results to the existing results
+                      const newResults = [...results, {
+                        id: testResults[0]?.role || 'Custom Test',
+                        results: testResults,
+                        success: true,
+                        timestamp: new Date().toISOString(),
+                        dataSource: 'custom'
+                      }];
+                      setResults(newResults);
+                      // Switch to results overview to show the new results
+                      setActiveTab('results');
+                      setActiveSubTab('overview');
+                    }}
+                    onTestIdGenerated={(testId) => {
+                      // Add the test ID to the existing test IDs
+                      const newTestIds = [...testIds, testId];
+                      setTestIds(newTestIds);
+                    }}
+                  />
+                )}
+                {activeSubTab === 'aftercare' && (
+                  <AftercareGuides beginnerMode={beginnerMode} />
+                )}
+                {activeSubTab === 'education' && (
+                  <AftercareGuides beginnerMode={beginnerMode} />
+                )}
+              </>
+            )}
           </motion.div>
         )}
       </main>
@@ -741,6 +805,41 @@ function App() {
           This app fetches public results from BDSMTest.org. Please respect privacy and consent.
         </p>
       </footer>
+
+      {/* Welcome Tour */}
+      <WelcomeTour 
+        isOpen={showWelcomeTour}
+        onClose={() => setShowWelcomeTour(false)}
+        beginnerMode={beginnerMode}
+      />
+
+      {/* Mobile Navigation */}
+      <MobileNavigation
+        tabGroups={tabGroups}
+        activeTab={activeTab}
+        activeSubTab={activeSubTab}
+        onNavigate={handleNavigate}
+        isMobile={isMobile}
+      />
+
+      {/* Quick Access */}
+      <QuickAccess
+        results={results}
+        onNavigate={handleNavigate}
+        beginnerMode={beginnerMode}
+        currentTab={activeTab}
+        currentSubTab={activeSubTab}
+      />
+
+      {/* Feature Highlights */}
+      <FeatureHighlightManager
+        beginnerMode={beginnerMode}
+        currentTab={activeTab}
+        currentSubTab={activeSubTab}
+        onNavigate={handleNavigate}
+        results={results}
+      />
+      </div>
     </div>
   )
 }

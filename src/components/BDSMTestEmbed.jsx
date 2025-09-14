@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { bdsmTestQuestions, calculateBDSMResults, generateTestId } from '../utils/bdsmTestQuestions';
 import apiService from '../utils/api';
+import { ProgressBar, StepIndicator } from './ProgressIndicator';
 
 const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated, beginnerMode = false }) => {
   const [testMode, setTestMode] = useState('custom'); // 'iframe', 'custom', 'hybrid'
@@ -413,13 +414,16 @@ const BDSMTestEmbed = ({ onTestComplete, onTestIdGenerated, beginnerMode = false
                   <h2 className="text-xl font-semibold text-white">
                     Question {currentQuestion + 1} of {customQuestions.length}
                   </h2>
-                  <div className="w-32 bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-pink-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${((currentQuestion + 1) / customQuestions.length) * 100}%` }}
-                    />
-                  </div>
                 </div>
+                
+                <ProgressBar
+                  current={currentQuestion + 1}
+                  total={customQuestions.length}
+                  label=""
+                  color="purple"
+                  size="small"
+                  showPercentage={false}
+                />
 
                 <h3 className="text-lg text-white mb-2">
                   {customQuestions[currentQuestion]?.question}
