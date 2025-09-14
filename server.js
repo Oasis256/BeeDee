@@ -1,36 +1,54 @@
 import express from 'express';
 import puppeteer from 'puppeteer';
 import cors from 'cors';
+import axios from 'axios';
 import Database from './server/database.js';
 
 const app = express();
-let PORT = 3001;
+// Make port configurable via environment variable
+let PORT = process.env.PORT || 3001;
 const db = new Database();
 
 // Enable CORS for the React app
-app.use(cors({
-  origin: [
-    'http://localhost:3000', 
-    'https://localhost:3000',
-    'http://localhost:3001',
-    'https://localhost:3001',
-    'http://localhost:3002',
-    'https://localhost:3002',
-    'http://localhost:3003',
-    'https://localhost:3003',
-    'http://localhost:3004',
-    'https://localhost:3004',
-    'http://localhost:3005',
-    'https://localhost:3005',
-    'http://bee.shu-le.tech:3000', 
-    'https://bee.shu-le.tech:3000', 
+const getAllowedOrigins = () => {
+  const origins = [
+    // Production domains
     'http://bee.shu-le.tech', 
     'https://bee.shu-le.tech',
-    'http://bee.shu-le.tech:80',
-    'https://bee.shu-le.tech:443',
     'http://dee.shu-le.tech',
     'https://dee.shu-le.tech'
-  ],
+  ]
+  
+  // Add environment-specific origins
+  if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+    // Development origins - use dynamic port discovery
+    const baseOrigins = [
+      'http://localhost',
+      'https://localhost',
+      'http://127.0.0.1',
+      'https://127.0.0.1'
+    ]
+    
+    // Add common development ports
+    const commonPorts = [3000, 3001, 3002, 3003, 3004, 3005, 5173, 4173]
+    baseOrigins.forEach(base => {
+      commonPorts.forEach(port => {
+        origins.push(`${base}:${port}`)
+      })
+    })
+  }
+  
+  // Add custom origins from environment variable
+  if (process.env.CORS_ORIGINS) {
+    const customOrigins = process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    origins.push(...customOrigins)
+  }
+  
+  return origins
+}
+
+app.use(cors({
+  origin: getAllowedOrigins(),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -262,6 +280,39 @@ const demoResults = {
 // Initialize database
 db.init().catch(console.error);
 
+// API endpoint to save custom test results
+app.post('/api/bdsm-results/:testId', async (req, res) => {
+  const { testId } = req.params;
+  const { results, name, emoji } = req.body;
+  
+  if (!testId || !results) {
+    return res.status(400).json({ error: 'Test ID and results are required' });
+  }
+
+  try {
+    console.log(`💾 Saving custom test results for ${testId}...`);
+    
+    // Save test results to database
+    await db.saveTestResults(testId, results, 'custom');
+    
+    // Create a profile if name is provided
+    if (name) {
+      await db.createProfile(name, testId, emoji || '🧠');
+    }
+    
+    console.log(`✅ Successfully saved custom test results for ${testId}`);
+    res.json({ 
+      success: true, 
+      message: 'Custom test results saved successfully',
+      testId: testId
+    });
+    
+  } catch (error) {
+    console.error(`❌ Error saving custom test results for ${testId}:`, error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // API endpoint to fetch BDSM test results
 app.get('/api/bdsm-results/:testId', async (req, res) => {
   const { testId } = req.params;
@@ -365,6 +416,155 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
 app.get('/health', (req, res) => {
   console.log(`🏥 Health check request from ${req.ip} (${req.headers.host})`)
   res.json({ status: 'OK', message: 'BDSM Results API is running with Puppeteer and SQLite' });
+});
+
+// BDSM Test Proxy endpoint - bypasses X-Frame-Options
+app.get('/api/bdsm-test-proxy*', async (req, res) => {
+  try {
+    console.log('🔄 BDSM Test Proxy request received for:', req.path);
+    
+    // Determine the target URL based on the request path
+    let targetUrl = 'https://bdsmtest.org/';
+    if (req.path !== '/api/bdsm-test-proxy') {
+      // Extract the path after /api/bdsm-test-proxy
+      const path = req.path.replace('/api/bdsm-test-proxy', '');
+      targetUrl = `https://bdsmtest.org${path}`;
+    }
+    
+    console.log('🎯 Fetching from:', targetUrl);
+    
+    // Fetch the BDSM test page
+    const response = await axios.get(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      },
+      timeout: 30000
+    });
+
+    // Modify the HTML to work within our domain
+    let html = response.data;
+    
+    // Remove X-Frame-Options headers by modifying any meta tags
+    html = html.replace(/<meta[^>]*http-equiv=["']X-Frame-Options["'][^>]*>/gi, '');
+    
+    // Update all URLs to use our proxy
+    html = html.replace(/https:\/\/bdsmtest\.org\//g, '/api/bdsm-test-proxy/');
+    html = html.replace(/href="\//g, 'href="/api/bdsm-test-proxy/');
+    html = html.replace(/action="\//g, 'action="/api/bdsm-test-proxy/');
+    html = html.replace(/src="\//g, 'src="/api/bdsm-test-proxy/');
+    
+    // Fix JavaScript URLs
+    html = html.replace(/window\.location\.href\s*=\s*['"]\/([^'"]*)['"]/g, 'window.location.href = "/api/bdsm-test-proxy/$1"');
+    html = html.replace(/window\.location\.replace\s*\(\s*['"]\/([^'"]*)['"]\s*\)/g, 'window.location.replace("/api/bdsm-test-proxy/$1")');
+    html = html.replace(/history\.pushState\s*\([^,]*,\s*['"]\/([^'"]*)['"]/g, 'history.pushState(null, "", "/api/bdsm-test-proxy/$1")');
+    
+    // Add a base tag to ensure relative URLs work
+    html = html.replace(/<head>/i, '<head><base href="/api/bdsm-test-proxy/">');
+    
+    // Set appropriate headers
+    res.set({
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    console.log('✅ BDSM Test Proxy: Successfully fetched and modified content');
+    res.send(html);
+    
+  } catch (error) {
+    console.error('❌ BDSM Test Proxy error:', error.message);
+    res.status(500).send(`
+      <html>
+        <head><title>Proxy Error</title></head>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a2e; color: #ec4899;">
+          <h2>🚫 Proxy Error</h2>
+          <p>Unable to fetch BDSM test content. Please try:</p>
+          <ul>
+            <li><a href="https://bdsmtest.org/" target="_blank" style="color: #ec4899;">Open BDSMtest.org in New Tab</a></li>
+            <li><a href="#" onclick="window.parent.postMessage({type: 'switchToCustom'}, '*')" style="color: #ec4899;">Use Our Custom Test Instead</a></li>
+          </ul>
+          <p><small>Error: ${error.message}</small></p>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// Handle BDSM test form submissions
+app.post('/api/bdsm-test-proxy*', async (req, res) => {
+  try {
+    console.log('📝 BDSM Test form submission received for:', req.path);
+    
+    // Determine the target URL based on the request path
+    let targetUrl = 'https://bdsmtest.org/';
+    if (req.path !== '/api/bdsm-test-proxy') {
+      const path = req.path.replace('/api/bdsm-test-proxy', '');
+      targetUrl = `https://bdsmtest.org${path}`;
+    }
+    
+    console.log('🎯 Posting to:', targetUrl);
+    
+    // Forward the form data to BDSMtest.org
+    const response = await axios.post(targetUrl, req.body, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Referer': 'https://bdsmtest.org/'
+      },
+      timeout: 30000,
+      maxRedirects: 5
+    });
+
+    // Modify the response HTML similar to the GET request
+    let html = response.data;
+    html = html.replace(/<meta[^>]*http-equiv=["']X-Frame-Options["'][^>]*>/gi, '');
+    
+    // Update all URLs to use our proxy
+    html = html.replace(/https:\/\/bdsmtest\.org\//g, '/api/bdsm-test-proxy/');
+    html = html.replace(/href="\//g, 'href="/api/bdsm-test-proxy/');
+    html = html.replace(/action="\//g, 'action="/api/bdsm-test-proxy/');
+    html = html.replace(/src="\//g, 'src="/api/bdsm-test-proxy/');
+    
+    // Fix JavaScript URLs
+    html = html.replace(/window\.location\.href\s*=\s*['"]\/([^'"]*)['"]/g, 'window.location.href = "/api/bdsm-test-proxy/$1"');
+    html = html.replace(/window\.location\.replace\s*\(\s*['"]\/([^'"]*)['"]\s*\)/g, 'window.location.replace("/api/bdsm-test-proxy/$1")');
+    html = html.replace(/history\.pushState\s*\([^,]*,\s*['"]\/([^'"]*)['"]/g, 'history.pushState(null, "", "/api/bdsm-test-proxy/$1")');
+    
+    html = html.replace(/<head>/i, '<head><base href="/api/bdsm-test-proxy/">');
+    
+    res.set({
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    console.log('✅ BDSM Test form submission: Successfully processed');
+    res.send(html);
+    
+  } catch (error) {
+    console.error('❌ BDSM Test form submission error:', error.message);
+    res.status(500).send(`
+      <html>
+        <head><title>Submission Error</title></head>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a2e; color: #ec4899;">
+          <h2>🚫 Submission Error</h2>
+          <p>Unable to process form submission. Please try:</p>
+          <ul>
+            <li><a href="https://bdsmtest.org/" target="_blank" style="color: #ec4899;">Open BDSMtest.org in New Tab</a></li>
+            <li><a href="#" onclick="window.parent.postMessage({type: 'switchToCustom'}, '*')" style="color: #ec4899;">Use Our Custom Test Instead</a></li>
+          </ul>
+          <p><small>Error: ${error.message}</small></p>
+        </body>
+      </html>
+    `);
+  }
 });
 
 // Profile management endpoints

@@ -202,6 +202,22 @@ class ApiService {
     }
   }
 
+  // Test Results Management
+  async saveCustomTestResults(testId, results, name, emoji = '🧠') {
+    try {
+      const baseURL = await this.getBaseURL()
+      const response = await axios.post(`${baseURL}/bdsm-results/${testId}`, {
+        results,
+        name,
+        emoji
+      })
+      return response.data
+    } catch (error) {
+      logger.error('Error saving custom test results:', error)
+      throw error
+    }
+  }
+
   // Profile Management
   async createProfile(name, testId, emoji = '♞') {
     try {

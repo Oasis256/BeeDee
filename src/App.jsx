@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield } from 'lucide-react'
+import { Heart, Sparkles, Zap, Users, Search, X, Plus, BarChart3, PieChart, TrendingUp, Brain, Download, User, Activity, BarChart, ArrowUpDown, MessageCircle, Shield, FileText } from 'lucide-react'
 import BDSMResults from './components/BDSMResults'
 import ComparisonGraph from './components/ComparisonGraph'
 import PercentageBreakdown from './components/PercentageBreakdown'
@@ -22,6 +22,7 @@ import CoupleProfileManager from './components/CoupleProfileManager'
 import EnhancedCompatibilityAnalysis from './components/EnhancedCompatibilityAnalysis'
 import CoupleCommunicationHub from './components/CoupleCommunicationHub'
 import AftercareGuides from './components/AftercareGuides'
+import BDSMTestEmbed from './components/BDSMTestEmbed'
 import apiService from './utils/api'
 
 function App() {
@@ -563,6 +564,17 @@ function App() {
                   Aftercare Guides
                 </button>
                 <button
+                  onClick={() => setActiveTab('bdsm-test')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
+                    activeTab === 'bdsm-test'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-purple-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <FileText className="w-5 h-5" />
+                  BDSM Test
+                </button>
+                <button
                   onClick={() => setActiveTab('debug')}
                   className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all whitespace-nowrap ${
                     activeTab === 'debug'
@@ -624,6 +636,27 @@ function App() {
               />
             ) : activeTab === 'aftercare-guides' ? (
               <AftercareGuides />
+            ) : activeTab === 'bdsm-test' ? (
+              <BDSMTestEmbed 
+                onTestComplete={(testResults) => {
+                  // Add the test results to the existing results
+                  const newResults = [...results, {
+                    id: testResults[0]?.role || 'Custom Test',
+                    results: testResults,
+                    success: true,
+                    timestamp: new Date().toISOString(),
+                    dataSource: 'custom'
+                  }];
+                  setResults(newResults);
+                  // Switch to detailed results tab to show the new results
+                  setActiveTab('detailed');
+                }}
+                onTestIdGenerated={(testId) => {
+                  // Add the test ID to the existing test IDs
+                  const newTestIds = [...testIds, testId];
+                  setTestIds(newTestIds);
+                }}
+              />
             ) : activeTab === 'debug' ? (
               <DebugApp />
             ) : null}

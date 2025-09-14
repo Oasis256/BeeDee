@@ -4,12 +4,80 @@ import axios from 'axios'
 // We'll use a CORS proxy to avoid CORS issues
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
 
+// Get API base URL - use environment variable or intelligent discovery
+const getApiBaseUrl = async () => {
+  // Check for environment variable first (production)
+  const envApiUrl = import.meta.env.VITE_API_URL
+  if (envApiUrl) {
+    return envApiUrl
+  }
+  
+  // For development, try to discover the API port dynamically
+  const currentHost = window.location.hostname
+  const currentProtocol = window.location.protocol
+  
+  // Special handling for subdomain setup
+  // Check if we're on a frontend subdomain that should connect to a backend subdomain
+  const frontendSubdomain = import.meta.env.VITE_FRONTEND_SUBDOMAIN || 'bee.shu-le.tech'
+  const backendSubdomain = import.meta.env.VITE_BACKEND_SUBDOMAIN || 'dee.shu-le.tech'
+  
+  if (currentHost === frontendSubdomain) {
+    console.log(`🔍 Detected ${frontendSubdomain} frontend, connecting to ${backendSubdomain} backend`)
+    
+    // Try to connect to the backend subdomain
+    try {
+      const healthUrl = `${currentProtocol}//${backendSubdomain}/health`
+      console.log(`🔍 Trying to connect to: ${healthUrl}`)
+      const response = await axios.get(healthUrl, { timeout: 5000 })
+      if (response.status === 200) {
+        console.log(`✅ Successfully connected to backend on ${backendSubdomain}`)
+        return `${currentProtocol}//${backendSubdomain}/api`
+      }
+    } catch (error) {
+      console.error(`❌ Failed to connect to ${currentProtocol}//${backendSubdomain} - ${error.message}`)
+    }
+    
+    // If HTTPS failed, try HTTP as fallback
+    if (currentProtocol === 'https:') {
+      try {
+        const healthUrl = `http://${backendSubdomain}/health`
+        console.log(`🔍 Trying HTTP fallback: ${healthUrl}`)
+        const response = await axios.get(healthUrl, { timeout: 5000 })
+        if (response.status === 200) {
+          console.log(`✅ Successfully connected to backend on ${backendSubdomain} via HTTP`)
+          return `http://${backendSubdomain}/api`
+        }
+      } catch (error) {
+        console.error(`❌ Failed to connect to http://${backendSubdomain} - ${error.message}`)
+      }
+    }
+  }
+  
+  // For localhost development, try common ports
+  const commonPorts = [3001, 3002, 3003, 3004, 3005]
+  for (const port of commonPorts) {
+    try {
+      const healthUrl = `${currentProtocol}//${currentHost}:${port}/health`
+      const response = await axios.get(healthUrl, { timeout: 2000 })
+      if (response.status === 200) {
+        return `${currentProtocol}//${currentHost}:${port}/api`
+      }
+    } catch (error) {
+      // Continue to next port
+    }
+  }
+  
+  // If no port found, throw an error
+  throw new Error('Backend API server not found. Please ensure the backend is running or set VITE_API_URL environment variable.')
+}
+
 export const fetchBDSMResults = async (testId) => {
   try {
     console.log(`🔍 Attempting to fetch real results for test ID: ${testId}`)
     
     // Try to fetch from our backend API first
-    const response = await axios.get(`http://localhost:3001/api/bdsm-results/${testId}`)
+    const apiBaseUrl = await getApiBaseUrl()
+    const response = await axios.get(`${apiBaseUrl}/bdsm-results/${testId}`)
     
     if (response.data.success && response.data.results.length > 0) {
       console.log(`✅ Successfully fetched REAL results for ${testId} using Puppeteer!`)

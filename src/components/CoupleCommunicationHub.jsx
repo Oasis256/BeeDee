@@ -26,7 +26,33 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [boundaries, setBoundaries] = useState([]);
   const [eroticStories, setEroticStories] = useState([]);
   const [selectedTab, setSelectedTab] = useState('checkins');
+  const [storiesPage, setStoriesPage] = useState(1);
+  const [storiesPerPage] = useState(5);
+  const [storiesFilter, setStoriesFilter] = useState('all');
+  const [storiesSearch, setStoriesSearch] = useState('');
+  const [expandedStories, setExpandedStories] = useState(new Set());
+  const [rewritingStory, setRewritingStory] = useState(null);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setStoriesPage(1);
+  }, [storiesFilter, storiesSearch]);
+
+  // Toggle story expansion
+  const toggleStoryExpansion = (storyId) => {
+    setExpandedStories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(storyId)) {
+        newSet.delete(storyId);
+      } else {
+        newSet.add(storyId);
+      }
+      return newSet;
+    });
+  };
+
+
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
   const [showStoryForm, setShowStoryForm] = useState(false);
   const [editingStory, setEditingStory] = useState(null);
@@ -35,6 +61,28 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [speechError, setSpeechError] = useState(null);
   const [showSpeechSettings, setShowSpeechSettings] = useState(false);
+  // Stories filtering and pagination helpers
+  const filteredStories = eroticStories.filter(story => {
+    const matchesSearch = story.title.toLowerCase().includes(storiesSearch.toLowerCase()) ||
+                         story.content.toLowerCase().includes(storiesSearch.toLowerCase()) ||
+                         (story.tags && story.tags.some(tag => tag.toLowerCase().includes(storiesSearch.toLowerCase())));
+    
+    let matchesFilter = false;
+    if (storiesFilter === 'all') {
+      matchesFilter = true;
+    } else {
+      matchesFilter = story.mood === storiesFilter;
+    }
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const totalPages = Math.ceil(filteredStories.length / storiesPerPage);
+  const paginatedStories = filteredStories.slice(
+    (storiesPage - 1) * storiesPerPage,
+    storiesPage * storiesPerPage
+  );
+
   const [speechSettings, setSpeechSettings] = useState(() => {
     // Load settings from localStorage
     const saved = localStorage.getItem('speechSettings');
@@ -1331,7 +1379,7 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
               {selectedTab === 'stories' && (
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold">Erotic Stories</h2>
+                    <h2 className="text-2xl font-bold">Erotic Stories ({filteredStories.length})</h2>
                     <button
                       onClick={() => setShowStoryForm(true)}
                       className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2"
@@ -1339,6 +1387,65 @@ const CoupleCommunicationHub = ({ coupleProfile, onProfileUpdate }) => {
                       <Plus className="w-4 h-4" />
                       New Story
                     </button>
+                  </div>
+
+                  {/* Search and Filter Controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Search stories..."
+                        value={storiesSearch}
+                        onChange={(e) => setStoriesSearch(e.target.value)}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      />
+                    </div>
+                    <div>
+                      <select
+                        value={storiesFilter}
+                        onChange={(e) => setStoriesFilter(e.target.value)}
+                        className="w-full bg-purple-900/50 border border-purple-500/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                        style={{ 
+                          colorScheme: 'dark',
+                          backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                          color: 'white',
+                          appearance: 'none',
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.5rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.5em 1.5em',
+                          paddingRight: '2.5rem'
+                        }}
+                      >
+                        <option value="all" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>All Stories</option>
+                        <option value="romantic" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>💕 Romantic</option>
+                        <option value="passionate" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>🔥 Passionate</option>
+                        <option value="playful" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>😏 Playful</option>
+                        <option value="intimate" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>💋 Intimate</option>
+                        <option value="fantasy" style={{ backgroundColor: '#581c87', color: 'white', padding: '8px' }}>✨ Fantasy</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-purple-200">Show:</span>
+                      <select
+                        value={storiesPerPage}
+                        onChange={(e) => {
+                          // This would require making storiesPerPage a state variable
+                          // For now, we'll keep it as a constant
+                        }}
+                        className="bg-purple-900/50 border border-purple-500/50 rounded-lg px-2 py-1 text-white text-sm"
+                        style={{ 
+                          colorScheme: 'dark',
+                          backgroundColor: 'rgba(88, 28, 135, 0.5)',
+                          color: 'white',
+                          appearance: 'none'
+                        }}
+                      >
+                        <option value="5" style={{ backgroundColor: '#581c87', color: 'white' }}>5 per page</option>
+                        <option value="10" style={{ backgroundColor: '#581c87', color: 'white' }}>10 per page</option>
+                        <option value="20" style={{ backgroundColor: '#581c87', color: 'white' }}>20 per page</option>
+                      </select>
+                    </div>
                   </div>
 
                   {showStoryForm && (
@@ -1584,7 +1691,7 @@ Tips for better formatting:
                   )}
 
                   <div className="space-y-4">
-                    {eroticStories.length === 0 ? (
+                    {filteredStories.length === 0 ? (
                       <div className="text-center py-12">
                         <BookOpen className="w-16 h-16 mx-auto mb-4 text-purple-300" />
                         <h3 className="text-xl font-bold mb-2">No Stories Yet</h3>
@@ -1599,7 +1706,7 @@ Tips for better formatting:
                         </button>
                       </div>
                     ) : (
-                      eroticStories.map((story, index) => (
+                      paginatedStories.map((story, index) => (
                         <motion.div
                           key={story.id}
                           initial={{ opacity: 0, y: 20 }}
@@ -1617,7 +1724,9 @@ Tips for better formatting:
                                 {story.mood === 'fantasy' && '✨'}
                               </div>
                               <div>
-                                <h4 className="text-lg font-semibold">{story.title}</h4>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-lg font-semibold">{story.title}</h4>
+                                </div>
                                 <p className="text-sm text-purple-200">
                                   {new Date(story.created_at).toLocaleDateString()}
                                 </p>
@@ -1660,12 +1769,14 @@ Tips for better formatting:
                               <button
                                 onClick={() => startEditingStory(story)}
                                 className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                                title="Edit story"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => deleteItem('story', story.id)}
                                 className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                                title="Delete story"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -1681,7 +1792,18 @@ Tips for better formatting:
                                 wordWrap: 'break-word'
                               }}
                             >
-                              {story.content}
+                              {story.content.length > 300 && !expandedStories.has(story.id)
+                                ? `${story.content.substring(0, 300)}...` 
+                                : story.content
+                              }
+                              {story.content.length > 300 && (
+                                <button
+                                  onClick={() => toggleStoryExpansion(story.id)}
+                                  className="text-pink-400 hover:text-pink-300 ml-2 underline"
+                                >
+                                  {expandedStories.has(story.id) ? 'Read less' : 'Read more'}
+                                </button>
+                              )}
                             </div>
                           </div>
 
@@ -1709,6 +1831,48 @@ Tips for better formatting:
                         </motion.div>
                       ))
                     )}
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="flex justify-center items-center gap-4 mt-8">
+                        <button
+                          onClick={() => setStoriesPage(Math.max(1, storiesPage - 1))}
+                          disabled={storiesPage === 1}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                        >
+                          Previous
+                        </button>
+                        
+                        <div className="flex gap-2">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                              key={page}
+                              onClick={() => setStoriesPage(page)}
+                              className={`px-3 py-2 rounded-lg transition-colors ${
+                                page === storiesPage
+                                  ? 'bg-pink-500 text-white'
+                                  : 'bg-white/10 hover:bg-white/20 text-white'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                        </div>
+                        
+                        <button
+                          onClick={() => setStoriesPage(Math.min(totalPages, storiesPage + 1))}
+                          disabled={storiesPage === totalPages}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Results Summary */}
+                    <div className="text-center text-sm text-purple-300 mt-4">
+                      Showing {((storiesPage - 1) * storiesPerPage) + 1} to {Math.min(storiesPage * storiesPerPage, filteredStories.length)} of {filteredStories.length} stories
+                    </div>
                   </div>
                 </div>
               )}

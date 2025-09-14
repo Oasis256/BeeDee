@@ -75,15 +75,67 @@ A comprehensive web application for comparing BDSM test results, creating scenar
    npm install
    ```
 
-3. **Start development server**
+3. **Set up environment variables** (optional for development)
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env with your configuration (optional for development)
+   # The app will work with defaults if no .env file is present
+   ```
+
+4. **Start development server**
    ```bash
    npm run dev
    ```
 
-4. **Open in browser**
+5. **Start backend server** (in another terminal)
+   ```bash
+   npm run server
    ```
-   http://localhost:3000
+
+6. **Open in browser**
    ```
+   http://localhost:5173
+   ```
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# API Configuration
+# For development: leave empty to use automatic port discovery
+# For production: set to your API server URL
+VITE_API_URL=
+
+# Subdomain Configuration (optional)
+# Frontend subdomain (default: bee.shu-le.tech)
+VITE_FRONTEND_SUBDOMAIN=bee.shu-le.tech
+# Backend subdomain (default: dee.shu-le.tech)
+VITE_BACKEND_SUBDOMAIN=dee.shu-le.tech
+
+# Server Configuration
+# Port for the backend server (default: 3001)
+PORT=3001
+
+# CORS Configuration
+# Comma-separated list of allowed origins (optional)
+CORS_ORIGINS=
+
+# Environment
+# Set to 'production' for production deployments
+NODE_ENV=development
+```
+
+### Environment Variable Details:
+
+- **`VITE_API_URL`**: The base URL for your API server. Leave empty for development (automatic port discovery), set for production.
+- **`VITE_FRONTEND_SUBDOMAIN`**: Frontend subdomain for subdomain-based architecture. Defaults to 'bee.shu-le.tech'.
+- **`VITE_BACKEND_SUBDOMAIN`**: Backend subdomain for subdomain-based architecture. Defaults to 'dee.shu-le.tech'.
+- **`PORT`**: The port number for the backend server. Defaults to 3001.
+- **`CORS_ORIGINS`**: Comma-separated list of allowed origins for CORS. Optional.
+- **`NODE_ENV`**: Environment mode. Set to 'production' for production deployments.
 
 ### Docker Deployment
 
