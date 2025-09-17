@@ -1,14 +1,16 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --no-audit --no-fund
+# Install including devDependencies for TypeScript build
+RUN npm install --no-audit --no-fund
 
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
 COPY tsconfig.json ./
 COPY src ./src
-RUN npm run build || npx tsc
+RUN npx tsc
 
 FROM node:20-alpine
 WORKDIR /app
