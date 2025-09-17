@@ -1,21 +1,21 @@
 services:
-  bee-gateway:
+  beedee:
     build:
       context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/bff-gateway/Dockerfile
+      dockerfile: Dockerfile.linux
+      args:
+        VITE_API_URL: /api
     image: beedee/bee-gateway:prod
     container_name: BeeGateway
     hostname: bee-gateway
     environment:
-      - PORT=8080
+      - PORT=80
       - PROFILES_URL=http://bee-profiles:8080
       - RESULTS_URL=http://bee-results:8080
       - COMMS_URL=http://bee-comms:8080
       - EXPLORATION_URL=http://bee-exploration:8080
       - SAFETY_URL=http://bee-safety:8080
       - NOTIFY_URL=http://bee-notify:8080
-    ports:
-      - "80:8080"
     networks:
       default: {}
       macNet:
