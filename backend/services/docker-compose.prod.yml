@@ -24,8 +24,8 @@ services:
 
   bee-profiles:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/profiles-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/profiles-svc
+      dockerfile: Dockerfile
     image: beedee/bee-profiles:prod
     container_name: BeeProfiles
     hostname: bee-profiles
@@ -40,8 +40,8 @@ services:
 
   bee-results:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/results-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/results-svc
+      dockerfile: Dockerfile
     image: beedee/bee-results:prod
     container_name: BeeResults
     hostname: bee-results
@@ -56,8 +56,8 @@ services:
 
   bee-comms:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/comms-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/comms-svc
+      dockerfile: Dockerfile
     image: beedee/bee-comms:prod
     container_name: BeeComms
     hostname: bee-comms
@@ -72,8 +72,8 @@ services:
 
   bee-exploration:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/exploration-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/exploration-svc
+      dockerfile: Dockerfile
     image: beedee/bee-exploration:prod
     container_name: BeeExploration
     hostname: bee-exploration
@@ -88,8 +88,8 @@ services:
 
   bee-safety:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/safety-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/safety-svc
+      dockerfile: Dockerfile
     image: beedee/bee-safety:prod
     container_name: BeeSafety
     hostname: bee-safety
@@ -104,8 +104,8 @@ services:
 
   bee-notify:
     build:
-      context: https://github.com/Oasis256/BeeDee.git
-      dockerfile: backend/services/notify-svc/Dockerfile
+      context: https://github.com/Oasis256/BeeDee.git#main:backend/services/notify-svc
+      dockerfile: Dockerfile
     image: beedee/bee-notify:prod
     container_name: BeeNotify
     hostname: bee-notify
