@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-const PORT = Number(process.env.PORT || 8080);
+const PORT = Number(process.env.PORT || 80);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'bff-gateway' }));
 

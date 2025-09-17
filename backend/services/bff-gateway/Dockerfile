@@ -18,5 +18,5 @@ COPY --from=build /app/dist ./dist
 ENV PORT=80
 # Expose both the container app port and the external mapped port for clarity
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:80/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/health || exit 1
 CMD ["node","dist/index.js"]
