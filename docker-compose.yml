@@ -1,74 +1,174 @@
-version: '3.8'
-
 services:
-  # Backend API service
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+  scraper-svc:
+    build: ./services/scraper-svc
     ports:
-      - "3001:3001"
+      - "3001:80"
+    container_name: scraper-svc
+    hostname: scraper-svc
     environment:
-      - NODE_ENV=production
-      - PORT=3001
-    restart: unless-stopped
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+      POSTGRES_HOST: scraper-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: scraperdb
+      version: '3.8'
+      services:
+        scraper-svc:
+          build: ./services/scraper-svc
+          ports:
+            - "3001:80"
+          container_name: scraper-svc
+          hostname: scraper-svc
+          environment:
+            PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+            PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: scraperdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        bff-gateway:
+          build: ./services/bff-gateway
+          ports:
+            - "3000:80"
+          container_name: bff-gateway
+          hostname: bff-gateway
+          environment:
+            SCRAPER_SVC_URL: http://scraper-svc:80
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: bffdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        profiles-svc:
+          build: ./services/profiles-svc
+          ports:
+            - "3002:80"
+          container_name: profiles-svc
+          hostname: profiles-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: profilesdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        results-svc:
+          build: ./services/results-svc
+          ports:
+            - "3003:80"
+          container_name: results-svc
+          hostname: results-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: resultsdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        notify-svc:
+          build: ./services/notify-svc
+          ports:
+            - "3004:80"
+          container_name: notify-svc
+          hostname: notify-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: notifydb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        comms-svc:
+          build: ./services/comms-svc
+          ports:
+            - "3005:80"
+          container_name: comms-svc
+          hostname: comms-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: commsdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        exploration-svc:
+          build: ./services/exploration-svc
+          ports:
+            - "3006:80"
+          container_name: exploration-svc
+          hostname: exploration-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: explorationdb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        safety-svc:
+          build: ./services/safety-svc
+          ports:
+            - "3007:80"
+          container_name: safety-svc
+          hostname: safety-svc
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: safetydb
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          depends_on:
+            - postgres
+        postgres:
+          image: postgres:15
+          container_name: postgres
+          restart: always
+          environment:
+            POSTGRES_DB: main
+            POSTGRES_USER: mainuser
+            POSTGRES_PASSWORD: mainpass
+          ports:
+            - "5432:5432"
+          volumes:
+            - postgres_data:/var/lib/postgresql/data
+        redis:
+          image: redis:7
+          container_name: redis
+          ports:
+            - "6379:6379"
+          volumes:
+            - redis_data:/data
+        rabbitmq:
+          image: rabbitmq:3-management
+          container_name: rabbitmq
+          ports:
+            - "5672:5672"
+            - "15672:15672"
+          environment:
+            RABBITMQ_DEFAULT_USER: rabbit
+            RABBITMQ_DEFAULT_PASS: rabbit
+          volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+      volumes:
+        postgres_data:
+        redis_data:
+        rabbitmq_data:
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
     volumes:
-      - ./data:/app/data
-    networks:
-      - app-network
-
-  # Development service (frontend + backend)
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_API_URL=http://localhost:3001
-    command: npm run dev:full
-    profiles:
-      - dev
-
-  # Production service (frontend only)
-  app-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://localhost:3001
-    restart: unless-stopped
-    depends_on:
-      - backend
-    profiles:
-      - prod
-
-  # Production service with custom port
-  app-prod-custom:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:80"
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://localhost:3001
-    restart: unless-stopped
-    depends_on:
-      - backend
-    profiles:
-      - prod-custom
-
-networks:
-  app-network:
-    driver: bridge
-  default:
-    name: bdsm-compatibility-network
+      volumes:
+        redis_data:
+        rabbitmq_data:
+        postgres_data:
+    postgres_data:

@@ -332,32 +332,31 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
       return;
     }
     
-    // If no cached results, try to scrape real data
-    console.log(`🔍 Attempting to scrape real data for ${testId} using Puppeteer...`);
-    const results = await scrapeBDSMResults(testId);
-    
-    if (results && results.length > 0) {
-      // Save results to database
-      await db.saveTestResults(testId, results, 'real');
-      
-      // Get profile if exists
-      const profile = await db.getProfile(testId);
-      
-      const response = {
-        id: testId,
-        results: results,
-        success: true,
-        timestamp: new Date().toISOString(),
-        dataSource: 'real',
-        profile
-      };
-      
-      console.log(`✅ Successfully scraped and saved ${results.length} results for ${testId}`);
-      res.json(response);
-    } else {
+    // If no cached results, call scraper-svc microservice
+    console.log(`🔍 Calling scraper-svc for real data for ${testId}...`);
+    try {
+      const scraperSvcUrl = process.env.SCRAPER_SVC_URL || 'http://localhost:3001';
+      const response = await axios.post(`${scraperSvcUrl}/scrape/bdsm-results/${testId}`);
+      const results = response.data.results;
+      if (results && results.length > 0) {
+        // Save results to database
+        await db.saveTestResults(testId, results, 'real');
+        // Get profile if exists
+        const profile = await db.getProfile(testId);
+        res.json({
+          id: testId,
+          results,
+          success: true,
+          timestamp: new Date().toISOString(),
+          dataSource: 'real',
+          profile
+        });
+      } else {
+        throw new Error('No results from scraper-svc');
+      }
+    } catch (error) {
       // Fallback to demo data if scraping failed
       console.log(`⚠️ Scraping failed for ${testId}, using demo data`);
-      
       let demoData;
       if (demoResults[testId]) {
         demoData = demoResults[testId];
@@ -374,7 +373,6 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
           dataSource: 'demo'
         };
       }
-      
       // Save demo data to database
       await db.saveTestResults(testId, demoData.results, 'demo');
       res.json(demoData);
