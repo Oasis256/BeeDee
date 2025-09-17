@@ -15,7 +15,11 @@ services:
       - SAFETY_URL=http://bee-safety:8080
       - NOTIFY_URL=http://bee-notify:8080
     ports:
-      - "8080:8080"
+      - "80:8080"
+    networks:
+      default: {}
+      macNet:
+        ipv4_address: 10.0.0.31
     depends_on: [bee-profiles, bee-results, bee-comms, bee-exploration, bee-safety, bee-notify]
 
   bee-profiles:
@@ -32,6 +36,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [profiles_data:/data]
+    networks: [default]
 
   bee-results:
     build:
@@ -47,6 +52,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [results_data:/data]
+    networks: [default]
 
   bee-comms:
     build:
@@ -62,6 +68,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [comms_data:/data]
+    networks: [default]
 
   bee-exploration:
     build:
@@ -77,6 +84,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [exploration_data:/data]
+    networks: [default]
 
   bee-safety:
     build:
@@ -92,6 +100,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [safety_data:/data]
+    networks: [default]
 
   bee-notify:
     build:
@@ -107,6 +116,7 @@ services:
       - SQLITE_PRAGMA_BUSY_TIMEOUT=5000
       - SQLITE_PRAGMA_SYNCHRONOUS=normal
     volumes: [notify_data:/data]
+    networks: [default]
 
 volumes:
   profiles_data:
