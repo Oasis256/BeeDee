@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 // Minimal NestJS bootstrap for notify-svc
 import { NestFactory } from '@nestjs/core';
 import { Module, Controller, Get } from '@nestjs/common';
