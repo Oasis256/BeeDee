@@ -11,7 +11,7 @@ RUN apk add --no-cache \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 COPY package*.json ./
-RUN npm ci --prefer-offline --no-audit --loglevel=error --no-fund
+RUN npm install --prefer-offline --no-audit --loglevel=error --no-fund
 COPY . .
 EXPOSE 80
 CMD ["node", "src/index.js"]
