@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Just the gateway for testing
+  beedee:
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:services/beedee
+      dockerfile: Dockerfile
+    container_name: BeeGateway
+    hostname: beedee
+    ports:
+      - "8888:80"  # Using port 8888 to avoid conflicts
+    environment:
+      - PORT=80
+      - INTELLIGENCE_URL=http://bee-intelligence:8080
+      - SOCIAL_URL=http://bee-social:4000
+      - SCRAPER_URL=http://bee-scraper:3001
+    # Minimal dependencies to avoid recreation loops
+    depends_on:
+      - bee-redis
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Redis for basic functionality
+  bee-redis:
+    image: redis:7-alpine
+    container_name: BeeRedis
+    hostname: bee-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bee-network
+
+networks:
+  bee-network:
+    driver: bridge
+
+volumes:
+  redis_data:
