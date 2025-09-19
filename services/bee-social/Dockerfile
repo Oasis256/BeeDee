@@ -1,8 +1,20 @@
-# Simplified Elixir service
+# Simplified Elixir service with fallback packages
 FROM elixir:1.15-alpine
 
-# Install dependencies
-RUN apk add --no-cache build-base git openssl ncurses-libs
+# Install dependencies with retries and fallbacks
+RUN apk update && \
+    apk add --no-cache \
+    build-base \
+    git \
+    openssl \
+    ncurses-libs \
+    ncurses-terminfo \
+    ca-certificates \
+    || apk add --no-cache --update \
+    alpine-sdk \
+    git \
+    openssl-dev \
+    ncurses
 
 WORKDIR /app
 

@@ -4,7 +4,7 @@ services:
   # High-Performance API Gateway (Go/Fiber)
   beedee:
     build:
-      context: https://github.com/Oasis256/BeeDee.git#main:services/bee-gateway
+      context: https://github.com/Oasis256/BeeDee.git#main:services/beedee
       dockerfile: Dockerfile
     container_name: BeeGateway
     hostname: bee-gateway

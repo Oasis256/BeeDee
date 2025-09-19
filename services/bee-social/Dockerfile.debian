@@ -1,0 +1,44 @@
+# Alternative Elixir Dockerfile using Debian base
+FROM elixir:1.15
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    openssl \
+    libncurses5-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install hex and rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Copy mix files
+COPY mix.exs ./
+
+# Install dependencies
+RUN mix deps.get
+
+# Copy source code
+COPY . .
+
+# Compile
+RUN mix compile
+
+# Create non-root user
+RUN useradd -m -u 1000 beeuser && chown -R beeuser:beeuser /app
+USER beeuser
+
+# Expose port
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:4000/health || exit 1
+
+# Start the application
+CMD ["mix", "phx.server"]
