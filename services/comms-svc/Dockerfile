@@ -1,4 +1,7 @@
 FROM elixir:1.16-alpine
+
+# Install git for mix deps.get
+RUN apk add --no-cache git
 WORKDIR /app
 
 # Install Hex and Phoenix
