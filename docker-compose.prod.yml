@@ -9,7 +9,7 @@ services:
     container_name: BeeGateway
     hostname: bee-gateway
     ports:
-      - "8888:80"
+      - "80:80"
     environment:
       - PORT=80
       - INTELLIGENCE_URL=http://bee-intelligence:8080
