@@ -332,8 +332,8 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
       return;
     }
     
-    // If no cached results, call scraper-svc microservice
-    console.log(`🔍 Calling scraper-svc for real data for ${testId}...`);
+    // If no cached results, call bee-scraper microservice
+    console.log(`🔍 Calling bee-scraper for real data for ${testId}...`);
     try {
       const scraperSvcUrl = process.env.SCRAPER_SVC_URL || 'http://localhost:3001';
       const response = await axios.post(`${scraperSvcUrl}/scrape/bdsm-results/${testId}`);
@@ -352,7 +352,7 @@ app.get('/api/bdsm-results/:testId', async (req, res) => {
           profile
         });
       } else {
-        throw new Error('No results from scraper-svc');
+        throw new Error('No results from bee-scraper');
       }
     } catch (error) {
       // Fallback to demo data if scraping failed
