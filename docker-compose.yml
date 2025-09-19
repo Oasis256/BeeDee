@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   bee-scraper:
-    build: ./services/scraper-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/scraper-svc
+      dockerfile: Dockerfile
     ports:
       - "3001:80"
     container_name: Bee-Scraper
@@ -17,9 +19,11 @@ services:
     depends_on:
       - bee-db
   bff-gateway:
-    build: ./services/bff-gateway
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/gateway-svc
+      dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "80:80"
     container_name: Bff-Gateway
     hostname: bff-gateway
     environment:
@@ -31,8 +35,23 @@ services:
       POSTGRES_PASSWORD: mainpass
     depends_on:
       - bee-db
+      - bee-scraper
+      - bee-profiles
+      - bee-results
+      - bee-notify
+      - bee-comms
+      - bee-exploration
+      - bee-safety
+      - bee-rabbitmq
+      - bee-redis
+
+    networks:
+      - macvlan_net
+
   bee-profiles:
-    build: ./services/profiles-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/profiles-svc
+      dockerfile: Dockerfile
     ports:
       - "3002:80"
     container_name: Bee-Profiles
@@ -46,7 +65,9 @@ services:
     depends_on:
       - bee-db
   bee-results:
-    build: ./services/results-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/results-svc
+      dockerfile: Dockerfile
     ports:
       - "3003:80"
     container_name: Bee-Results
@@ -60,7 +81,9 @@ services:
     depends_on:
       - bee-db
   bee-notify:
-    build: ./services/notify-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/notify-svc
+      dockerfile: Dockerfile
     ports:
       - "3004:80"
     container_name: Bee-Notify
@@ -74,7 +97,9 @@ services:
     depends_on:
       - bee-db
   bee-comms:
-    build: ./services/comms-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/comms-svc
+      dockerfile: Dockerfile
     ports:
       - "3005:80"
     container_name: Bee-Comms
@@ -88,7 +113,9 @@ services:
     depends_on:
       - bee-db
   bee-exploration:
-    build: ./services/exploration-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/exploration-svc
+      dockerfile: Dockerfile
     ports:
       - "3006:80"
     container_name: Bee-Exploration
@@ -102,7 +129,9 @@ services:
     depends_on:
       - bee-db
   bee-safety:
-    build: ./services/safety-svc
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:/services/safety-svc
+      dockerfile: Dockerfile
     ports:
       - "3007:80"
     container_name: Bee-Safety
@@ -129,9 +158,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./server/init-multi-db.sh:/docker-entrypoint-initdb.d/init-multi-db.sh
-  redis:
+  bee-redis:
     image: redis:7
-    container_name: redis
+    container_name: Bee-Redis
+    hostname: bee-redis
     ports:
       - "6379:6379"
     volumes:
