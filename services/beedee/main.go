@@ -255,5 +255,5 @@ func main() {
 	log.Printf("💬 Social: %s", gateway.config.SocialURL)
 	log.Printf("🕷️ Scraper: %s", gateway.config.ScraperURL)
 
-	log.Fatal(app.Listen(":" + gateway.config.Port))
+	log.Fatal(app.Listen("0.0.0.0:" + gateway.config.Port))
 }
