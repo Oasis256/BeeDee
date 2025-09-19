@@ -18,10 +18,11 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /app
 
 # Copy package files first for better caching
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.jso[n] ./
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # Copy application code
 COPY . .

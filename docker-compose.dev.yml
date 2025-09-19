@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # Main Gateway Service (matches your beedee expectation)
+  beedee:
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:services/bee-gateway
+      dockerfile: Dockerfile
+    container_name: BeeGateway
+    hostname: beedee
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - INTELLIGENCE_URL=http://bee-intelligence:8080
+      - SOCIAL_URL=http://bee-social:4000
+      - SCRAPER_URL=http://bee-scraper:3001
+    depends_on:
+      - bee-redis
+      - bee-db
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Intelligence Service (Python/FastAPI)
+  bee-intelligence:
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:services/bee-intelligence
+      dockerfile: Dockerfile
+    container_name: BeeIntelligence
+    hostname: bee-intelligence
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - REDIS_HOST=bee-redis
+    depends_on:
+      - bee-redis
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Social Service (Simplified for now)
+  bee-social:
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:services/bee-social
+      dockerfile: Dockerfile
+    container_name: BeeSocial
+    hostname: bee-social
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - MIX_ENV=prod
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Scraper Service
+  bee-scraper:
+    build:
+      context: https://github.com/Oasis256/BeeDee.git#main:services/bee-scraper
+      dockerfile: Dockerfile
+    container_name: BeeScraper
+    hostname: bee-scraper
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_HOST=bee-redis
+    depends_on:
+      - bee-redis
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Database
+  bee-db:
+    image: postgres:15-alpine
+    container_name: BeeDatabase
+    hostname: bee-db
+    environment:
+      - POSTGRES_DB=bee_main
+      - POSTGRES_USER=beeuser
+      - POSTGRES_PASSWORD=beepass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+  # Redis
+  bee-redis:
+    image: redis:7-alpine
+    container_name: BeeRedis
+    hostname: bee-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bee-network
+    restart: unless-stopped
+
+networks:
+  bee-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

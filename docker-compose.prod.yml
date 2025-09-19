@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # High-Performance API Gateway (Go/Fiber)
-  bee-gateway:
+  beedee:
     build:
       context: https://github.com/Oasis256/BeeDee.git#main:services/bee-gateway
       dockerfile: Dockerfile
@@ -203,7 +203,7 @@ services:
       - bee-network
     restart: unless-stopped
     depends_on:
-      - bee-gateway
+      - beedee
       - bee-intelligence
       - bee-social
       - bee-scraper
